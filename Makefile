@@ -558,8 +558,12 @@ ifeq ($(KBUILD_EXTMOD),)
 # Carefully list dependencies so we do not try to build scripts twice
 # in parallel
 PHONY += scripts
+<<<<<<< HEAD
 scripts: scripts_basic include/config/auto.conf include/config/tristate.conf \
 	 asm-generic
+=======
+scripts: scripts_basic include/config/auto.conf
+>>>>>>> 2e3646e51b2d... kconfig: integrate split config into silentoldconfig
 	$(Q)$(MAKE) $(build)=$(@)
 
 # Objects we will link into vmlinux / subdirs we need to visit
@@ -1063,9 +1067,18 @@ endif
 # prepare2 creates a makefile if using a separate output directory
 prepare2: prepare3 outputmakefile asm-generic
 
+<<<<<<< HEAD
 prepare1: prepare2 $(version_h) include/generated/utsrelease.h \
                    include/config/auto.conf
 	$(cmd_crmodverdir)
+=======
+prepare1: prepare2 include/linux/version.h include/asm \
+                   include/config/auto.conf
+ifneq ($(KBUILD_MODULES),)
+	$(Q)mkdir -p $(MODVERDIR)
+	$(Q)rm -f $(MODVERDIR)/*
+endif
+>>>>>>> 2e3646e51b2d... kconfig: integrate split config into silentoldconfig
 
 archprepare: archheaders archscripts prepare1 scripts_basic
 
@@ -1092,6 +1105,7 @@ include/asm:
 	$(Q)if [ ! -d include ]; then mkdir -p include; fi;
 	@ln -fsn asm-$(ARCH) $@
 
+<<<<<<< HEAD
 # 	Split autoconf.h into include/linux/config/*
 
 include/config/MARKER: scripts/basic/split-include include/config/auto.conf
@@ -1100,6 +1114,8 @@ include/config/MARKER: scripts/basic/split-include include/config/auto.conf
 	@touch $@
 >>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 
+=======
+>>>>>>> 2e3646e51b2d... kconfig: integrate split config into silentoldconfig
 # Generate some files
 # ---------------------------------------------------------------------------
 

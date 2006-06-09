@@ -300,7 +300,19 @@ endif
 
 DTSSUBDIR := qcom
 
+<<<<<<< HEAD
 all:	$(KBUILD_IMAGE) $(KBUILD_DTBS)
+=======
+include/asm-arm/.arch: $(wildcard include/config/arch/*.h) include/config/auto.conf
+	@echo '  SYMLINK include/asm-arm/arch -> include/asm-arm/$(INCDIR)'
+ifneq ($(KBUILD_SRC),)
+	$(Q)mkdir -p include/asm-arm
+	$(Q)ln -fsn $(srctree)/include/asm-arm/$(INCDIR) include/asm-arm/arch
+else
+	$(Q)ln -fsn $(INCDIR) include/asm-arm/arch
+endif
+	@touch $@
+>>>>>>> 2e3646e51b2d... kconfig: integrate split config into silentoldconfig
 
 boot := arch/arm/boot
 

@@ -196,6 +196,7 @@ ifeq ($(CONFIG_MCOUNT),y)
   KBUILD_CFLAGS += -pg
 endif
 
+<<<<<<< HEAD
 ifeq ($(CONFIG_DWARF_UNWINDER),y)
   KBUILD_CFLAGS += -fasynchronous-unwind-tables
 endif
@@ -211,6 +212,44 @@ PHONY += $(BOOT_TARGETS)
 all: $(KBUILD_IMAGE)
 
 $(BOOT_TARGETS): vmlinux
+=======
+#	Update machine arch and proc symlinks if something which affects
+#	them changed.  We use .arch and .mach to indicate when they were
+#	updated last, otherwise make uses the target directory mtime.
+
+include/asm-sh/.cpu: $(wildcard include/config/cpu/*.h) include/config/auto.conf
+	@echo '  SYMLINK include/asm-sh/cpu -> include/asm-sh/$(cpuincdir-y)'
+	$(Q)if [ ! -d include/asm-sh ]; then mkdir -p include/asm-sh; fi
+	$(Q)ln -fsn $(incdir-prefix)$(cpuincdir-y) include/asm-sh/cpu
+	@touch $@
+
+#	Most boards have their own mach directories.  For the ones that
+#	don't, just reference the parent directory so the semantics are
+#	kept roughly the same.
+
+include/asm-sh/.mach: $(wildcard include/config/sh/*.h) include/config/auto.conf
+	@echo -n '  SYMLINK include/asm-sh/mach -> '
+	$(Q)if [ ! -d include/asm-sh ]; then mkdir -p include/asm-sh; fi
+	$(Q)if [ -d $(incdir-prefix)$(incdir-y) ]; then \
+		echo -e 'include/asm-sh/$(incdir-y)'; \
+		ln -fsn $(incdir-prefix)$(incdir-y) \
+			include/asm-sh/mach; \
+	else \
+		echo -e 'include/asm-sh'; \
+		ln -fsn $(incdir-prefix) include/asm-sh/mach; \
+	fi
+	@touch $@
+
+archprepare: maketools include/asm-sh/.cpu include/asm-sh/.mach
+
+PHONY += maketools FORCE
+maketools:  include/linux/version.h FORCE
+	$(Q)$(MAKE) $(build)=arch/sh/tools include/asm-sh/machtypes.h
+
+all: zImage
+
+zImage: vmlinux
+>>>>>>> 2e3646e51b2d... kconfig: integrate split config into silentoldconfig
 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
 
 compressed: zImage

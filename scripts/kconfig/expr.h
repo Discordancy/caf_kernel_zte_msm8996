@@ -66,10 +66,14 @@ enum symbol_type {
 /* enum values are used as index to symbol.def[] */
 enum {
 	S_DEF_USER,		/* main user value */
+<<<<<<< HEAD
 	S_DEF_AUTO,		/* values read from auto.conf */
 	S_DEF_DEF3,		/* Reserved for UI usage */
 	S_DEF_DEF4,		/* Reserved for UI usage */
 	S_DEF_COUNT
+=======
+	S_DEF_AUTO,
+>>>>>>> 2e3646e51b2d... kconfig: integrate split config into silentoldconfig
 };
 
 struct symbol {
@@ -85,6 +89,7 @@ struct symbol {
 	struct expr_value rev_dep;
 };
 
+<<<<<<< HEAD
 #define for_all_symbols(i, sym) for (i = 0; i < SYMBOL_HASHSIZE; i++) for (sym = symbol_hash[i]; sym; sym = sym->next) if (sym->type != S_OTHER)
 
 #define SYMBOL_CONST      0x0001  /* symbol is const */
@@ -111,6 +116,27 @@ struct symbol {
 
 /* Set symbol to y if allnoconfig; used for symbols that hide others */
 #define SYMBOL_ALLNOCONFIG_Y 0x200000
+=======
+#define for_all_symbols(i, sym) for (i = 0; i < 257; i++) for (sym = symbol_hash[i]; sym; sym = sym->next) if (sym->type != S_OTHER)
+
+#define SYMBOL_CONST		0x0001
+#define SYMBOL_CHECK		0x0008
+#define SYMBOL_CHOICE		0x0010
+#define SYMBOL_CHOICEVAL	0x0020
+#define SYMBOL_PRINTED		0x0040
+#define SYMBOL_VALID		0x0080
+#define SYMBOL_OPTIONAL		0x0100
+#define SYMBOL_WRITE		0x0200
+#define SYMBOL_CHANGED		0x0400
+#define SYMBOL_AUTO		0x1000
+#define SYMBOL_CHECKED		0x2000
+#define SYMBOL_WARNED		0x8000
+#define SYMBOL_DEF		0x10000
+#define SYMBOL_DEF_USER		0x10000
+#define SYMBOL_DEF_AUTO		0x20000
+#define SYMBOL_DEF3		0x40000
+#define SYMBOL_DEF4		0x80000
+>>>>>>> 2e3646e51b2d... kconfig: integrate split config into silentoldconfig
 
 #define SYMBOL_MAXLENGTH	256
 #define SYMBOL_HASHSIZE		9973

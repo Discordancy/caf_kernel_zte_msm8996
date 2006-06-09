@@ -86,9 +86,20 @@ core-y		+= $(buildvar) $(buildplf)
 libs-y		+= arch/xtensa/lib/ $(LIBGCC)
 drivers-$(CONFIG_OPROFILE)	+= arch/xtensa/oprofile/
 
+<<<<<<< HEAD
 ifneq ($(CONFIG_BUILTIN_DTB),"")
 core-$(CONFIG_OF) += arch/xtensa/boot/dts/
 endif
+=======
+$(archinc)/.platform: $(wildcard include/config/arch/*.h) include/config/auto.conf
+	@echo '  SYMLINK $(archinc)/xtensa/config -> $(archinc)/xtensa/config-$(CPU)'
+	$(Q)mkdir -p $(archinc)
+	$(Q)mkdir -p $(archinc)/xtensa
+	$(Q)ln -fsn $(srctree)/$(archinc)/xtensa/config-$(CPU) $(archinc)/xtensa/config
+	@echo '  SYMLINK $(archinc)/platform -> $(archinc)/platform-$(PLATFORM)'
+	$(Q)ln -fsn $(srctree)/$(archinc)/platform-$(PLATFORM) $(archinc)/platform
+	@touch $@
+>>>>>>> 2e3646e51b2d... kconfig: integrate split config into silentoldconfig
 
 boot		:= arch/xtensa/boot
 
