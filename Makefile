@@ -540,7 +540,12 @@ export KBUILD_DEFCONFIG KBUILD_KCONFIG
 config: scripts_basic outputmakefile FORCE
 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
+<<<<<<< HEAD
 %config: scripts_basic outputmakefile FORCE
+=======
+config %config: scripts_basic outputmakefile FORCE
+	$(Q)mkdir -p include/linux include/config
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 	$(Q)$(MAKE) $(build)=scripts/kconfig $@
 
 else
@@ -573,6 +578,7 @@ ifeq ($(KBUILD_EXTMOD),)
 # Read in dependencies to all Kconfig* files, make sure to run
 # oldconfig if changes are detected.
 -include include/config/auto.conf.cmd
+<<<<<<< HEAD
 
 # To avoid any implicit rule to kick in, define an empty command
 $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
@@ -582,7 +588,20 @@ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 # if auto.conf.cmd is missing then we are probably in a cleaned tree so
 # we execute the config step to be sure to catch updated Kconfig files
 include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+=======
+-include include/config/auto.conf
+
+# To avoid any implicit rule to kick in, define an empty command
+.config include/config/auto.conf.cmd: ;
+
+# If .config is newer than include/config/auto.conf, someone tinkered
+# with it and forgot to run make oldconfig.
+# if auto.conf.cmd is missing then we are probarly in a cleaned tree so
+# we execute the config step to be sure to catch updated Kconfig files
+include/config/auto.conf: .config include/config/auto.conf.cmd
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+
 else
 # external modules needs include/generated/autoconf.h and include/config/auto.conf
 # but do not care if they are up-to-date. Use auto.conf to trigger the test
@@ -602,7 +621,11 @@ endif # KBUILD_EXTMOD
 else
 # Dummy target needed, because used as prerequisite
 include/config/auto.conf: ;
+<<<<<<< HEAD
 endif # $(dot-config)
+=======
+endif
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 
 # The all: target is the default when no target is given on the
 # command line.
@@ -998,10 +1021,17 @@ PHONY += prepare archprepare prepare0 prepare1 prepare2 prepare3
 # 1) Check that make has not been executed in the kernel src $(srctree)
 prepare3: include/config/kernel.release
 ifneq ($(KBUILD_SRC),)
+<<<<<<< HEAD
 	@$(kecho) '  Using $(srctree) as source for kernel'
 	$(Q)if [ -f $(srctree)/.config -o -d $(srctree)/include/config ]; then \
 		echo >&2 "  $(srctree) is not clean, please run 'make mrproper'"; \
 		echo >&2 "  in the '$(srctree)' directory.";\
+=======
+	@echo '  Using $(srctree) as source for kernel'
+	$(Q)if [ -f $(srctree)/.config -o -d $(srctree)/include/config ]; then \
+		echo "  $(srctree) is not clean, please run 'make mrproper'";\
+		echo "  in the '$(srctree)' directory.";\
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 		/bin/false; \
 	fi;
 endif
@@ -1019,7 +1049,32 @@ prepare0: archprepare
 	$(Q)$(MAKE) $(build)=.
 
 # All the preparing..
+<<<<<<< HEAD
 prepare: prepare0
+=======
+prepare prepare-all: prepare0
+
+#	Leave this as default for preprocessing vmlinux.lds.S, which is now
+#	done in arch/$(ARCH)/kernel/Makefile
+
+export CPPFLAGS_vmlinux.lds += -P -C -U$(ARCH)
+
+# 	FIXME: The asm symlink changes when $(ARCH) changes. That's
+#	hard to detect, but I suppose "make mrproper" is a good idea
+#	before switching between archs anyway.
+
+include/asm:
+	@echo '  SYMLINK $@ -> include/asm-$(ARCH)'
+	$(Q)if [ ! -d include ]; then mkdir -p include; fi;
+	@ln -fsn asm-$(ARCH) $@
+
+# 	Split autoconf.h into include/linux/config/*
+
+include/config/MARKER: scripts/basic/split-include include/config/auto.conf
+	@echo '  SPLIT   include/linux/autoconf.h -> include/config/*'
+	@scripts/basic/split-include include/linux/autoconf.h include/config
+	@touch $@
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 
 # Generate some files
 # ---------------------------------------------------------------------------

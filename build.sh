@@ -21,7 +21,6 @@ make O="$BUILD" lineageos_axon7_defconfig
 
 echo "building kernel..."
 make O="$BUILD" -j30
-
 echo "building modules..."
 make O="$BUILD" INSTALL_MOD_PATH="." INSTALL_MOD_STRIP=1 modules_install
 rm $BUILD/lib/modules/*/build

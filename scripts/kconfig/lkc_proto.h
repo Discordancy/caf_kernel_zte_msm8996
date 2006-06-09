@@ -7,9 +7,12 @@ P(conf_read_simple,int,(const char *name, int));
 P(conf_write_defconfig,int,(const char *name));
 P(conf_write,int,(const char *name));
 P(conf_write_autoconf,int,(void));
+<<<<<<< HEAD
 P(conf_get_changed,bool,(void));
 P(conf_set_changed_callback, void,(void (*fn)(void)));
 P(conf_set_message_callback, void,(void (*fn)(const char *fmt, va_list ap)));
+=======
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 
 /* menu.c */
 P(rootmenu,struct menu,);

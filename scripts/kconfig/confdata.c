@@ -775,10 +775,30 @@ int conf_write(const char *name)
 	}
 	if (!out)
 		return 1;
+<<<<<<< HEAD
 
 	conf_write_heading(out, &kconfig_printer_cb, NULL);
 
 	if (!conf_get_changed())
+=======
+	sym = sym_lookup("KERNELVERSION", 0);
+	sym_calc_value(sym);
+	time(&now);
+	env = getenv("KCONFIG_NOTIMESTAMP");
+	if (env && *env)
+		use_timestamp = 0;
+
+	fprintf(out, _("#\n"
+		       "# Automatically generated make config: don't edit\n"
+		       "# Linux kernel version: %s\n"
+		       "%s%s"
+		       "#\n"),
+		     sym_get_string_value(sym),
+		     use_timestamp ? "# " : "",
+		     use_timestamp ? ctime(&now) : "");
+
+	if (!sym_change_count)
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 		sym_clear_all_valid();
 
 	menu = rootmenu.list;
@@ -797,8 +817,58 @@ int conf_write(const char *name)
 			if (!(sym->flags & SYMBOL_WRITE))
 				goto next;
 			sym->flags &= ~SYMBOL_WRITE;
+<<<<<<< HEAD
 
 			conf_write_symbol(out, sym, &kconfig_printer_cb, NULL);
+=======
+			type = sym->type;
+			if (type == S_TRISTATE) {
+				sym_calc_value(modules_sym);
+				if (modules_sym->curr.tri == no)
+					type = S_BOOLEAN;
+			}
+			switch (type) {
+			case S_BOOLEAN:
+			case S_TRISTATE:
+				switch (sym_get_tristate_value(sym)) {
+				case no:
+					fprintf(out, "# CONFIG_%s is not set\n", sym->name);
+					break;
+				case mod:
+					fprintf(out, "CONFIG_%s=m\n", sym->name);
+					break;
+				case yes:
+					fprintf(out, "CONFIG_%s=y\n", sym->name);
+					break;
+				}
+				break;
+			case S_STRING:
+				str = sym_get_string_value(sym);
+				fprintf(out, "CONFIG_%s=\"", sym->name);
+				while (1) {
+					l = strcspn(str, "\"\\");
+					if (l) {
+						fwrite(str, l, 1, out);
+						str += l;
+					}
+					if (!*str)
+						break;
+					fprintf(out, "\\%c", *str++);
+				}
+				fputs("\"\n", out);
+				break;
+			case S_HEX:
+				str = sym_get_string_value(sym);
+				if (str[0] != '0' || (str[1] != 'x' && str[1] != 'X')) {
+					fprintf(out, "CONFIG_%s=%s\n", sym->name, str);
+					break;
+				}
+			case S_INT:
+				str = sym_get_string_value(sym);
+				fprintf(out, "CONFIG_%s=%s\n", sym->name, str);
+				break;
+			}
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 		}
 
 next:
@@ -816,6 +886,7 @@ next:
 		}
 	}
 	fclose(out);
+<<<<<<< HEAD
 
 	if (*tmpname) {
 		strcat(dirname, basename);
@@ -966,6 +1037,13 @@ int conf_write_autoconf(void)
 	if (!tristate) {
 		fclose(out);
 		return 1;
+=======
+	if (!name || basename != conf_def_filename) {
+		if (!name)
+			name = conf_def_filename;
+		sprintf(tmpname, "%s.old", name);
+		rename(name, tmpname);
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 	}
 
 	out_h = fopen(".tmpconfig.h", "w");
@@ -1018,6 +1096,7 @@ int conf_write_autoconf(void)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sym_change_count;
 static void (*conf_changed_callback)(void);
 
@@ -1199,10 +1278,104 @@ bool conf_set_all_new_symbols(enum conf_def_mode mode)
 			}
 			if (!(sym_is_choice(sym) && mode == def_random))
 				sym->flags |= SYMBOL_DEF_USER;
+=======
+int conf_write_autoconf(void)
+{
+	struct symbol *sym;
+	const char *str;
+	char *name;
+	FILE *out, *out_h;
+	time_t now;
+	int i, l;
+
+	file_write_dep("include/config/auto.conf.cmd");
+
+	out = fopen(".tmpconfig", "w");
+	if (!out)
+		return 1;
+
+	out_h = fopen(".tmpconfig.h", "w");
+	if (!out_h) {
+		fclose(out);
+		return 1;
+	}
+
+	sym = sym_lookup("KERNELVERSION", 0);
+	sym_calc_value(sym);
+	time(&now);
+	fprintf(out, "#\n"
+		     "# Automatically generated make config: don't edit\n"
+		     "# Linux kernel version: %s\n"
+		     "# %s"
+		     "#\n",
+		     sym_get_string_value(sym), ctime(&now));
+	fprintf(out_h, "/*\n"
+		       " * Automatically generated C config: don't edit\n"
+		       " * Linux kernel version: %s\n"
+		       " * %s"
+		       " */\n"
+		       "#define AUTOCONF_INCLUDED\n",
+		       sym_get_string_value(sym), ctime(&now));
+
+	sym_clear_all_valid();
+
+	for_all_symbols(i, sym) {
+		sym_calc_value(sym);
+		if (!(sym->flags & SYMBOL_WRITE) || !sym->name)
+			continue;
+		switch (sym->type) {
+		case S_BOOLEAN:
+		case S_TRISTATE:
+			switch (sym_get_tristate_value(sym)) {
+			case no:
+				break;
+			case mod:
+				fprintf(out, "CONFIG_%s=m\n", sym->name);
+				fprintf(out_h, "#define CONFIG_%s_MODULE 1\n", sym->name);
+				break;
+			case yes:
+				fprintf(out, "CONFIG_%s=y\n", sym->name);
+				fprintf(out_h, "#define CONFIG_%s 1\n", sym->name);
+				break;
+			}
+			break;
+		case S_STRING:
+			str = sym_get_string_value(sym);
+			fprintf(out, "CONFIG_%s=\"", sym->name);
+			fprintf(out_h, "#define CONFIG_%s \"", sym->name);
+			while (1) {
+				l = strcspn(str, "\"\\");
+				if (l) {
+					fwrite(str, l, 1, out);
+					fwrite(str, l, 1, out_h);
+					str += l;
+				}
+				if (!*str)
+					break;
+				fprintf(out, "\\%c", *str);
+				fprintf(out_h, "\\%c", *str);
+				str++;
+			}
+			fputs("\"\n", out);
+			fputs("\"\n", out_h);
+			break;
+		case S_HEX:
+			str = sym_get_string_value(sym);
+			if (str[0] != '0' || (str[1] != 'x' && str[1] != 'X')) {
+				fprintf(out, "CONFIG_%s=%s\n", sym->name, str);
+				fprintf(out_h, "#define CONFIG_%s 0x%s\n", sym->name, str);
+				break;
+			}
+		case S_INT:
+			str = sym_get_string_value(sym);
+			fprintf(out, "CONFIG_%s=%s\n", sym->name, str);
+			fprintf(out_h, "#define CONFIG_%s %s\n", sym->name, str);
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 			break;
 		default:
 			break;
 		}
+<<<<<<< HEAD
 
 	}
 
@@ -1239,4 +1412,26 @@ bool conf_set_all_new_symbols(enum conf_def_mode mode)
 	}
 
 	return has_changed;
+=======
+	}
+	fclose(out);
+	fclose(out_h);
+
+	name = getenv("KCONFIG_AUTOHEADER");
+	if (!name)
+		name = "include/linux/autoconf.h";
+	if (rename(".tmpconfig.h", name))
+		return 1;
+	name = getenv("KCONFIG_AUTOCONFIG");
+	if (!name)
+		name = "include/config/auto.conf";
+	/*
+	 * This must be the last step, kbuild has a dependency on auto.conf
+	 * and this marks the successful completion of the previous steps.
+	 */
+	if (rename(".tmpconfig", name))
+		return 1;
+
+	return 0;
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 }

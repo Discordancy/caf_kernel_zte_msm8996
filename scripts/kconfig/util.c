@@ -51,6 +51,7 @@ int file_write_dep(const char *name)
 		else
 			fprintf(out, "\t%s\n", file->name);
 	}
+<<<<<<< HEAD
 	fprintf(out, "\n%s: \\\n"
 		     "\t$(deps_config)\n\n", conf_get_autoconfig_name());
 
@@ -71,6 +72,11 @@ int file_write_dep(const char *name)
 	}
 
 	fprintf(out, "\n$(deps_config): ;\n");
+=======
+	fprintf(out, "\ninclude/config/auto.conf: \\\n"
+		     "\t$(deps_config)\n\n"
+		     "$(deps_config): ;\n");
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 	fclose(out);
 	rename("..config.tmp", name);
 	return 0;

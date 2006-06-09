@@ -7,6 +7,7 @@ src := $(obj)
 PHONY := __build
 __build:
 
+<<<<<<< HEAD
 # Init all relevant variables used in kbuild files so
 # 1) they have correct type
 # 2) they do not inherit any value from the environment
@@ -31,6 +32,9 @@ subdir-asflags-y :=
 subdir-ccflags-y :=
 
 # Read auto.conf if it exists, otherwise ignore
+=======
+# Read .config if it exist, otherwise ignore
+>>>>>>> c955ccafc38e... kconfig: fix .config dependencies
 -include include/config/auto.conf
 
 include scripts/Kbuild.include
