@@ -579,6 +579,9 @@ ifeq ($(KBUILD_EXTMOD),)
 # oldconfig if changes are detected.
 -include include/config/auto.conf.cmd
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 9ee4e3365dd0... kbuild: external modules shall not check config consistency
 
 # To avoid any implicit rule to kick in, define an empty command
 $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
@@ -587,6 +590,7 @@ $(KCONFIG_CONFIG) include/config/auto.conf.cmd: ;
 # with it and forgot to run make oldconfig.
 # if auto.conf.cmd is missing then we are probably in a cleaned tree so
 # we execute the config step to be sure to catch updated Kconfig files
+<<<<<<< HEAD
 include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 =======
 -include include/config/auto.conf
@@ -600,20 +604,36 @@ include/config/%.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
 # we execute the config step to be sure to catch updated Kconfig files
 include/config/auto.conf: .config include/config/auto.conf.cmd
 >>>>>>> c955ccafc38e... kconfig: fix .config dependencies
+=======
+include/config/auto.conf: $(KCONFIG_CONFIG) include/config/auto.conf.cmd
+>>>>>>> 9ee4e3365dd0... kbuild: external modules shall not check config consistency
 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
 
 else
+<<<<<<< HEAD
 # external modules needs include/generated/autoconf.h and include/config/auto.conf
+=======
+# external modules needs include/linux/autoconf.h and include/config/auto.conf
+>>>>>>> 9ee4e3365dd0... kbuild: external modules shall not check config consistency
 # but do not care if they are up-to-date. Use auto.conf to trigger the test
 PHONY += include/config/auto.conf
 
 include/config/auto.conf:
+<<<<<<< HEAD
 	$(Q)test -e include/generated/autoconf.h -a -e $@ || (		\
 	echo >&2;							\
 	echo >&2 "  ERROR: Kernel configuration is invalid.";		\
 	echo >&2 "         include/generated/autoconf.h or $@ are missing.";\
 	echo >&2 "         Run 'make oldconfig && make prepare' on kernel src to fix it.";	\
 	echo >&2 ;							\
+=======
+	$(Q)test -e include/linux/autoconf.h -a -e $@ || (		\
+	echo;								\
+	echo "  ERROR: Kernel configuration is invalid.";		\
+	echo "         include/linux/autoconf.h or $@ are missing.";	\
+	echo "         Run 'make oldconfig && make prepare' on kernel src to fix it.";	\
+	echo;								\
+>>>>>>> 9ee4e3365dd0... kbuild: external modules shall not check config consistency
 	/bin/false)
 
 endif # KBUILD_EXTMOD
@@ -622,10 +642,14 @@ else
 # Dummy target needed, because used as prerequisite
 include/config/auto.conf: ;
 <<<<<<< HEAD
+<<<<<<< HEAD
 endif # $(dot-config)
 =======
 endif
 >>>>>>> c955ccafc38e... kconfig: fix .config dependencies
+=======
+endif # $(dot-config)
+>>>>>>> 9ee4e3365dd0... kbuild: external modules shall not check config consistency
 
 # The all: target is the default when no target is given on the
 # command line.
