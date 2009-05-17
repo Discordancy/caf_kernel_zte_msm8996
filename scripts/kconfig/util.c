@@ -52,6 +52,9 @@ int file_write_dep(const char *name)
 			fprintf(out, "\t%s\n", file->name);
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 12122f62324e... kconfig: do not hardcode "include/config/auto.conf" filename
 	fprintf(out, "\n%s: \\\n"
 		     "\t$(deps_config)\n\n", conf_get_autoconfig_name());
 

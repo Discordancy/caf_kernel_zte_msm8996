@@ -910,7 +910,11 @@ next:
 static int conf_split_config(void)
 {
 	const char *name;
+<<<<<<< HEAD
 	char path[PATH_MAX+1];
+=======
+	char path[128];
+>>>>>>> 12122f62324e... kconfig: do not hardcode "include/config/auto.conf" filename
 	char *s, *d, c;
 	struct symbol *sym;
 	struct stat sb;
@@ -1022,9 +1026,17 @@ out:
 int conf_write_autoconf(void)
 {
 	struct symbol *sym;
+<<<<<<< HEAD
 	const char *name;
 	FILE *out, *tristate, *out_h;
 	int i;
+=======
+	const char *str;
+	const char *name;
+	FILE *out, *out_h;
+	time_t now;
+	int i, l;
+>>>>>>> 12122f62324e... kconfig: do not hardcode "include/config/auto.conf" filename
 
 	sym_clear_all_valid();
 
@@ -1084,11 +1096,14 @@ int conf_write_autoconf(void)
 		name = "include/generated/autoconf.h";
 	if (rename(".tmpconfig.h", name))
 		return 1;
+<<<<<<< HEAD
 	name = getenv("KCONFIG_TRISTATE");
 	if (!name)
 		name = "include/config/tristate.conf";
 	if (rename(".tmpconfig_tristate", name))
 		return 1;
+=======
+>>>>>>> 12122f62324e... kconfig: do not hardcode "include/config/auto.conf" filename
 	name = conf_get_autoconfig_name();
 	/*
 	 * This must be the last step, kbuild has a dependency on auto.conf
