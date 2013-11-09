@@ -673,12 +673,21 @@ config HID_SONY
 	  * Logitech Harmony adapter for Sony Playstation 3 (Bluetooth)
 
 config SONY_FF
+<<<<<<< HEAD
 	bool "Sony PS2/3/4 accessories force feedback support" 
 	depends on HID_SONY
 	select INPUT_FF_MEMLESS
 	---help---
 	Say Y here if you have a Sony PS2/3/4 accessory and want to enable
 	force feedback support for it.
+=======
+	bool "Sony PS2/3 accessories force feedback support"
+	depends on HID_SONY
+	select INPUT_FF_MEMLESS
+	---help---
+	Say Y here if you have a Sony PS2/3 accessory and want to enable force
+	feedback support for it.
+>>>>>>> a08c22c0df0a... HID: sony: Add force feedback support for Dualshock3 USB
 
 config HID_SPEEDLINK
 	tristate "Speedlink VAD Cezanne mouse support"
