@@ -39,6 +39,7 @@
 
 #include "hid-ids.h"
 
+<<<<<<< HEAD
 #define VAIO_RDESC_CONSTANT       BIT(0)
 #define SIXAXIS_CONTROLLER_USB    BIT(1)
 #define SIXAXIS_CONTROLLER_BT     BIT(2)
@@ -133,6 +134,18 @@ static __u8 sixaxis_rdesc[] = {
 	0xC0,               /*      End Collection,                 */
 	0xC0                /*  End Collection                      */
 };
+=======
+#define VAIO_RDESC_CONSTANT     BIT(0)
+#define SIXAXIS_CONTROLLER_USB  BIT(1)
+#define SIXAXIS_CONTROLLER_BT   BIT(2)
+#define BUZZ_CONTROLLER         BIT(3)
+#define PS3REMOTE		BIT(4)
+#define DUALSHOCK4_CONTROLLER   BIT(5)
+
+#define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER)
+
+#define MAX_LEDS 4
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 
 /*
  * The default descriptor doesn't provide mapping for the accelerometers
@@ -817,6 +830,7 @@ struct sony_sc {
 	__u8 right;
 #endif
 
+<<<<<<< HEAD
 	__u8 mac_address[6];
 	__u8 worker_initialized;
 	__u8 cable_state;
@@ -825,6 +839,9 @@ struct sony_sc {
 	__u8 led_state[MAX_LEDS];
 	__u8 led_delay_on[MAX_LEDS];
 	__u8 led_delay_off[MAX_LEDS];
+=======
+	__u8 led_state[MAX_LEDS];
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 	__u8 led_count;
 };
 
@@ -1154,6 +1171,7 @@ static int sixaxis_set_operational_bt(struct hid_device *hdev)
 				  HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
 }
 
+<<<<<<< HEAD
 /*
  * Requesting feature report 0x02 in Bluetooth mode changes the state of the
  * controller so that it sends full input reports of type 0x11.
@@ -1212,6 +1230,8 @@ static void dualshock4_set_leds_from_id(int id, __u8 values[MAX_LEDS])
 	memcpy(values, color_code[id], sizeof(color_code[id]));
 }
 
+=======
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 static void buzz_set_leds(struct hid_device *hdev, const __u8 *leds)
 {
 	struct list_head *report_list =
@@ -1230,18 +1250,34 @@ static void buzz_set_leds(struct hid_device *hdev, const __u8 *leds)
 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
 }
 
+<<<<<<< HEAD
 static void sony_set_leds(struct sony_sc *sc, const __u8 *leds, int count)
 {
+=======
+static void sony_set_leds(struct hid_device *hdev, const __u8 *leds, int count)
+{
+	struct sony_sc *drv_data = hid_get_drvdata(hdev);
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 	int n;
 
 	BUG_ON(count > MAX_LEDS);
 
+<<<<<<< HEAD
 	if (sc->quirks & BUZZ_CONTROLLER && count == 4) {
 		buzz_set_leds(sc->hdev, leds);
 	} else {
 		for (n = 0; n < count; n++)
 			sc->led_state[n] = leds[n];
 		schedule_work(&sc->state_worker);
+=======
+	if (drv_data->quirks & BUZZ_CONTROLLER && count == 4) {
+		buzz_set_leds(hdev, leds);
+	} else if ((drv_data->quirks & SIXAXIS_CONTROLLER_USB) ||
+		   (drv_data->quirks & DUALSHOCK4_CONTROLLER)) {
+		for (n = 0; n < count; n++)
+			drv_data->led_state[n] = leds[n];
+		schedule_work(&drv_data->state_worker);
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 	}
 }
 
@@ -1261,6 +1297,7 @@ static void sony_led_set_brightness(struct led_classdev *led,
 		return;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * The Sixaxis on USB will override any LED settings sent to it
 	 * and keep flashing all of the LEDs until the PS button is pressed.
@@ -1284,6 +1321,14 @@ static void sony_led_set_brightness(struct led_classdev *led,
 
 			sony_set_leds(drv_data, drv_data->led_state,
 					drv_data->led_count);
+=======
+	for (n = 0; n < drv_data->led_count; n++) {
+		if (led == drv_data->leds[n]) {
+			if (value != drv_data->led_state[n]) {
+				drv_data->led_state[n] = value;
+				sony_set_leds(hdev, drv_data->led_state, drv_data->led_count);
+			}
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 			break;
 		}
 	}
@@ -1304,6 +1349,7 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
 	}
 
 	for (n = 0; n < drv_data->led_count; n++) {
+<<<<<<< HEAD
 		if (led == drv_data->leds[n])
 			return drv_data->led_state[n];
 	}
@@ -1340,6 +1386,10 @@ static int sony_led_blink_set(struct led_classdev *led, unsigned long *delay_on,
 
 	for (n = 0; n < drv_data->led_count; n++) {
 		if (led == drv_data->leds[n])
+=======
+		if (led == drv_data->leds[n]) {
+			on = !!(drv_data->led_state[n]);
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 			break;
 	}
 
@@ -1365,33 +1415,51 @@ static void sony_leds_remove(struct sony_sc *sc)
 
 	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
 
+<<<<<<< HEAD
 	for (n = 0; n < sc->led_count; n++) {
 		led = sc->leds[n];
 		sc->leds[n] = NULL;
+=======
+	for (n = 0; n < drv_data->led_count; n++) {
+		led = drv_data->leds[n];
+		drv_data->leds[n] = NULL;
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 		if (!led)
 			continue;
 		led_classdev_unregister(led);
 		kfree(led);
 	}
 
+<<<<<<< HEAD
 	sc->led_count = 0;
+=======
+	drv_data->led_count = 0;
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 }
 
 static int sony_leds_init(struct sony_sc *sc)
 {
 	struct hid_device *hdev = sc->hdev;
 	int n, ret = 0;
+<<<<<<< HEAD
 	int use_ds4_names;
+=======
+	int max_brightness;
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 	struct led_classdev *led;
 	size_t name_sz;
 	char *name;
 	size_t name_len;
 	const char *name_fmt;
+<<<<<<< HEAD
 	static const char * const ds4_name_str[] = { "red", "green", "blue",
 						  "global" };
 	__u8 initial_values[MAX_LEDS] = { 0 };
 	__u8 max_brightness[MAX_LEDS] = { [0 ... (MAX_LEDS - 1)] = 1 };
 	__u8 use_hw_blink[MAX_LEDS] = { 0 };
+=======
+	static const __u8 initial_values[MAX_LEDS] = { 0x00, 0x00, 0x00, 0x00 };
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 
 	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
 
@@ -1421,6 +1489,7 @@ static int sony_leds_init(struct sony_sc *sc)
 		name_fmt = "%s::sony%d";
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Clear LEDs as we have no way of reading their initial state. This is
 	 * only relevant if the driver is loaded after somebody actively set the
@@ -1435,6 +1504,24 @@ static int sony_leds_init(struct sony_sc *sc)
 		if (use_ds4_names)
 			name_sz = strlen(dev_name(&hdev->dev)) + strlen(ds4_name_str[n]) + 2;
 
+=======
+	if (drv_data->quirks & DUALSHOCK4_CONTROLLER) {
+		drv_data->led_count = 3;
+		max_brightness = 255;
+	} else {
+		drv_data->led_count = 4;
+		max_brightness = 1;
+	}
+
+	/* Clear LEDs as we have no way of reading their initial state. This is
+	 * only relevant if the driver is loaded after somebody actively set the
+	 * LEDs to on */
+	sony_set_leds(hdev, initial_values, drv_data->led_count);
+
+	name_sz = strlen(dev_name(&hdev->dev)) + name_len + 1;
+
+	for (n = 0; n < drv_data->led_count; n++) {
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 		led = kzalloc(sizeof(struct led_classdev) + name_sz, GFP_KERNEL);
 		if (!led) {
 			hid_err(hdev, "Couldn't allocate memory for LED %d\n", n);
@@ -1449,8 +1536,13 @@ static int sony_leds_init(struct sony_sc *sc)
 		else
 			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), n + 1);
 		led->name = name;
+<<<<<<< HEAD
 		led->brightness = initial_values[n];
 		led->max_brightness = max_brightness[n];
+=======
+		led->brightness = 0;
+		led->max_brightness = max_brightness;
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 		led->brightness_get = sony_led_get_brightness;
 		led->brightness_set = sony_led_set_brightness;
 
@@ -1498,6 +1590,7 @@ static void sixaxis_state_worker(struct work_struct *work)
 	report.data.rumble.left_motor_force = sc->left;
 #endif
 
+<<<<<<< HEAD
 	report.data.leds_bitmap |= sc->led_state[0] << 1;
 	report.data.leds_bitmap |= sc->led_state[1] << 2;
 	report.data.leds_bitmap |= sc->led_state[2] << 3;
@@ -1506,6 +1599,12 @@ static void sixaxis_state_worker(struct work_struct *work)
 	/* Set flag for all leds off, required for 3rd party INTEC controller */
 	if ((report.data.leds_bitmap & 0x1E) == 0)
 		report.data.leds_bitmap |= 0x20;
+=======
+	buf[10] |= sc->led_state[0] << 1;
+	buf[10] |= sc->led_state[1] << 2;
+	buf[10] |= sc->led_state[2] << 3;
+	buf[10] |= sc->led_state[3] << 4;
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 
 	/*
 	 * The LEDs in the report are indexed in reverse order to their
@@ -1553,6 +1652,7 @@ static void dualshock4_state_worker(struct work_struct *work)
 	offset += 2;
 #endif
 
+<<<<<<< HEAD
 	/* LED 3 is the global control */
 	if (sc->led_state[3]) {
 		buf[offset++] = sc->led_state[0];
@@ -1571,6 +1671,14 @@ static void dualshock4_state_worker(struct work_struct *work)
 	else
 		hid_hw_raw_request(hdev, 0x11, buf, 78,
 				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+=======
+	buf[6] = sc->led_state[0];
+	buf[7] = sc->led_state[1];
+	buf[8] = sc->led_state[2];
+
+	sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
+					HID_OUTPUT_REPORT);
+>>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 }
 
 #ifdef CONFIG_SONY_FF
