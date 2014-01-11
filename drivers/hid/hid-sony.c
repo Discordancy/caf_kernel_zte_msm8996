@@ -141,8 +141,11 @@ static __u8 sixaxis_rdesc[] = {
 #define BUZZ_CONTROLLER         BIT(3)
 #define PS3REMOTE		BIT(4)
 #define DUALSHOCK4_CONTROLLER   BIT(5)
+<<<<<<< HEAD
 
 #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER)
+=======
+>>>>>>> 0bd88dd3dd5e... HID: sony: Add force-feedback support for the Dualshock 4
 
 #define MAX_LEDS 4
 >>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
@@ -1586,8 +1589,13 @@ static void sixaxis_state_worker(struct work_struct *work)
 	};
 
 #ifdef CONFIG_SONY_FF
+<<<<<<< HEAD
 	report.data.rumble.right_motor_on = sc->right ? 1 : 0;
 	report.data.rumble.left_motor_force = sc->left;
+=======
+	buf[3] = sc->right ? 1 : 0;
+	buf[5] = sc->left;
+>>>>>>> 0bd88dd3dd5e... HID: sony: Add force-feedback support for the Dualshock 4
 #endif
 
 <<<<<<< HEAD
@@ -1679,6 +1687,29 @@ static void dualshock4_state_worker(struct work_struct *work)
 	sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
 					HID_OUTPUT_REPORT);
 >>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
+}
+
+static void dualshock4_state_worker(struct work_struct *work)
+{
+	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+	unsigned char buf[] = {
+		0x05,
+		0x03, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0x00, 0x00, 0x00,
+		0x00,
+	};
+
+#ifdef CONFIG_SONY_FF
+	buf[4] = sc->right;
+	buf[5] = sc->left;
+#endif
+
+	sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
+					HID_OUTPUT_REPORT);
 }
 
 #ifdef CONFIG_SONY_FF
@@ -2086,6 +2117,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		 */
 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
 		ret = sixaxis_set_operational_bt(hdev);
+<<<<<<< HEAD
 		sony_init_work(sc, sixaxis_state_worker);
 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
 		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
@@ -2104,6 +2136,13 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		sony_init_work(sc, dualshock4_state_worker);
 	} else {
 		ret = 0;
+=======
+	else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+		ret = 0;
+		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
+	} else {
+		ret = 0;
+>>>>>>> 0bd88dd3dd5e... HID: sony: Add force-feedback support for the Dualshock 4
 	}
 
 	if (ret < 0)
@@ -2204,6 +2243,7 @@ static const struct hid_device_id sony_devices[] = {
 	/* Logitech Harmony Adapter for PS3 */
 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3),
 		.driver_data = PS3REMOTE },
+<<<<<<< HEAD
 	/* SMK-Link PS3 BD Remote Control */
 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE),
 		.driver_data = PS3REMOTE },
@@ -2218,6 +2258,13 @@ static const struct hid_device_id sony_devices[] = {
 		.driver_data = DUALSHOCK4_CONTROLLER_BT },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE),
 		.driver_data = DUALSHOCK4_CONTROLLER_USB },
+=======
+	/* Sony Dualshock 4 controllers for PS4 */
+	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
+		.driver_data = DUALSHOCK4_CONTROLLER },
+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
+		.driver_data = DUALSHOCK4_CONTROLLER },
+>>>>>>> 0bd88dd3dd5e... HID: sony: Add force-feedback support for the Dualshock 4
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, sony_devices);
