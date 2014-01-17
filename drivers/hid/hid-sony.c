@@ -897,6 +897,7 @@ struct sony_sc {
 	struct list_head list_node;
 	struct hid_device *hdev;
 	struct led_classdev *leds[MAX_LEDS];
+	struct hid_report *output_report;
 	unsigned long quirks;
 	struct work_struct state_worker;
 	struct power_supply battery;
@@ -1789,26 +1790,9 @@ static void dualshock4_state_worker(struct work_struct *work)
 {
 	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
 	struct hid_device *hdev = sc->hdev;
-	struct list_head *head, *list;
-	struct hid_report *report;
-	__s32 *value;
+	struct hid_report *report = sc->output_report;
+	__s32 *value = report->field[0]->value;
 
-	list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
-
-	list_for_each(head, list) {
-		report = list_entry(head, struct hid_report, list);
-
-		/* Report 5 is used to send data to the controller via USB */
-		if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && report->id == 5)
-			break;
-	}
-
-	if (head == list) {
-		hid_err(hdev, "Dualshock 4 output report not found\n");
-		return;
-	}
-
-	value = report->field[0]->value;
 	value[0] = 0x03;
 
 #ifdef CONFIG_SONY_FF
@@ -2171,6 +2155,33 @@ static int sony_init_ff(struct hid_device *hdev)
 }
 #endif
 
+static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
+{
+	struct list_head *head, *list;
+	struct hid_report *report;
+	struct hid_device *hdev = sc->hdev;
+
+	list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
+
+	list_for_each(head, list) {
+		report = list_entry(head, struct hid_report, list);
+
+		if (report->id == req_id) {
+			if (report->size < req_size) {
+				hid_err(hdev, "Output report 0x%02x (%i bits) is smaller than requested size (%i bits)\n",
+					req_id, report->size, req_size);
+				return -EINVAL;
+			}
+			sc->output_report = report;
+			return 0;
+		}
+	}
+
+	hid_err(hdev, "Unable to locate output report 0x%02x\n", req_id);
+
+	return -EINVAL;
+}
+
 static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 {
 	int ret;
@@ -2257,8 +2268,16 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
 =======
 	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+<<<<<<< HEAD
 >>>>>>> 8ab1676b614e... HID: sony: Use separate identifiers for USB and Bluetooth connected Dualshock 4 controllers.
 		ret = 0;
+=======
+		/* Report 5 (31 bytes) is used to send data to the controller via USB */
+		ret = sony_set_output_report(sc, 0x05, 248);
+		if (ret < 0)
+			goto err_stop;
+
+>>>>>>> c4e1ddf2680b... HID: sony: Cache the output report for the Dualshock 4
 		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
 	} else {
 		ret = 0;
