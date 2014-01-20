@@ -1733,12 +1733,17 @@ static int sony_leds_init(struct sony_sc *sc)
 	int use_ds4_names;
 =======
 	int max_brightness;
+<<<<<<< HEAD
 >>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
+=======
+	int use_colors;
+>>>>>>> 61ebca937f26... HID: sony: Use colors for the Dualshock 4 LED names
 	struct led_classdev *led;
 	size_t name_sz;
 	char *name;
 	size_t name_len;
 	const char *name_fmt;
+<<<<<<< HEAD
 <<<<<<< HEAD
 	static const char * const ds4_name_str[] = { "red", "green", "blue",
 						  "global" };
@@ -1746,19 +1751,30 @@ static int sony_leds_init(struct sony_sc *sc)
 	__u8 max_brightness[MAX_LEDS] = { [0 ... (MAX_LEDS - 1)] = 1 };
 	__u8 use_hw_blink[MAX_LEDS] = { 0 };
 =======
+=======
+	static const char * const color_str[] = { "red", "green", "blue" };
+>>>>>>> 61ebca937f26... HID: sony: Use colors for the Dualshock 4 LED names
 	static const __u8 initial_values[MAX_LEDS] = { 0x00, 0x00, 0x00, 0x00 };
 >>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 
 	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
 
+<<<<<<< HEAD
 	if (sc->quirks & BUZZ_CONTROLLER) {
 		sc->led_count = 4;
 		use_ds4_names = 0;
+=======
+	if (drv_data->quirks & BUZZ_CONTROLLER) {
+		drv_data->led_count = 4;
+		max_brightness = 1;
+		use_colors = 0;
+>>>>>>> 61ebca937f26... HID: sony: Use colors for the Dualshock 4 LED names
 		name_len = strlen("::buzz#");
 		name_fmt = "%s::buzz%d";
 		/* Validate expected report characteristics. */
 		if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
 			return -ENODEV;
+<<<<<<< HEAD
 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
 		dualshock4_set_leds_from_id(sc->device_id, initial_values);
 		initial_values[3] = 1;
@@ -1798,11 +1814,20 @@ static int sony_leds_init(struct sony_sc *sc)
 =======
 	if (drv_data->quirks & DUALSHOCK4_CONTROLLER_USB) {
 >>>>>>> 8ab1676b614e... HID: sony: Use separate identifiers for USB and Bluetooth connected Dualshock 4 controllers.
+=======
+	} else if (drv_data->quirks & DUALSHOCK4_CONTROLLER_USB) {
+>>>>>>> 61ebca937f26... HID: sony: Use colors for the Dualshock 4 LED names
 		drv_data->led_count = 3;
 		max_brightness = 255;
+		use_colors = 1;
+		name_len = 0;
+		name_fmt = "%s:%s";
 	} else {
 		drv_data->led_count = 4;
 		max_brightness = 1;
+		use_colors = 0;
+		name_len = strlen("::sony#");
+		name_fmt = "%s::sony%d";
 	}
 
 	/* Clear LEDs as we have no way of reading their initial state. This is
@@ -1813,7 +1838,14 @@ static int sony_leds_init(struct sony_sc *sc)
 	name_sz = strlen(dev_name(&hdev->dev)) + name_len + 1;
 
 	for (n = 0; n < drv_data->led_count; n++) {
+<<<<<<< HEAD
 >>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
+=======
+
+		if (use_colors)
+			name_sz = strlen(dev_name(&hdev->dev)) + strlen(color_str[n]) + 2;
+
+>>>>>>> 61ebca937f26... HID: sony: Use colors for the Dualshock 4 LED names
 		led = kzalloc(sizeof(struct led_classdev) + name_sz, GFP_KERNEL);
 		if (!led) {
 			hid_err(hdev, "Couldn't allocate memory for LED %d\n", n);
@@ -1822,9 +1854,14 @@ static int sony_leds_init(struct sony_sc *sc)
 		}
 
 		name = (void *)(&led[1]);
+<<<<<<< HEAD
 		if (use_ds4_names)
 			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev),
 			ds4_name_str[n]);
+=======
+		if (use_colors)
+			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), color_str[n]);
+>>>>>>> 61ebca937f26... HID: sony: Use colors for the Dualshock 4 LED names
 		else
 			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), n + 1);
 		led->name = name;
