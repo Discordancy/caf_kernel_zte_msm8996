@@ -67,7 +67,10 @@ struct sensor_hub_data {
 	struct mfd_cell *hid_sensor_hub_client_devs;
 	int hid_sensor_client_cnt;
 	unsigned long quirks;
+<<<<<<< HEAD
 	int ref_cnt;
+=======
+>>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 };
 
 /**
@@ -579,7 +582,13 @@ static int sensor_hub_probe(struct hid_device *hdev,
 
 	hid_set_drvdata(hdev, sd);
 	sd->quirks = id->driver_data;
+<<<<<<< HEAD
 
+=======
+	sd->hsdev->hdev = hdev;
+	sd->hsdev->vendor_id = hdev->vendor;
+	sd->hsdev->product_id = hdev->product;
+>>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	spin_lock_init(&sd->lock);
 	spin_lock_init(&sd->dyn_callback_lock);
 	mutex_init(&sd->mutex);
@@ -691,6 +700,7 @@ static void sensor_hub_remove(struct hid_device *hdev)
 
 static const struct hid_device_id sensor_hub_devices[] = {
 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_0,
+<<<<<<< HEAD
 			USB_DEVICE_ID_INTEL_HID_SENSOR_0),
 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_1,
@@ -716,6 +726,12 @@ static const struct hid_device_id sensor_hub_devices[] = {
 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_TEXAS_INSTRUMENTS,
 			USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA),
+=======
+			USB_DEVICE_ID_INTEL_HID_SENSOR),
+			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_1,
+			USB_DEVICE_ID_INTEL_HID_SENSOR),
+>>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
 		     HID_ANY_ID) },

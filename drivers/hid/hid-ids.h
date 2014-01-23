@@ -479,12 +479,16 @@
 
 #define USB_VENDOR_ID_INTEL_0		0x8086
 #define USB_VENDOR_ID_INTEL_1		0x8087
+<<<<<<< HEAD
 #define USB_DEVICE_ID_INTEL_HID_SENSOR_0	0x09fa
 #define USB_DEVICE_ID_INTEL_HID_SENSOR_1	0x0a04
 
 #define USB_VENDOR_ID_STM_0             0x0483
 #define USB_DEVICE_ID_STM_HID_SENSOR    0x91d1
 #define USB_DEVICE_ID_STM_HID_SENSOR_1  0x9100
+=======
+#define USB_DEVICE_ID_INTEL_HID_SENSOR	0x09fa
+>>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #define USB_VENDOR_ID_ION		0x15e4
 #define USB_DEVICE_ID_ICADE		0x0132
@@ -847,10 +851,13 @@
 #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
 #define USB_DEVICE_ID_SONY_PS4_CONTROLLER	0x05c4
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2	0x09cc
 #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE	0x0ba0
 =======
 >>>>>>> 0bd88dd3dd5e... HID: sony: Add force-feedback support for the Dualshock 4
+=======
+>>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
 #define USB_DEVICE_ID_SONY_BUZZ_CONTROLLER		0x0002
 #define USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER	0x1000
@@ -895,10 +902,13 @@
 #define USB_DEVICE_ID_SYNAPTICS_LTS2	0x1d10
 #define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
 #define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
+<<<<<<< HEAD
 #define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
 
 #define USB_VENDOR_ID_TEXAS_INSTRUMENTS	0x2047
 #define USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA	0x0855
+=======
+>>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #define USB_VENDOR_ID_THINGM		0x27b8
 #define USB_DEVICE_ID_BLINK1		0x01ed
@@ -1033,6 +1043,7 @@
 #define USB_DEVICE_ID_PRIMAX_MOUSE_4D22	0x4d22
 #define USB_DEVICE_ID_PRIMAX_KEYBOARD	0x4e05
 
+<<<<<<< HEAD
 
 #define USB_VENDOR_ID_RISO_KAGAKU	0x1294	/* Riso Kagaku Corp. */
 #define USB_DEVICE_ID_RI_KA_WEBMAIL	0x1320	/* Webmail Notifier */
@@ -1043,5 +1054,7 @@
 #define USB_VENDOR_ID_DRACAL_RAPHNET	0x289b
 #define USB_DEVICE_ID_RAPHNET_2NES2SNES	0x0002
 #define USB_DEVICE_ID_RAPHNET_4NES4SNES	0x0003
+=======
+>>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #endif
