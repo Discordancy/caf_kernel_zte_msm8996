@@ -34,11 +34,14 @@
 #include <linux/power_supply.h>
 #include <linux/spinlock.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <linux/list.h>
 #include <linux/idr.h>
 =======
 >>>>>>> e56062305069... HID: sony: add output events for the multi-touch pad on the Dualshock 4
 #include <linux/input/mt.h>
+=======
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 
 #include "hid-ids.h"
 
@@ -55,6 +58,7 @@
 #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
 #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
 				DUALSHOCK4_CONTROLLER_BT)
@@ -62,6 +66,10 @@
 				DUALSHOCK4_CONTROLLER)
 #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
 #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
+=======
+#define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER_USB)
+#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_USB)
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 
 #define MAX_LEDS 4
 
@@ -1321,6 +1329,7 @@ static enum power_supply_property sony_battery_props[] = {
 	POWER_SUPPLY_PROP_STATUS,
 };
 
+<<<<<<< HEAD
 struct sixaxis_led {
 	__u8 time_enabled; /* the total time the led is active (0xff means forever) */
 	__u8 duty_length;  /* how long a cycle is in deciseconds (0 means "really fast") */
@@ -1361,22 +1370,31 @@ struct sony_sc {
 	struct list_head list_node;
 =======
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+struct sony_sc {
+	spinlock_t lock;
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 	struct hid_device *hdev;
 	struct led_classdev *leds[MAX_LEDS];
 	struct hid_report *output_report;
 	unsigned long quirks;
 	struct work_struct state_worker;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	struct power_supply battery;
 	int device_id;
 =======
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	struct power_supply battery;
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 
 #ifdef CONFIG_SONY_FF
 	__u8 left;
 	__u8 right;
 #endif
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	__u8 mac_address[6];
@@ -1400,6 +1418,11 @@ static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
 	return sixaxis_rdesc;
 }
 =======
+=======
+	__u8 cable_state;
+	__u8 battery_charging;
+	__u8 battery_capacity;
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 	__u8 led_state[MAX_LEDS];
 	__u8 led_count;
 };
@@ -1518,14 +1541,19 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	unsigned long flags;
 	__u8 cable_state, battery_capacity, battery_charging;
 
+<<<<<<< HEAD
 	/*
 	 * The sixaxis is charging if the battery value is 0xee
+=======
+	/* The sixaxis is charging if the battery value is 0xee
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 	 * and it is fully charged if the value is 0xef.
 	 * It does not report the actual level while charging so it
 	 * is set to 100% while charging is in progress.
 	 */
 	if (rd[30] >= 0xee) {
 		battery_capacity = 100;
+<<<<<<< HEAD
 		battery_charging = !(rd[30] & 0x01);
 		cable_state = 1;
 	} else {
@@ -1534,6 +1562,14 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 		battery_charging = 0;
 		cable_state = 0;
 	}
+=======
+		battery_charging = rd[30] & 0x01;
+	} else {
+		battery_capacity = sixaxis_battery_capacity[rd[30]];
+		battery_charging = 0;
+	}
+	cable_state = (rd[31] >> 4) & 0x01;
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 
 	spin_lock_irqsave(&sc->lock, flags);
 	sc->cable_state = cable_state;
@@ -1544,6 +1580,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 
 static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 {
+<<<<<<< HEAD
 	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
 						struct hid_input, list);
 	struct input_dev *input_dev = hidinput->input;
@@ -1574,15 +1611,35 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	 * A battery level above 10 when plugged in means charge completed.
 	 */
 	if (!cable_state || battery_capacity > 10)
+=======
+	unsigned long flags;
+	__u8 cable_state, battery_capacity, battery_charging;
+
+	/* The lower 4 bits of byte 30 contain the battery level
+	 * and the 5th bit contains the USB cable state.
+	 */
+	cable_state = (rd[30] >> 4) & 0x01;
+	battery_capacity = rd[30] & 0x0F;
+
+	/* On USB the Dualshock 4 battery level goes from 0 to 11.
+	 * A battery level of 11 means fully charged.
+	 */
+	if (cable_state && battery_capacity == 11)
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 		battery_charging = 0;
 	else
 		battery_charging = 1;
 
+<<<<<<< HEAD
 	if (!cable_state)
 		battery_capacity++;
 	if (battery_capacity > 10)
 		battery_capacity = 10;
 
+=======
+	if (battery_capacity > 10)
+		battery_capacity--;
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 	battery_capacity *= 10;
 
 	spin_lock_irqsave(&sc->lock, flags);
@@ -1590,6 +1647,7 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	sc->battery_capacity = battery_capacity;
 	sc->battery_charging = battery_charging;
 	spin_unlock_irqrestore(&sc->lock, flags);
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 	offset += 5;
@@ -1620,6 +1678,8 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 
 		offset += 4;
 	}
+=======
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 }
 
 static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
@@ -1638,9 +1698,14 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
 		swap(rd[47], rd[48]);
 
 		sixaxis_parse_report(sc, rd, size);
+<<<<<<< HEAD
 	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
 			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
 			&& rd[0] == 0x11 && size == 78)) {
+=======
+	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
+			size == 64) {
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 		dualshock4_parse_report(sc, rd, size);
 	}
 
@@ -2859,6 +2924,91 @@ static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
 	return -EINVAL;
 }
 
+static int sony_battery_get_property(struct power_supply *psy,
+				     enum power_supply_property psp,
+				     union power_supply_propval *val)
+{
+	struct sony_sc *sc = container_of(psy, struct sony_sc, battery);
+	unsigned long flags;
+	int ret = 0;
+	u8 battery_charging, battery_capacity, cable_state;
+
+	spin_lock_irqsave(&sc->lock, flags);
+	battery_charging = sc->battery_charging;
+	battery_capacity = sc->battery_capacity;
+	cable_state = sc->cable_state;
+	spin_unlock_irqrestore(&sc->lock, flags);
+
+	switch (psp) {
+	case POWER_SUPPLY_PROP_PRESENT:
+		val->intval = 1;
+		break;
+	case POWER_SUPPLY_PROP_SCOPE:
+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
+		break;
+	case POWER_SUPPLY_PROP_CAPACITY:
+		val->intval = battery_capacity;
+		break;
+	case POWER_SUPPLY_PROP_STATUS:
+		if (battery_charging)
+			val->intval = POWER_SUPPLY_STATUS_CHARGING;
+		else
+			if (battery_capacity == 100 && cable_state)
+				val->intval = POWER_SUPPLY_STATUS_FULL;
+			else
+				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+	return ret;
+}
+
+static int sony_battery_probe(struct sony_sc *sc)
+{
+	static atomic_t power_id_seq = ATOMIC_INIT(0);
+	unsigned long power_id;
+	struct hid_device *hdev = sc->hdev;
+	int ret;
+
+	power_id = (unsigned long)atomic_inc_return(&power_id_seq);
+
+	sc->battery.properties = sony_battery_props;
+	sc->battery.num_properties = ARRAY_SIZE(sony_battery_props);
+	sc->battery.get_property = sony_battery_get_property;
+	sc->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+	sc->battery.use_for_apm = 0;
+	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%lu",
+				     power_id);
+	if (!sc->battery.name)
+		return -ENOMEM;
+
+	ret = power_supply_register(&hdev->dev, &sc->battery);
+	if (ret) {
+		hid_err(hdev, "Unable to register battery device\n");
+		goto err_free;
+	}
+
+	power_supply_powers(&sc->battery, &hdev->dev);
+	return 0;
+
+err_free:
+	kfree(sc->battery.name);
+	sc->battery.name = NULL;
+	return ret;
+}
+
+static void sony_battery_remove(struct sony_sc *sc)
+{
+	if (!sc->battery.name)
+		return;
+
+	power_supply_unregister(&sc->battery);
+	kfree(sc->battery.name);
+	sc->battery.name = NULL;
+}
+
 static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
 {
 	struct list_head *head, *list;
@@ -3073,10 +3223,26 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 			goto err_stop;
 	}
 
+<<<<<<< HEAD
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	if (sc->quirks & SONY_BATTERY_SUPPORT) {
+		ret = sony_battery_probe(sc);
+		if (ret < 0)
+			goto err_stop;
+
+		/* Open the device to receive reports with battery info */
+		ret = hid_hw_open(hdev);
+		if (ret < 0) {
+			hid_err(hdev, "hw open failed\n");
+			goto err_stop;
+		}
+	}
+
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 	ret = sony_init_ff(hdev);
 	if (ret < 0)
-		goto err_stop;
+		goto err_close;
 
 >>>>>>> a08c22c0df0a... HID: sony: Add force feedback support for Dualshock3 USB
 	return 0;
@@ -3093,7 +3259,12 @@ err_stop:
 	sony_release_device_id(sc);
 =======
 		sony_leds_remove(hdev);
+<<<<<<< HEAD
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	if (sc->quirks & SONY_BATTERY_SUPPORT)
+		sony_battery_remove(sc);
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 	hid_hw_stop(hdev);
 	return ret;
 }
@@ -3118,7 +3289,16 @@ static void sony_remove(struct hid_device *hdev)
 		sony_leds_remove(hdev);
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
+<<<<<<< HEAD
 	sony_release_device_id(sc);
+=======
+	if (sc->quirks & SONY_BATTERY_SUPPORT) {
+		hid_hw_close(hdev);
+		sony_battery_remove(sc);
+	}
+
+	sony_destroy_ff(hdev);
+>>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 
 	hid_hw_stop(hdev);
 }
