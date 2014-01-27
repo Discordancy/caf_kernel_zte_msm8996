@@ -33,8 +33,11 @@
 #include <linux/leds.h>
 #include <linux/power_supply.h>
 #include <linux/spinlock.h>
+<<<<<<< HEAD
 #include <linux/list.h>
 #include <linux/idr.h>
+=======
+>>>>>>> e56062305069... HID: sony: add output events for the multi-touch pad on the Dualshock 4
 #include <linux/input/mt.h>
 
 #include "hid-ids.h"
@@ -1545,7 +1548,11 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 						struct hid_input, list);
 	struct input_dev *input_dev = hidinput->input;
 	unsigned long flags;
+<<<<<<< HEAD
 	int n, offset;
+=======
+	int n, offset = 35;
+>>>>>>> e56062305069... HID: sony: add output events for the multi-touch pad on the Dualshock 4
 	__u8 cable_state, battery_capacity, battery_charging;
 
 	/*
@@ -1584,11 +1591,15 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	sc->battery_charging = battery_charging;
 	spin_unlock_irqrestore(&sc->lock, flags);
 
+<<<<<<< HEAD
 	offset += 5;
 
 	/*
 	 * The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB
 	 * and 37 on Bluetooth.
+=======
+	/* The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB.
+>>>>>>> e56062305069... HID: sony: add output events for the multi-touch pad on the Dualshock 4
 	 * The first 7 bits of the first byte is a counter and bit 8 is a touch
 	 * indicator that is 0 when pressed and 1 when not pressed.
 	 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
@@ -2875,6 +2886,26 @@ static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
 	return -EINVAL;
 }
 
+static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+					int w, int h)
+{
+	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
+						struct hid_input, list);
+	struct input_dev *input_dev = hidinput->input;
+	int ret;
+
+	ret = input_mt_init_slots(input_dev, touch_count, 0);
+	if (ret < 0) {
+		hid_err(sc->hdev, "Unable to initialize multi-touch slots\n");
+		return ret;
+	}
+
+	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
+	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
+
+	return 0;
+}
+
 static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 {
 	int ret;
@@ -2984,6 +3015,13 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		/* Report 5 (31 bytes) is used to send data to the controller via USB */
 		ret = sony_set_output_report(sc, 0x05, 248);
+		if (ret < 0)
+			goto err_stop;
+
+		/* The Dualshock 4 touchpad supports 2 touches and has a
+		 * resolution of 1920x940.
+		 */
+		ret = sony_register_touchpad(sc, 2, 1920, 940);
 		if (ret < 0)
 			goto err_stop;
 
