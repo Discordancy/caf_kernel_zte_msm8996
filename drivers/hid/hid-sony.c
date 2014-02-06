@@ -59,6 +59,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
 #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
 				DUALSHOCK4_CONTROLLER_BT)
@@ -70,6 +71,14 @@
 #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER_USB)
 #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_USB)
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+#define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
+				DUALSHOCK4_CONTROLLER_BT)
+#define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER |\
+				DUALSHOCK4_CONTROLLER)
+#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT |\
+				DUALSHOCK4_CONTROLLER)
+>>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 
 #define MAX_LEDS 4
 
@@ -2557,6 +2566,7 @@ static void sixaxis_state_worker(struct work_struct *work)
 		}
 	}
 
+<<<<<<< HEAD
 	hid_hw_raw_request(sc->hdev, report.data.report_id, report.buf,
 			sizeof(report), HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
 }
@@ -2578,6 +2588,13 @@ static void dualshock4_state_worker(struct work_struct *work)
 		buf[1] = 0xB0;
 		buf[3] = 0x0F;
 		offset = 6;
+=======
+		sixaxis_parse_report(sc, rd, size);
+	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
+			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
+			&& rd[0] == 0x11 && size == 78)) {
+		dualshock4_parse_report(sc, rd, size);
+>>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 	}
 
 #ifdef CONFIG_SONY_FF
@@ -2717,8 +2734,23 @@ static int sony_init_ff(struct sony_sc *sc)
 	return input_ff_create_memless(input_dev, NULL, sony_play_effect);
 }
 
+<<<<<<< HEAD
 #else
 static int sony_init_ff(struct sony_sc *sc)
+=======
+/* Requesting feature report 0x02 in Bluetooth mode changes the state of the
+ * controller so that it sends full input reports of type 0x11.
+ */
+static int dualshock4_set_operational_bt(struct hid_device *hdev)
+{
+	__u8 buf[37] = { 0 };
+
+	return hid_hw_raw_request(hdev, 0x02, buf, sizeof(buf),
+				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+}
+
+static void buzz_set_leds(struct hid_device *hdev, const __u8 *leds)
+>>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 {
 	return 0;
 }
@@ -2740,6 +2772,7 @@ static int sony_battery_get_property(struct power_supply *psy,
 	cable_state = sc->cable_state;
 	spin_unlock_irqrestore(&sc->lock, flags);
 
+<<<<<<< HEAD
 	switch (psp) {
 	case POWER_SUPPLY_PROP_PRESENT:
 		val->intval = 1;
@@ -2762,6 +2795,15 @@ static int sony_battery_get_property(struct power_supply *psy,
 	default:
 		ret = -EINVAL;
 		break;
+=======
+	if (drv_data->quirks & BUZZ_CONTROLLER && count == 4) {
+		buzz_set_leds(hdev, leds);
+	} else if ((drv_data->quirks & SIXAXIS_CONTROLLER_USB) ||
+		   (drv_data->quirks & DUALSHOCK4_CONTROLLER)) {
+		for (n = 0; n < count; n++)
+			drv_data->led_state[n] = leds[n];
+		schedule_work(&drv_data->state_worker);
+>>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 	}
 	return ret;
 }
@@ -2849,10 +2891,34 @@ static void sony_remove_dev_list(struct sony_sc *sc)
 {
 	unsigned long flags;
 
+<<<<<<< HEAD
 	if (sc->list_node.next) {
 		spin_lock_irqsave(&sony_dev_list_lock, flags);
 		list_del(&(sc->list_node));
 		spin_unlock_irqrestore(&sony_dev_list_lock, flags);
+=======
+	if (drv_data->quirks & BUZZ_CONTROLLER) {
+		drv_data->led_count = 4;
+		max_brightness = 1;
+		use_colors = 0;
+		name_len = strlen("::buzz#");
+		name_fmt = "%s::buzz%d";
+		/* Validate expected report characteristics. */
+		if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
+			return -ENODEV;
+	} else if (drv_data->quirks & DUALSHOCK4_CONTROLLER) {
+		drv_data->led_count = 3;
+		max_brightness = 255;
+		use_colors = 1;
+		name_len = 0;
+		name_fmt = "%s:%s";
+	} else {
+		drv_data->led_count = 4;
+		max_brightness = 1;
+		use_colors = 0;
+		name_len = strlen("::sony#");
+		name_fmt = "%s::sony%d";
+>>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 	}
 }
 
@@ -3329,12 +3395,23 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	}
 	else if (sc->quirks & SIXAXIS_CONTROLLER_BT)
 		ret = sixaxis_set_operational_bt(hdev);
+<<<<<<< HEAD
 	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		/* Report 5 (31 bytes) is used to send data to the controller via USB */
 		ret = sony_set_output_report(sc, 0x05, 248);
 		if (ret < 0)
 			goto err_stop;
 
+=======
+	else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+			ret = dualshock4_set_operational_bt(hdev);
+			if (ret < 0) {
+				hid_err(hdev, "failed to set the Dualshock 4 operational mode\n");
+				goto err_stop;
+			}
+		}
+>>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 		/* The Dualshock 4 touchpad supports 2 touches and has a
 		 * resolution of 1920x940.
 		 */
