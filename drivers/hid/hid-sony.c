@@ -2965,11 +2965,30 @@ static int sony_set_device_id(struct sony_sc *sc)
 
 static void sony_release_device_id(struct sony_sc *sc)
 {
+<<<<<<< HEAD
 	if (sc->device_id >= 0) {
 		ida_simple_remove(&sony_device_id_allocator, sc->device_id);
 		sc->device_id = -1;
 	}
 }
+=======
+	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+	struct hid_device *hdev = sc->hdev;
+	int offset;
+
+	__u8 buf[78] = { 0 };
+
+	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+		buf[0] = 0x05;
+		buf[1] = 0x03;
+		offset = 4;
+	} else {
+		buf[0] = 0x11;
+		buf[1] = 0xB0;
+		buf[3] = 0x0F;
+		offset = 6;
+	}
+>>>>>>> fdcf105d3d96... HID: sony: Add Dualshock 4 Bluetooth output report formatting
 
 static inline void sony_init_work(struct sony_sc *sc,
 					void (*worker)(struct work_struct *))
@@ -2980,10 +2999,18 @@ static inline void sony_init_work(struct sony_sc *sc,
 	sc->worker_initialized = 1;
 }
 
+<<<<<<< HEAD
 static inline void sony_cancel_work_sync(struct sony_sc *sc)
 {
 	if (sc->worker_initialized)
 		cancel_work_sync(&sc->state_worker);
+=======
+	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
+		hid_hw_output_report(hdev, buf, 32);
+	else
+		hid_hw_raw_request(hdev, 0x11, buf, 78,
+				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+>>>>>>> fdcf105d3d96... HID: sony: Add Dualshock 4 Bluetooth output report formatting
 }
 
 #ifdef CONFIG_SONY_FF
