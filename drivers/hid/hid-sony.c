@@ -437,6 +437,7 @@ static u8 dualshock4_usb_rdesc[] = {
 	0xC0                /*  End Collection                      */
 };
 
+<<<<<<< HEAD
 /*
  * The default behavior of the Dualshock 4 is to send reports using report
  * type 1 when running over Bluetooth. However, when feature report 2 is
@@ -444,6 +445,14 @@ static u8 dualshock4_usb_rdesc[] = {
  * reports in report 17.  Since report 17 is undefined in the default HID
  * descriptor the button and axis definitions must be moved to report 17 or
  * the HID layer won't process the received input.
+=======
+/* The default behavior of the Dualshock 4 is to send reports using report
+ * type 1 when running over Bluetooth. However, as soon as it receives a
+ * report of type 17 to set the LEDs or rumble it starts returning it's state
+ * in report 17 instead of 1.  Since report 17 is undefined in the default HID
+ * descriptor the button and axis definitions must be moved to report 17 or
+ * the HID layer won't process the received input once a report is sent.
+>>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
  */
 static u8 dualshock4_bt_rdesc[] = {
 	0x05, 0x01,         /*  Usage Page (Desktop),               */
@@ -553,8 +562,13 @@ static u8 dualshock4_bt_rdesc[] = {
 	0x81, 0x02,         /*      Input (Variable),               */
 	0x19, 0x43,         /*      Usage Minimum (43h),            */
 	0x29, 0x45,         /*      Usage Maximum (45h),            */
+<<<<<<< HEAD
 	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
 	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
+=======
+	0x16, 0xFF, 0xBF,   /*      Logical Minimum (-16385),       */
+	0x26, 0x00, 0x40,   /*      Logical Maximum (16384),        */
+>>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
 	0x95, 0x03,         /*      Report Count (3),               */
 	0x81, 0x02,         /*      Input (Variable),               */
 	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h),             */
@@ -646,6 +660,69 @@ static u8 dualshock4_bt_rdesc[] = {
 	0x09, 0x44,         /*      Usage (44h),                    */
 	0xB1, 0x02,         /*      Feature (Variable),             */
 	0xC0                /*  End Collection                      */
+<<<<<<< HEAD
+=======
+};
+
+static __u8 ps3remote_rdesc[] = {
+	0x05, 0x01,          /* GUsagePage Generic Desktop */
+	0x09, 0x05,          /* LUsage 0x05 [Game Pad] */
+	0xA1, 0x01,          /* MCollection Application (mouse, keyboard) */
+
+	 /* Use collection 1 for joypad buttons */
+	 0xA1, 0x02,         /* MCollection Logical (interrelated data) */
+
+	  /* Ignore the 1st byte, maybe it is used for a controller
+	   * number but it's not needed for correct operation */
+	  0x75, 0x08,        /* GReportSize 0x08 [8] */
+	  0x95, 0x01,        /* GReportCount 0x01 [1] */
+	  0x81, 0x01,        /* MInput 0x01 (Const[0] Arr[1] Abs[2]) */
+
+	  /* Bytes from 2nd to 4th are a bitmap for joypad buttons, for these
+	   * buttons multiple keypresses are allowed */
+	  0x05, 0x09,        /* GUsagePage Button */
+	  0x19, 0x01,        /* LUsageMinimum 0x01 [Button 1 (primary/trigger)] */
+	  0x29, 0x18,        /* LUsageMaximum 0x18 [Button 24] */
+	  0x14,              /* GLogicalMinimum [0] */
+	  0x25, 0x01,        /* GLogicalMaximum 0x01 [1] */
+	  0x75, 0x01,        /* GReportSize 0x01 [1] */
+	  0x95, 0x18,        /* GReportCount 0x18 [24] */
+	  0x81, 0x02,        /* MInput 0x02 (Data[0] Var[1] Abs[2]) */
+
+	  0xC0,              /* MEndCollection */
+
+	 /* Use collection 2 for remote control buttons */
+	 0xA1, 0x02,         /* MCollection Logical (interrelated data) */
+
+	  /* 5th byte is used for remote control buttons */
+	  0x05, 0x09,        /* GUsagePage Button */
+	  0x18,              /* LUsageMinimum [No button pressed] */
+	  0x29, 0xFE,        /* LUsageMaximum 0xFE [Button 254] */
+	  0x14,              /* GLogicalMinimum [0] */
+	  0x26, 0xFE, 0x00,  /* GLogicalMaximum 0x00FE [254] */
+	  0x75, 0x08,        /* GReportSize 0x08 [8] */
+	  0x95, 0x01,        /* GReportCount 0x01 [1] */
+	  0x80,              /* MInput  */
+
+	  /* Ignore bytes from 6th to 11th, 6th to 10th are always constant at
+	   * 0xff and 11th is for press indication */
+	  0x75, 0x08,        /* GReportSize 0x08 [8] */
+	  0x95, 0x06,        /* GReportCount 0x06 [6] */
+	  0x81, 0x01,        /* MInput 0x01 (Const[0] Arr[1] Abs[2]) */
+
+	  /* 12th byte is for battery strength */
+	  0x05, 0x06,        /* GUsagePage Generic Device Controls */
+	  0x09, 0x20,        /* LUsage 0x20 [Battery Strength] */
+	  0x14,              /* GLogicalMinimum [0] */
+	  0x25, 0x05,        /* GLogicalMaximum 0x05 [5] */
+	  0x75, 0x08,        /* GReportSize 0x08 [8] */
+	  0x95, 0x01,        /* GReportCount 0x01 [1] */
+	  0x81, 0x02,        /* MInput 0x02 (Data[0] Var[1] Abs[2]) */
+
+	  0xC0,              /* MEndCollection */
+
+	 0xC0                /* MEndCollection [Game Pad] */
+>>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
 };
 
 /* The default descriptor doesn't provide mapping for the accelerometers
@@ -2213,7 +2290,19 @@ static int sony_leds_init(struct hid_device *hdev)
 	 * only relevant if the driver is loaded after somebody actively set the
 	 * LEDs to on
 	 */
+<<<<<<< HEAD
 	sony_set_leds(sc, initial_values, sc->led_count);
+=======
+	if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && *rsize == 467) {
+		hid_info(hdev, "Using modified Dualshock 4 report descriptor with gyroscope axes\n");
+		rdesc = dualshock4_usb_rdesc;
+		*rsize = sizeof(dualshock4_usb_rdesc);
+	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_BT) && *rsize == 357) {
+		hid_info(hdev, "Using modified Dualshock 4 Bluetooth report descriptor\n");
+		rdesc = dualshock4_bt_rdesc;
+		*rsize = sizeof(dualshock4_bt_rdesc);
+	}
+>>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
 
 	name_sz = strlen(dev_name(&hdev->dev)) + name_len + 1;
 
