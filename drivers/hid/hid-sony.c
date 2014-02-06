@@ -2222,6 +2222,7 @@ static void sony_leds_remove(struct hid_device *hdev)
 
 static int sony_leds_init(struct hid_device *hdev)
 {
+<<<<<<< HEAD
 	struct sony_sc *drv_data;
 	int n, ret = 0;
 	int max_brightness;
@@ -2305,11 +2306,61 @@ static int sony_leds_init(struct hid_device *hdev)
 >>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
 
 	name_sz = strlen(dev_name(&hdev->dev)) + name_len + 1;
+=======
+	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
+						struct hid_input, list);
+	struct input_dev *input_dev = hidinput->input;
+	unsigned long flags;
+	int n, offset;
+	__u8 cable_state, battery_capacity, battery_charging;
+
+	/* Battery and touchpad data starts at byte 30 in the USB report and
+	 * 32 in Bluetooth report.
+	 */
+	offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 30 : 32;
+
+	/* The lower 4 bits of byte 30 contain the battery level
+	 * and the 5th bit contains the USB cable state.
+	 */
+	cable_state = (rd[offset] >> 4) & 0x01;
+	battery_capacity = rd[offset] & 0x0F;
+
+	/* When a USB power source is connected the battery level ranges from
+	 * 0 to 10, and when running on battery power it ranges from 0 to 9.
+	 * A battery level above 10 when plugged in means charge completed.
+	 */
+	if (!cable_state || battery_capacity > 10)
+		battery_charging = 0;
+	else
+		battery_charging = 1;
+
+	if (!cable_state)
+		battery_capacity++;
+	if (battery_capacity > 10)
+		battery_capacity = 10;
+
+	battery_capacity *= 10;
+>>>>>>> 6c5f860d3f65... HID: sony: Add Dualshock 4 Bluetooth battery and touchpad parsing
 
 	for (n = 0; n < sc->led_count; n++) {
 
+<<<<<<< HEAD
 		if (use_ds4_names)
 			name_sz = strlen(dev_name(&hdev->dev)) + strlen(ds4_name_str[n]) + 2;
+=======
+	offset += 5;
+
+	/* The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB
+	 * and 37 on Bluetooth.
+	 * The first 7 bits of the first byte is a counter and bit 8 is a touch
+	 * indicator that is 0 when pressed and 1 when not pressed.
+	 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
+	 * The data for the second touch is in the same format and immediatly
+	 * follows the data for the first.
+	 */
+	for (n = 0; n < 2; n++) {
+		__u16 x, y;
+>>>>>>> 6c5f860d3f65... HID: sony: Add Dualshock 4 Bluetooth battery and touchpad parsing
 
 =======
 	if (drv_data->quirks & DUALSHOCK4_CONTROLLER) {
