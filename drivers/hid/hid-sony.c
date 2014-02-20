@@ -35,10 +35,14 @@
 #include <linux/spinlock.h>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <linux/list.h>
 #include <linux/idr.h>
 =======
 >>>>>>> e56062305069... HID: sony: add output events for the multi-touch pad on the Dualshock 4
+=======
+#include <linux/list.h>
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 #include <linux/input/mt.h>
 =======
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
@@ -738,6 +742,7 @@ static __u8 ps3remote_rdesc[] = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* The default descriptor doesn't provide mapping for the accelerometers
  * or orientation sensors.  This fixed descriptor maps the accelerometers
  * to usage values 0x40, 0x41 and 0x42 and maps the orientation sensors
@@ -1318,6 +1323,8 @@ static __u8 ps3remote_rdesc[] = {
 
 =======
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 static const unsigned int ps3remote_keymap_joypad_buttons[] = {
 	[0x01] = KEY_SELECT,
 	[0x02] = BTN_THUMBL,		/* L3 */
@@ -1423,6 +1430,7 @@ static enum power_supply_property sony_battery_props[] = {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 struct sixaxis_led {
 	__u8 time_enabled; /* the total time the led is active (0xff means forever) */
 	__u8 duty_length;  /* how long a cycle is in deciseconds (0 means "really fast") */
@@ -1484,12 +1492,23 @@ struct sony_sc {
 =======
 struct sony_sc {
 	spinlock_t lock;
+=======
+static spinlock_t sony_dev_list_lock;
+static LIST_HEAD(sony_device_list);
+
+struct sony_sc {
+	spinlock_t lock;
+	struct list_head list_node;
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 	struct hid_device *hdev;
 	struct led_classdev *leds[MAX_LEDS];
 	unsigned long quirks;
 	struct work_struct state_worker;
 	struct power_supply battery;
+<<<<<<< HEAD
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 
 #ifdef CONFIG_SONY_FF
 	__u8 left;
@@ -1500,14 +1519,19 @@ struct sony_sc {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__u8 mac_address[6];
 =======
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+	__u8 mac_address[6];
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 	__u8 worker_initialized;
 	__u8 cable_state;
 	__u8 battery_charging;
 	__u8 battery_capacity;
 	__u8 led_state[MAX_LEDS];
+<<<<<<< HEAD
 <<<<<<< HEAD
 	__u8 led_delay_on[MAX_LEDS];
 	__u8 led_delay_off[MAX_LEDS];
@@ -1539,6 +1563,11 @@ static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
 };
 
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+	__u8 led_count;
+};
+
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
 			     unsigned int *rsize)
 {
@@ -1581,10 +1610,15 @@ static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* Sony Vaio VGX has wrongly mouse pointer declared as constant */
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+
+/* Sony Vaio VGX has wrongly mouse pointer declared as constant */
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		unsigned int *rsize)
 {
@@ -1618,18 +1652,24 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_BT) && *rsize == 357) {
 		hid_info(hdev, "Using modified Dualshock 4 Bluetooth report descriptor\n");
 		rdesc = dualshock4_bt_rdesc;
 		*rsize = sizeof(dualshock4_bt_rdesc);
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 =======
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 =======
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 	}
 
 	/* The HID descriptor exposed over BT has a trailing zero byte */
@@ -1646,6 +1686,7 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		*rsize = sizeof(sixaxis_rdesc_fixup2);
 		memcpy(rdesc, &sixaxis_rdesc_fixup2, *rsize);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ed19d8cf28b2... HID: sony: Map gyroscopes and accelerometers to axes
 	}
 
@@ -1656,6 +1697,10 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	}
 
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+	}
+
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 	if (sc->quirks & PS3REMOTE)
 		return ps3remote_fixup(hdev, rdesc, rsize);
 
@@ -1670,6 +1715,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	/*
 	 * The sixaxis is charging if the battery value is 0xee
 =======
@@ -1679,6 +1725,10 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	/*
 	 * The sixaxis is charging if the battery value is 0xee
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+	/*
+	 * The sixaxis is charging if the battery value is 0xee
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 	 * and it is fully charged if the value is 0xef.
 	 * It does not report the actual level while charging so it
 	 * is set to 100% while charging is in progress.
@@ -3345,6 +3395,133 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
 	return 0;
 }
 
+/*
+ * If a controller is plugged in via USB while already connected via Bluetooth
+ * it will show up as two devices. A global list of connected controllers and
+ * their MAC addresses is maintained to ensure that a device is only connected
+ * once.
+ */
+static int sony_check_add_dev_list(struct sony_sc *sc)
+{
+	struct sony_sc *entry;
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&sony_dev_list_lock, flags);
+
+	list_for_each_entry(entry, &sony_device_list, list_node) {
+		ret = memcmp(sc->mac_address, entry->mac_address,
+				sizeof(sc->mac_address));
+		if (!ret) {
+			ret = -EEXIST;
+			hid_info(sc->hdev, "controller with MAC address %pMR already connected\n",
+				sc->mac_address);
+			goto unlock;
+		}
+	}
+
+	ret = 0;
+	list_add(&(sc->list_node), &sony_device_list);
+
+unlock:
+	spin_unlock_irqrestore(&sony_dev_list_lock, flags);
+	return ret;
+}
+
+static void sony_remove_dev_list(struct sony_sc *sc)
+{
+	unsigned long flags;
+
+	if (sc->list_node.next) {
+		spin_lock_irqsave(&sony_dev_list_lock, flags);
+		list_del(&(sc->list_node));
+		spin_unlock_irqrestore(&sony_dev_list_lock, flags);
+	}
+}
+
+static int sony_get_bt_devaddr(struct sony_sc *sc)
+{
+	int ret;
+
+	/* HIDP stores the device MAC address as a string in the uniq field. */
+	ret = strlen(sc->hdev->uniq);
+	if (ret != 17)
+		return -EINVAL;
+
+	ret = sscanf(sc->hdev->uniq,
+		"%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+		&sc->mac_address[5], &sc->mac_address[4], &sc->mac_address[3],
+		&sc->mac_address[2], &sc->mac_address[1], &sc->mac_address[0]);
+
+	if (ret != 6)
+		return -EINVAL;
+
+	return 0;
+}
+
+static int sony_check_add(struct sony_sc *sc)
+{
+	int n, ret;
+
+	if ((sc->quirks & DUALSHOCK4_CONTROLLER_BT) ||
+	    (sc->quirks & SIXAXIS_CONTROLLER_BT)) {
+		/*
+		 * sony_get_bt_devaddr() attempts to parse the Bluetooth MAC
+		 * address from the uniq string where HIDP stores it.
+		 * As uniq cannot be guaranteed to be a MAC address in all cases
+		 * a failure of this function should not prevent the connection.
+		 */
+		if (sony_get_bt_devaddr(sc) < 0) {
+			hid_warn(sc->hdev, "UNIQ does not contain a MAC address; duplicate check skipped\n");
+			return 0;
+		}
+	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+		__u8 buf[7];
+
+		/*
+		 * The MAC address of a DS4 controller connected via USB can be
+		 * retrieved with feature report 0x81. The address begins at
+		 * offset 1.
+		 */
+		ret = hid_hw_raw_request(sc->hdev, 0x81, buf, sizeof(buf),
+				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+
+		if (ret != 7) {
+			hid_err(sc->hdev, "failed to retrieve feature report 0x81 with the DualShock 4 MAC address\n");
+			return ret < 0 ? ret : -EINVAL;
+		}
+
+		memcpy(sc->mac_address, &buf[1], sizeof(sc->mac_address));
+	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
+		__u8 buf[18];
+
+		/*
+		 * The MAC address of a Sixaxis controller connected via USB can
+		 * be retrieved with feature report 0xf2. The address begins at
+		 * offset 4.
+		 */
+		ret = hid_hw_raw_request(sc->hdev, 0xf2, buf, sizeof(buf),
+				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+
+		if (ret != 18) {
+			hid_err(sc->hdev, "failed to retrieve feature report 0xf2 with the Sixaxis MAC address\n");
+			return ret < 0 ? ret : -EINVAL;
+		}
+
+		/*
+		 * The Sixaxis device MAC in the report is big-endian and must
+		 * be byte-swapped.
+		 */
+		for (n = 0; n < 6; n++)
+			sc->mac_address[5-n] = buf[4+n];
+	} else {
+		return 0;
+	}
+
+	return sony_check_add_dev_list(sc);
+}
+
+
 static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 {
 	int ret;
@@ -3497,10 +3674,14 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 	ret = sony_check_add(sc);
 	if (ret < 0)
 		goto err_stop;
 
+<<<<<<< HEAD
 	if (sc->quirks & SONY_LED_SUPPORT) {
 		ret = sony_leds_init(sc);
 		if (ret < 0)
@@ -3528,6 +3709,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 
 =======
 =======
+=======
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 	if (sc->quirks & SONY_LED_SUPPORT) {
 		ret = sony_leds_init(hdev);
 		if (ret < 0)
@@ -3588,7 +3771,11 @@ err_stop:
 =======
 	if (sc->worker_initialized)
 		cancel_work_sync(&sc->state_worker);
+<<<<<<< HEAD
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+	sony_remove_dev_list(sc);
+>>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 	hid_hw_stop(hdev);
 	return ret;
 }
@@ -3628,6 +3815,8 @@ static void sony_remove(struct hid_device *hdev)
 	if (sc->worker_initialized)
 		cancel_work_sync(&sc->state_worker);
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+
+	sony_remove_dev_list(sc);
 
 	hid_hw_stop(hdev);
 }
