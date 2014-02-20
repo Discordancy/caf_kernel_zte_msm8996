@@ -67,6 +67,7 @@
 				DUALSHOCK4_CONTROLLER)
 #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
 #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
+<<<<<<< HEAD
 =======
 #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER_USB)
 #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_USB)
@@ -79,6 +80,8 @@
 #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT |\
 				DUALSHOCK4_CONTROLLER)
 >>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
+=======
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 
 #define MAX_LEDS 4
 
@@ -734,6 +737,7 @@ static __u8 ps3remote_rdesc[] = {
 >>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
 };
 
+<<<<<<< HEAD
 /* The default descriptor doesn't provide mapping for the accelerometers
  * or orientation sensors.  This fixed descriptor maps the accelerometers
  * to usage values 0x40, 0x41 and 0x42 and maps the orientation sensors
@@ -1312,6 +1316,8 @@ static __u8 ps3remote_rdesc[] = {
 	 0xC0                /* MEndCollection [Game Pad] */
 };
 
+=======
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 static const unsigned int ps3remote_keymap_joypad_buttons[] = {
 	[0x01] = KEY_SELECT,
 	[0x02] = BTN_THUMBL,		/* L3 */
@@ -1416,6 +1422,7 @@ static enum power_supply_property sony_battery_props[] = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 struct sixaxis_led {
 	__u8 time_enabled; /* the total time the led is active (0xff means forever) */
 	__u8 duty_length;  /* how long a cycle is in deciseconds (0 means "really fast") */
@@ -1474,6 +1481,15 @@ struct sony_sc {
 =======
 	struct power_supply battery;
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+struct sony_sc {
+	spinlock_t lock;
+	struct hid_device *hdev;
+	struct led_classdev *leds[MAX_LEDS];
+	unsigned long quirks;
+	struct work_struct state_worker;
+	struct power_supply battery;
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 
 #ifdef CONFIG_SONY_FF
 	__u8 left;
@@ -1483,12 +1499,16 @@ struct sony_sc {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__u8 mac_address[6];
+=======
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 	__u8 worker_initialized;
 	__u8 cable_state;
 	__u8 battery_charging;
 	__u8 battery_capacity;
 	__u8 led_state[MAX_LEDS];
+<<<<<<< HEAD
 	__u8 led_delay_on[MAX_LEDS];
 	__u8 led_delay_off[MAX_LEDS];
 =======
@@ -1514,6 +1534,11 @@ static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
 };
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
+=======
+	__u8 led_count;
+};
+
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
 			     unsigned int *rsize)
 {
@@ -1555,6 +1580,11 @@ static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
 	return 1;
 }
 
+<<<<<<< HEAD
+=======
+
+/* Sony Vaio VGX has wrongly mouse pointer declared as constant */
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		unsigned int *rsize)
 {
@@ -1587,13 +1617,19 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		*rsize = sizeof(dualshock4_usb_rdesc);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_BT) && *rsize == 357) {
 		hid_info(hdev, "Using modified Dualshock 4 Bluetooth report descriptor\n");
 		rdesc = dualshock4_bt_rdesc;
 		*rsize = sizeof(dualshock4_bt_rdesc);
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 	}
 
 	/* The HID descriptor exposed over BT has a trailing zero byte */
@@ -1609,12 +1645,17 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 			 *rsize, (int)sizeof(sixaxis_rdesc_fixup2));
 		*rsize = sizeof(sixaxis_rdesc_fixup2);
 		memcpy(rdesc, &sixaxis_rdesc_fixup2, *rsize);
+<<<<<<< HEAD
 >>>>>>> ed19d8cf28b2... HID: sony: Map gyroscopes and accelerometers to axes
 	}
 
 	if (sc->quirks & SIXAXIS_CONTROLLER)
 		return sixaxis_fixup(hdev, rdesc, rsize);
 
+=======
+	}
+
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 	if (sc->quirks & PS3REMOTE)
 		return ps3remote_fixup(hdev, rdesc, rsize);
 
@@ -1628,11 +1669,16 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	__u8 cable_state, battery_capacity, battery_charging;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	/*
 	 * The sixaxis is charging if the battery value is 0xee
 =======
 	/* The sixaxis is charging if the battery value is 0xee
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+	/*
+	 * The sixaxis is charging if the battery value is 0xee
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 	 * and it is fully charged if the value is 0xef.
 	 * It does not report the actual level while charging so it
 	 * is set to 100% while charging is in progress.
@@ -1640,6 +1686,9 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	if (rd[30] >= 0xee) {
 		battery_capacity = 100;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 		battery_charging = !(rd[30] & 0x01);
 		cable_state = 1;
 	} else {
@@ -3118,9 +3167,12 @@ static int sony_init_ff(struct hid_device *hdev)
 
 	input_set_capability(input_dev, EV_FF, FF_RUMBLE);
 	return input_ff_create_memless(input_dev, NULL, sony_play_effect);
+<<<<<<< HEAD
 =======
 	cancel_work_sync(&sc->state_worker);
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 }
 
 #else
@@ -3130,6 +3182,7 @@ static int sony_init_ff(struct hid_device *hdev)
 }
 #endif
 
+<<<<<<< HEAD
 static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
 {
 	struct list_head *head, *list;
@@ -3156,6 +3209,9 @@ static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
 
 	return -EINVAL;
 }
+=======
+#endif
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 
 static int sony_battery_get_property(struct power_supply *psy,
 				     enum power_supply_property psp,
@@ -3344,7 +3400,12 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
 		ret = sixaxis_set_operational_usb(hdev);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		sony_init_work(sc, sixaxis_state_worker);
+=======
+		sc->worker_initialized = 1;
+		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
 		/*
 		 * The Sixaxis wants output reports sent on the ctrl endpoint
@@ -3354,7 +3415,12 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		ret = sixaxis_set_operational_bt(hdev);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		sony_init_work(sc, sixaxis_state_worker);
+=======
+		sc->worker_initialized = 1;
+		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
 		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
 			/*
@@ -3419,6 +3485,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		if (ret < 0)
 			goto err_stop;
 
+		sc->worker_initialized = 1;
 		INIT_WORK(&sc->state_worker, dualshock4_state_worker);
 	} else {
 		ret = 0;
@@ -3483,10 +3550,18 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		}
 	}
 
+<<<<<<< HEAD
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 	ret = sony_init_ff(hdev);
 	if (ret < 0)
 		goto err_close;
+=======
+	if (sc->quirks & SONY_FF_SUPPORT) {
+		ret = sony_init_ff(hdev);
+		if (ret < 0)
+			goto err_close;
+	}
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 
 >>>>>>> a08c22c0df0a... HID: sony: Add force feedback support for Dualshock3 USB
 	return 0;
@@ -3508,7 +3583,12 @@ err_stop:
 =======
 	if (sc->quirks & SONY_BATTERY_SUPPORT)
 		sony_battery_remove(sc);
+<<<<<<< HEAD
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+	if (sc->worker_initialized)
+		cancel_work_sync(&sc->state_worker);
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 	hid_hw_stop(hdev);
 	return ret;
 }
@@ -3541,8 +3621,13 @@ static void sony_remove(struct hid_device *hdev)
 		sony_battery_remove(sc);
 	}
 
+<<<<<<< HEAD
 	sony_destroy_ff(hdev);
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+	if (sc->worker_initialized)
+		cancel_work_sync(&sc->state_worker);
+>>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 
 	hid_hw_stop(hdev);
 }
