@@ -36,9 +36,12 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
 	if (state) {
 		if (sensor_hub_device_open(st->hsdev))
 			return -EIO;
+<<<<<<< HEAD
 
 		atomic_inc(&st->data_ready);
 
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		state_val = hid_sensor_get_usage_index(st->hsdev,
 			st->power_state.report_id,
 			st->power_state.index,
@@ -60,6 +63,10 @@ int hid_sensor_power_state(struct hid_sensor_common *st, bool state)
 			st->report_state.index,
 			HID_USAGE_SENSOR_PROP_REPORTING_STATE_NO_EVENTS_ENUM);
 	}
+<<<<<<< HEAD
+=======
+	st->data_ready = state;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	if (state_val >= 0) {
 		state_val += st->power_state.logical_minimum;

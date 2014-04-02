@@ -232,10 +232,14 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t 
 	/*
 	 * Read the first byte from the user. This is the report number,
 <<<<<<< HEAD
+<<<<<<< HEAD
 	 * which is passed to hid_hw_raw_request().
 =======
 	 * which is passed to dev->hid_get_raw_report().
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	 * which is passed to hid_hw_raw_request().
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	 */
 	if (copy_from_user(&report_number, buffer, 1)) {
 		ret = -EFAULT;

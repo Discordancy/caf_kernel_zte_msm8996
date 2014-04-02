@@ -674,6 +674,7 @@ config HID_SONY
 
 config SONY_FF
 <<<<<<< HEAD
+<<<<<<< HEAD
 	bool "Sony PS2/3/4 accessories force feedback support" 
 	depends on HID_SONY
 	select INPUT_FF_MEMLESS
@@ -688,6 +689,14 @@ config SONY_FF
 	Say Y here if you have a Sony PS2/3 accessory and want to enable force
 	feedback support for it.
 >>>>>>> a08c22c0df0a... HID: sony: Add force feedback support for Dualshock3 USB
+=======
+	bool "Sony PS2/3/4 accessories force feedback support" 
+	depends on HID_SONY
+	select INPUT_FF_MEMLESS
+	---help---
+	Say Y here if you have a Sony PS2/3/4 accessory and want to enable
+	force feedback support for it.
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 config HID_SPEEDLINK
 	tristate "Speedlink VAD Cezanne mouse support"

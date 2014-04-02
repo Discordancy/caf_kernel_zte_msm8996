@@ -821,15 +821,21 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 		case 0x199: map_key_clear(KEY_CHAT);		break;
 		case 0x19c: map_key_clear(KEY_LOGOFF);		break;
 		case 0x19e: map_key_clear(KEY_COFFEE);		break;
+<<<<<<< HEAD
 		case 0x19f: map_key_clear(KEY_CONTROLPANEL);		break;
 		case 0x1a2: map_key_clear(KEY_APPSELECT);		break;
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		case 0x1a3: map_key_clear(KEY_NEXT);		break;
 		case 0x1a4: map_key_clear(KEY_PREVIOUS);	break;
 		case 0x1a6: map_key_clear(KEY_HELP);		break;
 		case 0x1a7: map_key_clear(KEY_DOCUMENTS);	break;
 		case 0x1ab: map_key_clear(KEY_SPELLCHECK);	break;
 		case 0x1ae: map_key_clear(KEY_KEYBOARD);	break;
+<<<<<<< HEAD
 		case 0x1b1: map_key_clear(KEY_SCREENSAVER);		break;
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		case 0x1b4: map_key_clear(KEY_FILE);		break;
 		case 0x1b6: map_key_clear(KEY_IMAGES);		break;
 		case 0x1b7: map_key_clear(KEY_AUDIO);		break;

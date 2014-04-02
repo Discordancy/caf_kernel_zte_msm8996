@@ -240,6 +240,11 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
 	u8 buf[5];
 	int ret;
 
+<<<<<<< HEAD
+=======
+	cp2112_gpio_set(chip, offset, value);
+
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
 				       sizeof(buf), HID_FEATURE_REPORT,
 				       HID_REQ_GET_REPORT);
@@ -258,12 +263,15 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
 		return ret;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Set gpio value when output direction is already set,
 	 * as specified in AN495, Rev. 0.2, cpt. 4.4
 	 */
 	cp2112_gpio_set(chip, offset, value);
 
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	return 0;
 }
 
@@ -429,6 +437,7 @@ static int cp2112_write_req(void *buf, u8 slave_address, u8 command, u8 *data,
 	return data_length + 4;
 }
 
+<<<<<<< HEAD
 static int cp2112_i2c_write_req(void *buf, u8 slave_address, u8 *data,
 				u8 data_length)
 {
@@ -528,6 +537,8 @@ power_normal:
 	return ret;
 }
 
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
 		       unsigned short flags, char read_write, u8 command,
 		       int size, union i2c_smbus_data *data)
@@ -694,8 +705,12 @@ power_normal:
 
 static u32 cp2112_functionality(struct i2c_adapter *adap)
 {
+<<<<<<< HEAD
 	return I2C_FUNC_I2C |
 		I2C_FUNC_SMBUS_BYTE |
+=======
+	return I2C_FUNC_SMBUS_BYTE |
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		I2C_FUNC_SMBUS_BYTE_DATA |
 		I2C_FUNC_SMBUS_WORD_DATA |
 		I2C_FUNC_SMBUS_BLOCK_DATA |
@@ -705,7 +720,10 @@ static u32 cp2112_functionality(struct i2c_adapter *adap)
 }
 
 static const struct i2c_algorithm smbus_algorithm = {
+<<<<<<< HEAD
 	.master_xfer	= cp2112_i2c_xfer,
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	.smbus_xfer	= cp2112_xfer,
 	.functionality	= cp2112_functionality,
 };
@@ -1069,7 +1087,12 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	return ret;
 
 err_gpiochip_remove:
+<<<<<<< HEAD
 	gpiochip_remove(&dev->gc);
+=======
+	if (gpiochip_remove(&dev->gc) < 0)
+		hid_err(hdev, "error removing gpio chip\n");
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 err_free_i2c:
 	i2c_del_adapter(&dev->adap);
 err_free_dev:
@@ -1088,7 +1111,12 @@ static void cp2112_remove(struct hid_device *hdev)
 	struct cp2112_device *dev = hid_get_drvdata(hdev);
 
 	sysfs_remove_group(&hdev->dev.kobj, &cp2112_attr_group);
+<<<<<<< HEAD
 	gpiochip_remove(&dev->gc);
+=======
+	if (gpiochip_remove(&dev->gc))
+		hid_err(hdev, "unable to remove gpio chip\n");
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	i2c_del_adapter(&dev->adap);
 	/* i2c_del_adapter has finished removing all i2c devices from our
 	 * adapter. Well behaved devices should no longer call our cp2112_xfer

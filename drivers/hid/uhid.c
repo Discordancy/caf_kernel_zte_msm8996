@@ -384,14 +384,37 @@ static int uhid_hid_output_report(struct hid_device *hid, __u8 *buf,
 	return uhid_hid_output_raw(hid, buf, count, HID_OUTPUT_REPORT);
 }
 
+<<<<<<< HEAD
+=======
+static int uhid_raw_request(struct hid_device *hid, unsigned char reportnum,
+			    __u8 *buf, size_t len, unsigned char rtype,
+			    int reqtype)
+{
+	switch (reqtype) {
+	case HID_REQ_GET_REPORT:
+		return uhid_hid_get_raw(hid, reportnum, buf, len, rtype);
+	case HID_REQ_SET_REPORT:
+		/* TODO: implement proper SET_REPORT functionality */
+		return -ENOSYS;
+	default:
+		return -EIO;
+	}
+}
+
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static struct hid_ll_driver uhid_hid_driver = {
 	.start = uhid_hid_start,
 	.stop = uhid_hid_stop,
 	.open = uhid_hid_open,
 	.close = uhid_hid_close,
 	.parse = uhid_hid_parse,
+<<<<<<< HEAD
 	.raw_request = uhid_hid_raw_request,
 	.output_report = uhid_hid_output_report,
+=======
+	.output_report = uhid_hid_output_report,
+	.raw_request = uhid_raw_request,
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 };
 
 #ifdef CONFIG_COMPAT
@@ -518,11 +541,19 @@ static int uhid_dev_create2(struct uhid_device *uhid,
 	strncpy(hid->uniq, ev->u.create2.uniq, len);
 
 	hid->ll_driver = &uhid_hid_driver;
+<<<<<<< HEAD
 	hid->bus = ev->u.create2.bus;
 	hid->vendor = ev->u.create2.vendor;
 	hid->product = ev->u.create2.product;
 	hid->version = ev->u.create2.version;
 	hid->country = ev->u.create2.country;
+=======
+	hid->bus = ev->u.create.bus;
+	hid->vendor = ev->u.create.vendor;
+	hid->product = ev->u.create.product;
+	hid->version = ev->u.create.version;
+	hid->country = ev->u.create.country;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	hid->driver_data = uhid;
 	hid->dev.parent = uhid_misc.this_device;
 
@@ -544,6 +575,7 @@ err_free:
 	return ret;
 }
 
+<<<<<<< HEAD
 static int uhid_dev_create(struct uhid_device *uhid,
 			   struct uhid_event *ev)
 {
@@ -567,6 +599,67 @@ static int uhid_dev_create(struct uhid_device *uhid,
 	ev->u.create2.country = orig.country;
 
 	return uhid_dev_create2(uhid, ev);
+=======
+static int uhid_dev_create2(struct uhid_device *uhid,
+			    const struct uhid_event *ev)
+{
+	struct hid_device *hid;
+	int ret;
+
+	if (uhid->running)
+		return -EALREADY;
+
+	uhid->rd_size = ev->u.create2.rd_size;
+	if (uhid->rd_size <= 0 || uhid->rd_size > HID_MAX_DESCRIPTOR_SIZE)
+		return -EINVAL;
+
+	uhid->rd_data = kmalloc(uhid->rd_size, GFP_KERNEL);
+	if (!uhid->rd_data)
+		return -ENOMEM;
+
+	memcpy(uhid->rd_data, ev->u.create2.rd_data, uhid->rd_size);
+
+	hid = hid_allocate_device();
+	if (IS_ERR(hid)) {
+		ret = PTR_ERR(hid);
+		goto err_free;
+	}
+
+	strncpy(hid->name, ev->u.create2.name, 127);
+	hid->name[127] = 0;
+	strncpy(hid->phys, ev->u.create2.phys, 63);
+	hid->phys[63] = 0;
+	strncpy(hid->uniq, ev->u.create2.uniq, 63);
+	hid->uniq[63] = 0;
+
+	hid->ll_driver = &uhid_hid_driver;
+	hid->bus = ev->u.create2.bus;
+	hid->vendor = ev->u.create2.vendor;
+	hid->product = ev->u.create2.product;
+	hid->version = ev->u.create2.version;
+	hid->country = ev->u.create2.country;
+	hid->driver_data = uhid;
+	hid->dev.parent = uhid_misc.this_device;
+
+	uhid->hid = hid;
+	uhid->running = true;
+
+	ret = hid_add_device(hid);
+	if (ret) {
+		hid_err(hid, "Cannot register HID device\n");
+		goto err_hid;
+	}
+
+	return 0;
+
+err_hid:
+	hid_destroy_device(hid);
+	uhid->hid = NULL;
+	uhid->running = false;
+err_free:
+	kfree(uhid->rd_data);
+	return ret;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 static int uhid_dev_destroy(struct uhid_device *uhid)
@@ -597,6 +690,21 @@ static int uhid_dev_input(struct uhid_device *uhid, struct uhid_event *ev)
 }
 
 static int uhid_dev_input2(struct uhid_device *uhid, struct uhid_event *ev)
+<<<<<<< HEAD
+=======
+{
+	if (!uhid->running)
+		return -EINVAL;
+
+	hid_input_report(uhid->hid, HID_INPUT_REPORT, ev->u.input2.data,
+			 min_t(size_t, ev->u.input2.size, UHID_DATA_MAX), 0);
+
+	return 0;
+}
+
+static int uhid_dev_feature_answer(struct uhid_device *uhid,
+				   struct uhid_event *ev)
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 {
 	if (!uhid->running)
 		return -EINVAL;
@@ -761,11 +869,16 @@ static ssize_t uhid_char_write(struct file *file, const char __user *buffer,
 	case UHID_INPUT2:
 		ret = uhid_dev_input2(uhid, &uhid->input_buf);
 		break;
+<<<<<<< HEAD
 	case UHID_GET_REPORT_REPLY:
 		ret = uhid_dev_get_report_reply(uhid, &uhid->input_buf);
 		break;
 	case UHID_SET_REPORT_REPLY:
 		ret = uhid_dev_set_report_reply(uhid, &uhid->input_buf);
+=======
+	case UHID_FEATURE_ANSWER:
+		ret = uhid_dev_feature_answer(uhid, &uhid->input_buf);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		break;
 	default:
 		ret = -EOPNOTSUPP;

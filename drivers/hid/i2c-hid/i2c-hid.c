@@ -286,12 +286,20 @@ static int i2c_hid_set_or_send_report(struct i2c_client *client, u8 reportType,
 	if (data_len > ihid->bufsize)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	size =		2			/* size */ +
+=======
+	/* hid_hw_* already checked that data_len < HID_MAX_BUFFER_SIZE */
+	u16 size =	2			/* size */ +
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 			(reportID ? 1 : 0)	/* reportID */ +
 			data_len		/* buf */;
 	args_len =	(reportID >= 0x0F ? 1 : 0) /* optional third byte */ +
 			2			/* dataRegister */ +
 			size			/* args */;
+
+	if (!use_data && maxOutputLength == 0)
+		return -ENOSYS;
 
 	if (!use_data && maxOutputLength == 0)
 		return -ENOSYS;
@@ -981,6 +989,7 @@ static int i2c_hid_probe(struct i2c_client *client,
 	pm_runtime_set_active(&client->dev);
 	pm_runtime_enable(&client->dev);
 
+<<<<<<< HEAD
 	/* Make sure there is something at this address */
 	ret = i2c_smbus_read_byte(client);
 	if (ret < 0) {
@@ -989,6 +998,8 @@ static int i2c_hid_probe(struct i2c_client *client,
 		goto err_pm;
 	}
 
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	ret = i2c_hid_fetch_hid_descriptor(ihid);
 	if (ret < 0)
 		goto err_pm;
@@ -1131,6 +1142,29 @@ static int i2c_hid_runtime_resume(struct device *dev)
 }
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CONFIG_PM_RUNTIME
+static int i2c_hid_runtime_suspend(struct device *dev)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+
+	i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
+	disable_irq(client->irq);
+	return 0;
+}
+
+static int i2c_hid_runtime_resume(struct device *dev)
+{
+	struct i2c_client *client = to_i2c_client(dev);
+
+	enable_irq(client->irq);
+	i2c_hid_set_power(client, I2C_HID_PWR_ON);
+	return 0;
+}
+#endif
+
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static const struct dev_pm_ops i2c_hid_pm = {
 	SET_SYSTEM_SLEEP_PM_OPS(i2c_hid_suspend, i2c_hid_resume)
 	SET_RUNTIME_PM_OPS(i2c_hid_runtime_suspend, i2c_hid_runtime_resume,

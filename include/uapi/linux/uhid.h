@@ -31,6 +31,7 @@ enum uhid_event_type {
 	UHID_OPEN,
 	UHID_CLOSE,
 	UHID_OUTPUT,
+<<<<<<< HEAD
 	__UHID_LEGACY_OUTPUT_EV,
 	__UHID_LEGACY_INPUT,
 	UHID_GET_REPORT,
@@ -39,6 +40,14 @@ enum uhid_event_type {
 	UHID_INPUT2,
 	UHID_SET_REPORT,
 	UHID_SET_REPORT_REPLY,
+=======
+	UHID_OUTPUT_EV,			/* obsolete! */
+	UHID_INPUT,
+	UHID_FEATURE,
+	UHID_FEATURE_ANSWER,
+	UHID_CREATE2,
+	UHID_INPUT2,
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 };
 
 struct uhid_create2_req {
@@ -54,6 +63,7 @@ struct uhid_create2_req {
 	__u8 rd_data[HID_MAX_DESCRIPTOR_SIZE];
 } __attribute__((__packed__));
 
+<<<<<<< HEAD
 enum uhid_dev_flag {
 	UHID_DEV_NUMBERED_FEATURE_REPORTS			= (1ULL << 0),
 	UHID_DEV_NUMBERED_OUTPUT_REPORTS			= (1ULL << 1),
@@ -63,6 +73,20 @@ enum uhid_dev_flag {
 struct uhid_start_req {
 	__u64 dev_flags;
 };
+=======
+struct uhid_create2_req {
+	__u8 name[128];
+	__u8 phys[64];
+	__u8 uniq[64];
+	__u16 rd_size;
+	__u16 bus;
+	__u32 vendor;
+	__u32 product;
+	__u32 version;
+	__u32 country;
+	__u8 rd_data[HID_MAX_DESCRIPTOR_SIZE];
+} __attribute__((__packed__));
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #define UHID_DATA_MAX 4096
 
@@ -71,6 +95,11 @@ enum uhid_report_type {
 	UHID_OUTPUT_REPORT,
 	UHID_INPUT_REPORT,
 };
+
+struct uhid_input2_req {
+	__u16 size;
+	__u8 data[UHID_DATA_MAX];
+} __attribute__((__packed__));
 
 struct uhid_input2_req {
 	__u16 size;
@@ -187,12 +216,17 @@ struct uhid_event {
 		struct uhid_feature_req feature;
 		struct uhid_get_report_req get_report;
 		struct uhid_feature_answer_req feature_answer;
+<<<<<<< HEAD
 		struct uhid_get_report_reply_req get_report_reply;
 		struct uhid_create2_req create2;
 		struct uhid_input2_req input2;
 		struct uhid_set_report_req set_report;
 		struct uhid_set_report_reply_req set_report_reply;
 		struct uhid_start_req start;
+=======
+		struct uhid_create2_req create2;
+		struct uhid_input2_req input2;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	} u;
 } __attribute__((__packed__));
 

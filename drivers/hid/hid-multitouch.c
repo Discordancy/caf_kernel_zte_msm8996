@@ -382,6 +382,7 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 		td->mt_flags |= INPUT_MT_POINTER;
 		td->inputmode_value = MT_INPUTMODE_TOUCHPAD;
 	}
+<<<<<<< HEAD
 
 	/* Only map fields from TouchScreen or TouchPad collections.
          * We need to ignore fields that belong to other collections
@@ -392,6 +393,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 		set_bit(INPUT_PROP_POINTER, hi->input->propbit);
 	else
 		return 0;
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	if (usage->usage_index)
 		prev_usage = &field->usage[usage->usage_index - 1];
@@ -775,11 +778,19 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
 	 */
 	if (field->physical == HID_DG_STYLUS)
 		return 0;
+<<<<<<< HEAD
 
 	if (field->application == HID_DG_TOUCHSCREEN ||
 	    field->application == HID_DG_TOUCHPAD)
 		return mt_touch_input_mapping(hdev, hi, field, usage, bit, max);
 
+=======
+
+	if (field->application == HID_DG_TOUCHSCREEN ||
+	    field->application == HID_DG_TOUCHPAD)
+		return mt_touch_input_mapping(hdev, hi, field, usage, bit, max);
+
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	/* let hid-core decide for the others */
 	return 0;
 }
@@ -908,7 +919,10 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
 	char *name;
 	const char *suffix = NULL;
 	struct hid_field *field = hi->report->field[0];
+<<<<<<< HEAD
 	int ret;
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	if (hi->report->id == td->mt_report_id) {
 		ret = mt_touch_input_configured(hdev, hi);
@@ -1186,11 +1200,14 @@ static const struct hid_device_id mt_devices[] = {
 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
 			USB_DEVICE_ID_DWAV_EGALAX_MULTITOUCH_A001) },
 
+<<<<<<< HEAD
 	/* Elitegroup panel */
 	{ .driver_data = MT_CLS_SERIAL,
 		MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
 			USB_DEVICE_ID_ELITEGROUP_05D8) },
 
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	/* Flatfrog Panels */
 	{ .driver_data = MT_CLS_FLATFROG,
 		MT_USB_DEVICE(USB_VENDOR_ID_FLATFROG,
@@ -1289,6 +1306,7 @@ static const struct hid_device_id mt_devices[] = {
 		MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,
 			USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH_3001) },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	{ .driver_data = MT_CLS_CONFIDENCE_CONTACT_ID,
 		MT_USB_DEVICE(USB_VENDOR_ID_QUANTA,
@@ -1305,6 +1323,8 @@ static const struct hid_device_id mt_devices[] = {
 		HID_USB_DEVICE(USB_VENDOR_ID_SIS_TOUCH,
 		USB_DEVICE_ID_SIS1030_TOUCH) },
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	/* Stantum panels */
 	{ .driver_data = MT_CLS_CONFIDENCE,

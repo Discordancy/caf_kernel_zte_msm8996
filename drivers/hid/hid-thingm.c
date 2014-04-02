@@ -79,8 +79,13 @@ static int thingm_send(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
 			buf[0], buf[1], buf[2], buf[3], buf[4],
 			buf[5], buf[6], buf[7], buf[8]);
 
+<<<<<<< HEAD
 	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
 			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+=======
+	ret = hid_hw_raw_request(data->hdev, buf[0], buf, BLINK1_CMD_SIZE,
+				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	return ret < 0 ? ret : 0;
 }

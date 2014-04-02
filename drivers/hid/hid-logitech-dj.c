@@ -526,7 +526,11 @@ static int logi_dj_ll_raw_request(struct hid_device *hid,
 	if (!out_buf)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	if (count > DJREPORT_SHORT_LENGTH - 2)
+=======
+	if (count < DJREPORT_SHORT_LENGTH - 2)
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		count = DJREPORT_SHORT_LENGTH - 2;
 
 	out_buf[0] = REPORT_ID_DJ_SHORT;

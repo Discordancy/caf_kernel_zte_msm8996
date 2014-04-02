@@ -252,8 +252,11 @@
 #define USB_DEVICE_ID_CYGNAL_RADIO_SI470X	0x818a
 #define USB_DEVICE_ID_FOCALTECH_FTXXXX_MULTITOUCH	0x81b9
 #define USB_DEVICE_ID_CYGNAL_CP2112	0xea90
+<<<<<<< HEAD
 
 #define USB_DEVICE_ID_CYGNAL_RADIO_SI4713       0x8244
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #define USB_DEVICE_ID_CYGNAL_RADIO_SI4713       0x8244
 

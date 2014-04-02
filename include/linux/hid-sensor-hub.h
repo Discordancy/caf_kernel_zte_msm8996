@@ -223,10 +223,13 @@ int hid_sensor_read_samp_freq_value(struct hid_sensor_common *st,
 int hid_sensor_get_usage_index(struct hid_sensor_hub_device *hsdev,
 				u32 report_id, int field_index, u32 usage_id);
 
+<<<<<<< HEAD
 int hid_sensor_format_scale(u32 usage_id,
 			    struct hid_sensor_hub_attribute_info *attr_info,
 			    int *val0, int *val1);
 
 s32 hid_sensor_read_poll_value(struct hid_sensor_common *st);
 
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 #endif

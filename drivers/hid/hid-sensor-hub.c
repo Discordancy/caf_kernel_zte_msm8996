@@ -68,9 +68,13 @@ struct sensor_hub_data {
 	int hid_sensor_client_cnt;
 	unsigned long quirks;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	int ref_cnt;
 =======
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	int ref_cnt;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 };
 
 /**
@@ -168,7 +172,11 @@ int sensor_hub_register_callback(struct hid_sensor_hub_device *hsdev,
 	list_for_each_entry(callback, &pdata->dyn_callback_list, list)
 		if (callback->usage_id == usage_id &&
 						callback->hsdev == hsdev) {
+<<<<<<< HEAD
 			spin_unlock_irqrestore(&pdata->dyn_callback_lock, flags);
+=======
+			spin_unlock(&pdata->dyn_callback_lock);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 			return -EINVAL;
 		}
 	callback = kzalloc(sizeof(*callback), GFP_ATOMIC);
@@ -583,12 +591,16 @@ static int sensor_hub_probe(struct hid_device *hdev,
 	hid_set_drvdata(hdev, sd);
 	sd->quirks = id->driver_data;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 	sd->hsdev->hdev = hdev;
 	sd->hsdev->vendor_id = hdev->vendor;
 	sd->hsdev->product_id = hdev->product;
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	spin_lock_init(&sd->lock);
 	spin_lock_init(&sd->dyn_callback_lock);
 	mutex_init(&sd->mutex);
@@ -627,12 +639,20 @@ static int sensor_hub_probe(struct hid_device *hdev,
 
 		if (collection->type == HID_COLLECTION_PHYSICAL) {
 
+<<<<<<< HEAD
 			hsdev = devm_kzalloc(&hdev->dev, sizeof(*hsdev),
 					     GFP_KERNEL);
 			if (!hsdev) {
 				hid_err(hdev, "cannot allocate hid_sensor_hub_device\n");
 				ret = -ENOMEM;
 				goto err_stop_hw;
+=======
+			hsdev = kzalloc(sizeof(*hsdev), GFP_KERNEL);
+			if (!hsdev) {
+				hid_err(hdev, "cannot allocate hid_sensor_hub_device\n");
+				ret = -ENOMEM;
+				goto err_no_mem;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 			}
 			hsdev->hdev = hdev;
 			hsdev->vendor_id = hdev->vendor;
@@ -641,6 +661,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
 			if (last_hsdev)
 				last_hsdev->end_collection_index = i;
 			last_hsdev = hsdev;
+<<<<<<< HEAD
 			name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
 					      "HID-SENSOR-%x",
 					      collection->usage);
@@ -648,6 +669,14 @@ static int sensor_hub_probe(struct hid_device *hdev,
 				hid_err(hdev, "Failed MFD device name\n");
 					ret = -ENOMEM;
 					goto err_stop_hw;
+=======
+			name = kasprintf(GFP_KERNEL, "HID-SENSOR-%x",
+					collection->usage);
+			if (name == NULL) {
+				hid_err(hdev, "Failed MFD device name\n");
+					ret = -ENOMEM;
+					goto err_no_mem;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 			}
 			sd->hid_sensor_hub_client_devs[
 				sd->hid_sensor_client_cnt].id =
@@ -671,10 +700,23 @@ static int sensor_hub_probe(struct hid_device *hdev,
 	ret = mfd_add_devices(&hdev->dev, 0, sd->hid_sensor_hub_client_devs,
 		sd->hid_sensor_client_cnt, NULL, 0, NULL);
 	if (ret < 0)
+<<<<<<< HEAD
 		goto err_stop_hw;
 
 	return ret;
 
+=======
+		goto err_no_mem;
+
+	return ret;
+
+err_no_mem:
+	for (i = 0; i < sd->hid_sensor_client_cnt; ++i) {
+		kfree(sd->hid_sensor_hub_client_devs[i].name);
+		kfree(sd->hid_sensor_hub_client_devs[i].platform_data);
+	}
+	kfree(sd->hid_sensor_hub_client_devs);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 err_stop_hw:
 	hid_hw_stop(hdev);
 
@@ -694,6 +736,14 @@ static void sensor_hub_remove(struct hid_device *hdev)
 		complete(&data->pending.ready);
 	spin_unlock_irqrestore(&data->lock, flags);
 	mfd_remove_devices(&hdev->dev);
+<<<<<<< HEAD
+=======
+	for (i = 0; i < data->hid_sensor_client_cnt; ++i) {
+		kfree(data->hid_sensor_hub_client_devs[i].name);
+		kfree(data->hid_sensor_hub_client_devs[i].platform_data);
+	}
+	kfree(data->hid_sensor_hub_client_devs);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	hid_set_drvdata(hdev, NULL);
 	mutex_destroy(&data->mutex);
 }

@@ -36,6 +36,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include <linux/list.h>
 #include <linux/idr.h>
 =======
@@ -46,6 +47,10 @@
 #include <linux/input/mt.h>
 =======
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+#include <linux/list.h>
+#include <linux/input/mt.h>
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #include "hid-ids.h"
 
@@ -64,6 +69,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
 #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
 				DUALSHOCK4_CONTROLLER_BT)
@@ -71,6 +79,7 @@
 				DUALSHOCK4_CONTROLLER)
 #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
 #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER_USB)
@@ -86,6 +95,8 @@
 >>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 =======
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #define MAX_LEDS 4
 
@@ -185,6 +196,7 @@ static __u8 sixaxis_rdesc[] = {
 #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER_USB | BUZZ_CONTROLLER | DUALSHOCK4_CONTROLLER_USB)
 >>>>>>> 8ab1676b614e... HID: sony: Use separate identifiers for USB and Bluetooth connected Dualshock 4 controllers.
 
+<<<<<<< HEAD
 #define MAX_LEDS 4
 >>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 =======
@@ -193,6 +205,8 @@ static __u8 sixaxis_rdesc[] = {
 #define MAX_LEDS 4
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 /*
  * The default descriptor doesn't provide mapping for the accelerometers
  * or orientation sensors.  This fixed descriptor maps the accelerometers
@@ -454,6 +468,7 @@ static u8 dualshock4_usb_rdesc[] = {
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /*
  * The default behavior of the Dualshock 4 is to send reports using report
  * type 1 when running over Bluetooth. However, when feature report 2 is
@@ -463,12 +478,19 @@ static u8 dualshock4_usb_rdesc[] = {
  * the HID layer won't process the received input.
 =======
 /* The default behavior of the Dualshock 4 is to send reports using report
+=======
+/*
+ * The default behavior of the Dualshock 4 is to send reports using report
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
  * type 1 when running over Bluetooth. However, as soon as it receives a
  * report of type 17 to set the LEDs or rumble it starts returning it's state
  * in report 17 instead of 1.  Since report 17 is undefined in the default HID
  * descriptor the button and axis definitions must be moved to report 17 or
  * the HID layer won't process the received input once a report is sent.
+<<<<<<< HEAD
 >>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
  */
 static u8 dualshock4_bt_rdesc[] = {
 	0x05, 0x01,         /*  Usage Page (Desktop),               */
@@ -579,12 +601,17 @@ static u8 dualshock4_bt_rdesc[] = {
 	0x19, 0x43,         /*      Usage Minimum (43h),            */
 	0x29, 0x45,         /*      Usage Maximum (45h),            */
 <<<<<<< HEAD
+<<<<<<< HEAD
 	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
 	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
 =======
 	0x16, 0xFF, 0xBF,   /*      Logical Minimum (-16385),       */
 	0x26, 0x00, 0x40,   /*      Logical Maximum (16384),        */
 >>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
+=======
+	0x16, 0xFF, 0xBF,   /*      Logical Minimum (-16385),       */
+	0x26, 0x00, 0x40,   /*      Logical Maximum (16384),        */
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	0x95, 0x03,         /*      Report Count (3),               */
 	0x81, 0x02,         /*      Input (Variable),               */
 	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h),             */
@@ -677,7 +704,10 @@ static u8 dualshock4_bt_rdesc[] = {
 	0xB1, 0x02,         /*      Feature (Variable),             */
 	0xC0                /*  End Collection                      */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 };
 
 static __u8 ps3remote_rdesc[] = {
@@ -741,6 +771,7 @@ static __u8 ps3remote_rdesc[] = {
 >>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 /* The default descriptor doesn't provide mapping for the accelerometers
@@ -1325,6 +1356,8 @@ static __u8 ps3remote_rdesc[] = {
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 =======
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static const unsigned int ps3remote_keymap_joypad_buttons[] = {
 	[0x01] = KEY_SELECT,
 	[0x02] = BTN_THUMBL,		/* L3 */
@@ -1431,6 +1464,7 @@ static enum power_supply_property sony_battery_props[] = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 struct sixaxis_led {
 	__u8 time_enabled; /* the total time the led is active (0xff means forever) */
 	__u8 duty_length;  /* how long a cycle is in deciseconds (0 means "really fast") */
@@ -1475,11 +1509,19 @@ struct sony_sc {
 struct sony_sc {
 	spinlock_t lock;
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+static spinlock_t sony_dev_list_lock;
+static LIST_HEAD(sony_device_list);
+
+struct sony_sc {
+	spinlock_t lock;
+	struct list_head list_node;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	struct hid_device *hdev;
 	struct led_classdev *leds[MAX_LEDS];
-	struct hid_report *output_report;
 	unsigned long quirks;
 	struct work_struct state_worker;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	struct power_supply battery;
@@ -1509,6 +1551,9 @@ struct sony_sc {
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 =======
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+	struct power_supply battery;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #ifdef CONFIG_SONY_FF
 	__u8 left;
@@ -1520,16 +1565,21 @@ struct sony_sc {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__u8 mac_address[6];
 =======
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 =======
 	__u8 mac_address[6];
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+	__u8 mac_address[6];
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	__u8 worker_initialized;
 	__u8 cable_state;
 	__u8 battery_charging;
 	__u8 battery_capacity;
+<<<<<<< HEAD
 	__u8 led_state[MAX_LEDS];
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1553,6 +1603,8 @@ static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
 	__u8 battery_charging;
 	__u8 battery_capacity;
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	__u8 led_state[MAX_LEDS];
 	__u8 led_count;
 };
@@ -1653,14 +1705,18 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 =======
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_BT) && *rsize == 357) {
 		hid_info(hdev, "Using modified Dualshock 4 Bluetooth report descriptor\n");
 		rdesc = dualshock4_bt_rdesc;
 		*rsize = sizeof(dualshock4_bt_rdesc);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -1670,6 +1726,8 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 =======
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	}
 
 	/* The HID descriptor exposed over BT has a trailing zero byte */
@@ -1716,6 +1774,7 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	/*
 	 * The sixaxis is charging if the battery value is 0xee
 =======
@@ -1729,6 +1788,10 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	/*
 	 * The sixaxis is charging if the battery value is 0xee
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+	/*
+	 * The sixaxis is charging if the battery value is 0xee
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	 * and it is fully charged if the value is 0xef.
 	 * It does not report the actual level while charging so it
 	 * is set to 100% while charging is in progress.
@@ -1737,14 +1800,19 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 		battery_capacity = 100;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 		battery_charging = !(rd[30] & 0x01);
 		cable_state = 1;
+=======
+		battery_charging = !(rd[30] & 0x01);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	} else {
 		__u8 index = rd[30] <= 5 ? rd[30] : 5;
 		battery_capacity = sixaxis_battery_capacity[index];
 		battery_charging = 0;
+<<<<<<< HEAD
 		cable_state = 0;
 	}
 =======
@@ -1755,6 +1823,10 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	}
 	cable_state = (rd[31] >> 4) & 0x01;
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+	}
+	cable_state = !(rd[31] & 0x04);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	spin_lock_irqsave(&sc->lock, flags);
 	sc->cable_state = cable_state;
@@ -1766,15 +1838,22 @@ static void sixaxis_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
 						struct hid_input, list);
 	struct input_dev *input_dev = hidinput->input;
 	unsigned long flags;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	int n, offset;
 =======
 	int n, offset = 35;
 >>>>>>> e56062305069... HID: sony: add output events for the multi-touch pad on the Dualshock 4
+=======
+	int n, offset;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	__u8 cable_state, battery_capacity, battery_charging;
 
 	/*
@@ -1796,6 +1875,7 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	 * A battery level above 10 when plugged in means charge completed.
 	 */
 	if (!cable_state || battery_capacity > 10)
+<<<<<<< HEAD
 =======
 	unsigned long flags;
 	__u8 cable_state, battery_capacity, battery_charging;
@@ -1811,20 +1891,28 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	 */
 	if (cable_state && battery_capacity == 11)
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		battery_charging = 0;
 	else
 		battery_charging = 1;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (!cable_state)
 		battery_capacity++;
 	if (battery_capacity > 10)
 		battery_capacity = 10;
 
+<<<<<<< HEAD
 =======
 	if (battery_capacity > 10)
 		battery_capacity--;
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	battery_capacity *= 10;
 
 	spin_lock_irqsave(&sc->lock, flags);
@@ -1833,16 +1921,23 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	sc->battery_charging = battery_charging;
 	spin_unlock_irqrestore(&sc->lock, flags);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
+=======
+
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	offset += 5;
 
 	/*
 	 * The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB
 	 * and 37 on Bluetooth.
+<<<<<<< HEAD
 =======
 	/* The Dualshock 4 multi-touch trackpad data starts at offset 35 on USB.
 >>>>>>> e56062305069... HID: sony: add output events for the multi-touch pad on the Dualshock 4
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	 * The first 7 bits of the first byte is a counter and bit 8 is a touch
 	 * indicator that is 0 when pressed and 1 when not pressed.
 	 * The next 3 bytes are two 12 bit touch coordinates, X and Y.
@@ -1863,8 +1958,11 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 
 		offset += 4;
 	}
+<<<<<<< HEAD
 =======
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
@@ -1884,6 +1982,7 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
 
 		sixaxis_parse_report(sc, rd, size);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
 			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
 			&& rd[0] == 0x11 && size == 78)) {
@@ -1891,6 +1990,11 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
 	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
 			size == 64) {
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
+=======
+	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
+			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
+			&& rd[0] == 0x11 && size == 78)) {
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		dualshock4_parse_report(sc, rd, size);
 	}
 
@@ -1933,6 +2037,7 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
 	return 0;
 }
 
+<<<<<<< HEAD
 static int sony_register_touchpad(struct hid_input *hi, int touch_count,
 					int w, int h)
 {
@@ -1972,6 +2077,8 @@ static int sony_input_configured(struct hid_device *hdev,
 	return 0;
 }
 
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 /*
  * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
  * to "operational".  Without this, the ps3 controller will not report any
@@ -2004,6 +2111,9 @@ static int sixaxis_set_operational_bt(struct hid_device *hdev)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 /*
  * Requesting feature report 0x02 in Bluetooth mode changes the state of the
  * controller so that it sends full input reports of type 0x11.
@@ -2014,6 +2124,7 @@ static int dualshock4_set_operational_bt(struct hid_device *hdev)
 
 	return hid_hw_raw_request(hdev, 0x02, buf, sizeof(buf),
 				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
+<<<<<<< HEAD
 }
 
 <<<<<<< HEAD
@@ -2061,6 +2172,8 @@ static void dualshock4_set_leds_from_id(int id, __u8 values[MAX_LEDS])
 
 	id %= 7;
 	memcpy(values, color_code[id], sizeof(color_code[id]));
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 =======
@@ -2116,8 +2229,7 @@ static void sony_set_leds(struct hid_device *hdev, const __u8 *leds, int count)
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (drv_data->quirks & BUZZ_CONTROLLER && count == 4) {
 		buzz_set_leds(hdev, leds);
-	} else if ((drv_data->quirks & SIXAXIS_CONTROLLER_USB) ||
-		   (drv_data->quirks & DUALSHOCK4_CONTROLLER_USB)) {
+	} else {
 		for (n = 0; n < count; n++)
 			drv_data->led_state[n] = leds[n];
 		schedule_work(&drv_data->state_worker);
@@ -2199,6 +2311,7 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
 	}
 
 	for (n = 0; n < drv_data->led_count; n++) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 		if (led == drv_data->leds[n])
@@ -2291,6 +2404,13 @@ static void sony_leds_remove(struct sony_sc *sc)
 =======
 	drv_data->led_count = 0;
 >>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
+=======
+		if (led == drv_data->leds[n])
+			return drv_data->led_state[n];
+	}
+
+	return LED_OFF;
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 static int sony_leds_init(struct sony_sc *sc)
@@ -2494,8 +2614,12 @@ static int sony_leds_init(struct hid_device *hdev)
 		/* Validate expected report characteristics. */
 		if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
 			return -ENODEV;
+<<<<<<< HEAD
 	} else if (drv_data->quirks & DUALSHOCK4_CONTROLLER_USB) {
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	} else if (drv_data->quirks & DUALSHOCK4_CONTROLLER) {
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		drv_data->led_count = 3;
 		max_brightness = 255;
 		use_colors = 1;
@@ -2509,9 +2633,11 @@ static int sony_leds_init(struct hid_device *hdev)
 		name_fmt = "%s::sony%d";
 	}
 
-	/* Clear LEDs as we have no way of reading their initial state. This is
+	/*
+	 * Clear LEDs as we have no way of reading their initial state. This is
 	 * only relevant if the driver is loaded after somebody actively set the
-	 * LEDs to on */
+	 * LEDs to on
+	 */
 	sony_set_leds(hdev, initial_values, drv_data->led_count);
 
 	name_sz = strlen(dev_name(&hdev->dev)) + name_len + 1;
@@ -3108,6 +3234,7 @@ static int sony_set_device_id(struct sony_sc *sc)
 	int ret;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	/*
 	 * Only DualShock 4 or Sixaxis controllers get an id.
 	 * All others are set to -1.
@@ -3126,6 +3253,10 @@ static int sony_set_device_id(struct sony_sc *sc)
 	}
 
 	return 0;
+=======
+	hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf), HID_OUTPUT_REPORT,
+			HID_REQ_SET_REPORT);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 static void sony_release_device_id(struct sony_sc *sc)
@@ -3142,6 +3273,7 @@ static void sony_release_device_id(struct sony_sc *sc)
 	int offset;
 
 	__u8 buf[78] = { 0 };
+<<<<<<< HEAD
 
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		buf[0] = 0x05;
@@ -3170,12 +3302,40 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
 	if (sc->worker_initialized)
 		cancel_work_sync(&sc->state_worker);
 =======
+=======
+
+	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+		buf[0] = 0x05;
+		buf[1] = 0x03;
+		offset = 4;
+	} else {
+		buf[0] = 0x11;
+		buf[1] = 0xB0;
+		buf[3] = 0x0F;
+		offset = 6;
+	}
+
+#ifdef CONFIG_SONY_FF
+	buf[offset++] = sc->right;
+	buf[offset++] = sc->left;
+#else
+	offset += 2;
+#endif
+
+	buf[offset++] = sc->led_state[0];
+	buf[offset++] = sc->led_state[1];
+	buf[offset++] = sc->led_state[2];
+
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
 		hid_hw_output_report(hdev, buf, 32);
 	else
 		hid_hw_raw_request(hdev, 0x11, buf, 78,
 				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+<<<<<<< HEAD
 >>>>>>> fdcf105d3d96... HID: sony: Add Dualshock 4 Bluetooth output report formatting
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 #ifdef CONFIG_SONY_FF
@@ -3230,8 +3390,10 @@ static int sony_init_ff(struct hid_device *hdev)
 {
 	return 0;
 }
+
 #endif
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
 {
@@ -3349,30 +3511,97 @@ static void sony_battery_remove(struct sony_sc *sc)
 }
 
 static int sony_set_output_report(struct sony_sc *sc, int req_id, int req_size)
+=======
+static int sony_battery_get_property(struct power_supply *psy,
+				     enum power_supply_property psp,
+				     union power_supply_propval *val)
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 {
-	struct list_head *head, *list;
-	struct hid_report *report;
+	struct sony_sc *sc = container_of(psy, struct sony_sc, battery);
+	unsigned long flags;
+	int ret = 0;
+	u8 battery_charging, battery_capacity, cable_state;
+
+	spin_lock_irqsave(&sc->lock, flags);
+	battery_charging = sc->battery_charging;
+	battery_capacity = sc->battery_capacity;
+	cable_state = sc->cable_state;
+	spin_unlock_irqrestore(&sc->lock, flags);
+
+	switch (psp) {
+	case POWER_SUPPLY_PROP_PRESENT:
+		val->intval = 1;
+		break;
+	case POWER_SUPPLY_PROP_SCOPE:
+		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
+		break;
+	case POWER_SUPPLY_PROP_CAPACITY:
+		val->intval = battery_capacity;
+		break;
+	case POWER_SUPPLY_PROP_STATUS:
+		if (battery_charging)
+			val->intval = POWER_SUPPLY_STATUS_CHARGING;
+		else
+			if (battery_capacity == 100 && cable_state)
+				val->intval = POWER_SUPPLY_STATUS_FULL;
+			else
+				val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
+		break;
+	default:
+		ret = -EINVAL;
+		break;
+	}
+	return ret;
+}
+
+static int sony_battery_probe(struct sony_sc *sc)
+{
+	static atomic_t power_id_seq = ATOMIC_INIT(0);
+	unsigned long power_id;
 	struct hid_device *hdev = sc->hdev;
+	int ret;
 
-	list = &hdev->report_enum[HID_OUTPUT_REPORT].report_list;
+	/*
+	 * Set the default battery level to 100% to avoid low battery warnings
+	 * if the battery is polled before the first device report is received.
+	 */
+	sc->battery_capacity = 100;
 
-	list_for_each(head, list) {
-		report = list_entry(head, struct hid_report, list);
+	power_id = (unsigned long)atomic_inc_return(&power_id_seq);
 
-		if (report->id == req_id) {
-			if (report->size < req_size) {
-				hid_err(hdev, "Output report 0x%02x (%i bits) is smaller than requested size (%i bits)\n",
-					req_id, report->size, req_size);
-				return -EINVAL;
-			}
-			sc->output_report = report;
-			return 0;
-		}
+	sc->battery.properties = sony_battery_props;
+	sc->battery.num_properties = ARRAY_SIZE(sony_battery_props);
+	sc->battery.get_property = sony_battery_get_property;
+	sc->battery.type = POWER_SUPPLY_TYPE_BATTERY;
+	sc->battery.use_for_apm = 0;
+	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%lu",
+				     power_id);
+	if (!sc->battery.name)
+		return -ENOMEM;
+
+	ret = power_supply_register(&hdev->dev, &sc->battery);
+	if (ret) {
+		hid_err(hdev, "Unable to register battery device\n");
+		goto err_free;
 	}
 
-	hid_err(hdev, "Unable to locate output report 0x%02x\n", req_id);
+	power_supply_powers(&sc->battery, &hdev->dev);
+	return 0;
 
-	return -EINVAL;
+err_free:
+	kfree(sc->battery.name);
+	sc->battery.name = NULL;
+	return ret;
+}
+
+static void sony_battery_remove(struct sony_sc *sc)
+{
+	if (!sc->battery.name)
+		return;
+
+	power_supply_unregister(&sc->battery);
+	kfree(sc->battery.name);
+	sc->battery.name = NULL;
 }
 
 static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
@@ -3439,6 +3668,73 @@ static void sony_remove_dev_list(struct sony_sc *sc)
 	}
 }
 
+<<<<<<< HEAD
+static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+					int w, int h)
+{
+	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
+						struct hid_input, list);
+	struct input_dev *input_dev = hidinput->input;
+	int ret;
+
+	ret = input_mt_init_slots(input_dev, touch_count, 0);
+	if (ret < 0) {
+		hid_err(sc->hdev, "Unable to initialize multi-touch slots\n");
+		return ret;
+	}
+
+	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
+	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
+
+	return 0;
+}
+
+/*
+ * If a controller is plugged in via USB while already connected via Bluetooth
+ * it will show up as two devices. A global list of connected controllers and
+ * their MAC addresses is maintained to ensure that a device is only connected
+ * once.
+ */
+static int sony_check_add_dev_list(struct sony_sc *sc)
+{
+	struct sony_sc *entry;
+	unsigned long flags;
+	int ret;
+
+	spin_lock_irqsave(&sony_dev_list_lock, flags);
+
+	list_for_each_entry(entry, &sony_device_list, list_node) {
+		ret = memcmp(sc->mac_address, entry->mac_address,
+				sizeof(sc->mac_address));
+		if (!ret) {
+			ret = -EEXIST;
+			hid_info(sc->hdev, "controller with MAC address %pMR already connected\n",
+				sc->mac_address);
+			goto unlock;
+		}
+	}
+
+	ret = 0;
+	list_add(&(sc->list_node), &sony_device_list);
+
+unlock:
+	spin_unlock_irqrestore(&sony_dev_list_lock, flags);
+	return ret;
+}
+
+static void sony_remove_dev_list(struct sony_sc *sc)
+{
+	unsigned long flags;
+
+	if (sc->list_node.next) {
+		spin_lock_irqsave(&sony_dev_list_lock, flags);
+		list_del(&(sc->list_node));
+		spin_unlock_irqrestore(&sony_dev_list_lock, flags);
+	}
+}
+
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static int sony_get_bt_devaddr(struct sony_sc *sc)
 {
 	int ret;
@@ -3578,6 +3874,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		ret = sixaxis_set_operational_usb(hdev);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 		sony_init_work(sc, sixaxis_state_worker);
 =======
 		sc->worker_initialized = 1;
@@ -3642,6 +3939,37 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		/* Report 5 (31 bytes) is used to send data to the controller via USB */
 		ret = sony_set_output_report(sc, 0x05, 248);
+=======
+		sc->worker_initialized = 1;
+		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
+		/*
+		 * The Sixaxis wants output reports sent on the ctrl endpoint
+		 * when connected via Bluetooth.
+		 */
+		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+		ret = sixaxis_set_operational_bt(hdev);
+		sc->worker_initialized = 1;
+		INIT_WORK(&sc->state_worker, sixaxis_state_worker);
+	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+			/*
+			 * The DualShock 4 wants output reports sent on the ctrl
+			 * endpoint when connected via Bluetooth.
+			 */
+			hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
+			ret = dualshock4_set_operational_bt(hdev);
+			if (ret < 0) {
+				hid_err(hdev, "failed to set the Dualshock 4 operational mode\n");
+				goto err_stop;
+			}
+		}
+		/*
+		 * The Dualshock 4 touchpad supports 2 touches and has a
+		 * resolution of 1920x940.
+		 */
+		ret = sony_register_touchpad(sc, 2, 1920, 940);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		if (ret < 0)
 			goto err_stop;
 
@@ -3675,12 +4003,16 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	ret = sony_check_add(sc);
 	if (ret < 0)
 		goto err_stop;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	if (sc->quirks & SONY_LED_SUPPORT) {
 		ret = sony_leds_init(sc);
@@ -3711,6 +4043,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 =======
 =======
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (sc->quirks & SONY_LED_SUPPORT) {
 		ret = sony_leds_init(hdev);
 		if (ret < 0)
@@ -3718,8 +4052,11 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 =======
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (sc->quirks & SONY_BATTERY_SUPPORT) {
 		ret = sony_battery_probe(sc);
 		if (ret < 0)
@@ -3734,11 +4071,14 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 	ret = sony_init_ff(hdev);
 	if (ret < 0)
 		goto err_close;
 =======
+=======
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (sc->quirks & SONY_FF_SUPPORT) {
 		ret = sony_init_ff(hdev);
 		if (ret < 0)
@@ -3762,6 +4102,7 @@ err_stop:
 =======
 		sony_leds_remove(hdev);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 =======
 	if (sc->quirks & SONY_BATTERY_SUPPORT)
@@ -3776,6 +4117,13 @@ err_stop:
 =======
 	sony_remove_dev_list(sc);
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+	if (sc->quirks & SONY_BATTERY_SUPPORT)
+		sony_battery_remove(sc);
+	if (sc->worker_initialized)
+		cancel_work_sync(&sc->state_worker);
+	sony_remove_dev_list(sc);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	hid_hw_stop(hdev);
 	return ret;
 }
@@ -3814,7 +4162,17 @@ static void sony_remove(struct hid_device *hdev)
 =======
 	if (sc->worker_initialized)
 		cancel_work_sync(&sc->state_worker);
+<<<<<<< HEAD
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
+=======
+	if (sc->quirks & SONY_BATTERY_SUPPORT) {
+		hid_hw_close(hdev);
+		sony_battery_remove(sc);
+	}
+
+	if (sc->worker_initialized)
+		cancel_work_sync(&sc->state_worker);
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	sony_remove_dev_list(sc);
 

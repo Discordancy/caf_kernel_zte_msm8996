@@ -91,6 +91,11 @@ might make use of O_NONBLOCK, though.
   event to the kernel. The payload is of type struct uhid_create2_req and
   contains information about your device. You can start I/O now.
 
+  UHID_CREATE2:
+  Same as UHID_CREATE, but the HID report descriptor data (rd_data) is an array
+  inside struct uhid_create2_req, instead of a pointer to a separate array.
+  Enables use from languages that don't support pointers, e.g. Python.
+
   UHID_DESTROY:
   This destroys the internal HID device. No further I/O will be accepted. There
   may still be pending messages that you can receive with read() but no further
@@ -103,10 +108,23 @@ might make use of O_NONBLOCK, though.
   contains a data-payload. This is the raw data that you read from your device
   on the interrupt channel. The kernel will parse the HID reports.
 
+<<<<<<< HEAD
   UHID_GET_REPORT_REPLY:
   If you receive a UHID_GET_REPORT request you must answer with this request.
   You  must copy the "id" field from the request into the answer. Set the "err"
   field to 0 if no error occurred or to EIO if an I/O error occurred.
+=======
+  UHID_INPUT2:
+  Same as UHID_INPUT, but the data array is the last field of uhid_input2_req.
+  Enables userspace to write only the required bytes to kernel (ev.type +
+  ev.u.input2.size + the part of the data array that matters), instead of
+  the entire struct uhid_input2_req.
+
+  UHID_FEATURE_ANSWER:
+  If you receive a UHID_FEATURE request you must answer with this request. You
+  must copy the "id" field from the request into the answer. Set the "err" field
+  to 0 if no error occurred or to EIO if an I/O error occurred.
+>>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
   If "err" is 0 then you should fill the buffer of the answer with the results
   of the GET_REPORT request and set "size" correspondingly.
 
