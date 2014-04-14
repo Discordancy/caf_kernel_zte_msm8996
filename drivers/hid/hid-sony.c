@@ -776,6 +776,7 @@ static __u8 ps3remote_rdesc[] = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* The default descriptor doesn't provide mapping for the accelerometers
  * or orientation sensors.  This fixed descriptor maps the accelerometers
  * to usage values 0x40, 0x41 and 0x42 and maps the orientation sensors
@@ -1362,6 +1363,8 @@ static __u8 ps3remote_rdesc[] = {
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 =======
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
+=======
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 static const unsigned int ps3remote_keymap_joypad_buttons[] = {
 	[0x01] = KEY_SELECT,
 	[0x02] = BTN_THUMBL,		/* L3 */
@@ -1470,8 +1473,11 @@ static enum power_supply_property sony_battery_props[] = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
+=======
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 struct sixaxis_led {
 	__u8 time_enabled; /* the total time the led is active (0xff means forever) */
 	__u8 duty_length;  /* how long a cycle is in deciseconds (0 means "really fast") */
@@ -1509,6 +1515,7 @@ static DEFINE_IDA(sony_device_id_allocator);
 struct sony_sc {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	spinlock_t lock;
 	struct list_head list_node;
 =======
@@ -1529,10 +1536,15 @@ struct sony_sc {
 	spinlock_t lock;
 	struct list_head list_node;
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
+=======
+	spinlock_t lock;
+	struct list_head list_node;
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 	struct hid_device *hdev;
 	struct led_classdev *leds[MAX_LEDS];
 	unsigned long quirks;
 	struct work_struct state_worker;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1571,6 +1583,10 @@ struct sony_sc {
 	struct power_supply battery;
 	int device_id;
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
+=======
+	struct power_supply battery;
+	int device_id;
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 
 #ifdef CONFIG_SONY_FF
 	__u8 left;
@@ -1584,6 +1600,7 @@ struct sony_sc {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__u8 mac_address[6];
 =======
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
@@ -1596,10 +1613,14 @@ struct sony_sc {
 =======
 	__u8 mac_address[6];
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
+=======
+	__u8 mac_address[6];
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 	__u8 worker_initialized;
 	__u8 cable_state;
 	__u8 battery_charging;
 	__u8 battery_capacity;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	__u8 led_state[MAX_LEDS];
@@ -1648,6 +1669,14 @@ static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
 };
 
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
+=======
+	__u8 led_state[MAX_LEDS];
+	__u8 led_delay_on[MAX_LEDS];
+	__u8 led_delay_off[MAX_LEDS];
+	__u8 led_count;
+};
+
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
 			     unsigned int *rsize)
 {
@@ -1692,6 +1721,7 @@ static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* Sony Vaio VGX has wrongly mouse pointer declared as constant */
@@ -1704,6 +1734,10 @@ static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
 
 /* Sony Vaio VGX has wrongly mouse pointer declared as constant */
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
+=======
+
+/* Sony Vaio VGX has wrongly mouse pointer declared as constant */
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		unsigned int *rsize)
 {
@@ -3120,11 +3154,16 @@ static int sony_battery_probe(struct sony_sc *sc)
 	struct hid_device *hdev = sc->hdev;
 	int ret;
 
+<<<<<<< HEAD
 	/*
 	 * Set the default battery level to 100% to avoid low battery warnings
 	 * if the battery is polled before the first device report is received.
 	 */
 	sc->battery_capacity = 100;
+=======
+	int n;
+	int force_update;
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 
 	sc->battery.properties = sony_battery_props;
 	sc->battery.num_properties = ARRAY_SIZE(sony_battery_props);
@@ -3136,10 +3175,38 @@ static int sony_battery_probe(struct sony_sc *sc)
 	if (!sc->battery.name)
 		return -ENOMEM;
 
+<<<<<<< HEAD
 	ret = power_supply_register(&hdev->dev, &sc->battery);
 	if (ret) {
 		hid_err(hdev, "Unable to register battery device\n");
 		goto err_free;
+=======
+	/*
+	 * The Sixaxis on USB will override any LED settings sent to it
+	 * and keep flashing all of the LEDs until the PS button is pressed.
+	 * Updates, even if redundant, must be always be sent to the
+	 * controller to avoid having to toggle the state of an LED just to
+	 * stop the flashing later on.
+	 */
+	force_update = !!(drv_data->quirks & SIXAXIS_CONTROLLER_USB);
+
+	for (n = 0; n < drv_data->led_count; n++) {
+		if (led == drv_data->leds[n] && (force_update ||
+			(value != drv_data->led_state[n] ||
+			drv_data->led_delay_on[n] ||
+			drv_data->led_delay_off[n]))) {
+
+			drv_data->led_state[n] = value;
+
+			/* Setting the brightness stops the blinking */
+			drv_data->led_delay_on[n] = 0;
+			drv_data->led_delay_off[n] = 0;
+
+			sony_set_leds(drv_data, drv_data->led_state,
+					drv_data->led_count);
+			break;
+		}
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 	}
 
 	power_supply_powers(&sc->battery, &hdev->dev);
@@ -3161,6 +3228,7 @@ static void sony_battery_remove(struct sony_sc *sc)
 	sc->battery.name = NULL;
 }
 
+<<<<<<< HEAD
 /*
  * If a controller is plugged in via USB while already connected via Bluetooth
  * it will show up as two devices. A global list of connected controllers and
@@ -3168,6 +3236,56 @@ static void sony_battery_remove(struct sony_sc *sc)
  * once.
  */
 static int sony_check_add_dev_list(struct sony_sc *sc)
+=======
+static int sony_led_blink_set(struct led_classdev *led, unsigned long *delay_on,
+				unsigned long *delay_off)
+{
+	struct device *dev = led->dev->parent;
+	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+	struct sony_sc *drv_data = hid_get_drvdata(hdev);
+	int n;
+	__u8 new_on, new_off;
+
+	if (!drv_data) {
+		hid_err(hdev, "No device data\n");
+		return -EINVAL;
+	}
+
+	/* Max delay is 255 deciseconds or 2550 milliseconds */
+	if (*delay_on > 2550)
+		*delay_on = 2550;
+	if (*delay_off > 2550)
+		*delay_off = 2550;
+
+	/* Blink at 1 Hz if both values are zero */
+	if (!*delay_on && !*delay_off)
+		*delay_on = *delay_off = 500;
+
+	new_on = *delay_on / 10;
+	new_off = *delay_off / 10;
+
+	for (n = 0; n < drv_data->led_count; n++) {
+		if (led == drv_data->leds[n])
+			break;
+	}
+
+	/* This LED is not registered on this device */
+	if (n >= drv_data->led_count)
+		return -EINVAL;
+
+	/* Don't schedule work if the values didn't change */
+	if (new_on != drv_data->led_delay_on[n] ||
+		new_off != drv_data->led_delay_off[n]) {
+		drv_data->led_delay_on[n] = new_on;
+		drv_data->led_delay_off[n] = new_off;
+		schedule_work(&drv_data->state_worker);
+	}
+
+	return 0;
+}
+
+static void sony_leds_remove(struct sony_sc *sc)
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 {
 	struct sony_sc *entry;
 	unsigned long flags;
@@ -3201,19 +3319,22 @@ static void sony_remove_dev_list(struct sony_sc *sc)
 =======
 	struct hid_device *hdev = sc->hdev;
 	int n, ret = 0;
-	int max_brightness;
-	int use_colors;
+	int use_ds4_names;
 	struct led_classdev *led;
 	size_t name_sz;
 	char *name;
 	size_t name_len;
 	const char *name_fmt;
-	static const char * const color_str[] = { "red", "green", "blue" };
+	static const char * const ds4_name_str[] = { "red", "green", "blue",
+						  "global" };
 	__u8 initial_values[MAX_LEDS] = { 0 };
+	__u8 max_brightness[MAX_LEDS] = { 1 };
+	__u8 use_hw_blink[MAX_LEDS] = { 0 };
 
 	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	if (sc->list_node.next) {
 		spin_lock_irqsave(&sony_dev_list_lock, flags);
@@ -3224,6 +3345,11 @@ static void sony_remove_dev_list(struct sony_sc *sc)
 		drv_data->led_count = 4;
 		max_brightness = 1;
 		use_colors = 0;
+=======
+	if (sc->quirks & BUZZ_CONTROLLER) {
+		sc->led_count = 4;
+		use_ds4_names = 0;
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 		name_len = strlen("::buzz#");
 		name_fmt = "%s::buzz%d";
 		/* Validate expected report characteristics. */
@@ -3235,10 +3361,18 @@ static void sony_remove_dev_list(struct sony_sc *sc)
 =======
 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
 		dualshock4_set_leds_from_id(sc->device_id, initial_values);
+<<<<<<< HEAD
 		sc->led_count = 3;
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 		max_brightness = 255;
 		use_colors = 1;
+=======
+		initial_values[3] = 1;
+		sc->led_count = 4;
+		memset(max_brightness, 255, 3);
+		use_hw_blink[3] = 1;
+		use_ds4_names = 1;
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 		name_len = 0;
 		name_fmt = "%s:%s";
 	} else {
@@ -3247,9 +3381,14 @@ static void sony_remove_dev_list(struct sony_sc *sc)
 =======
 		sixaxis_set_leds_from_id(sc->device_id, initial_values);
 		sc->led_count = 4;
+<<<<<<< HEAD
 >>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 		max_brightness = 1;
 		use_colors = 0;
+=======
+		memset(use_hw_blink, 1, 4);
+		use_ds4_names = 0;
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 		name_len = strlen("::sony#");
 		name_fmt = "%s::sony%d";
 >>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
@@ -3273,8 +3412,13 @@ static int sony_get_bt_devaddr(struct sony_sc *sc)
 	if (ret != 6)
 		return -EINVAL;
 
+<<<<<<< HEAD
 	return 0;
 }
+=======
+		if (use_ds4_names)
+			name_sz = strlen(dev_name(&hdev->dev)) + strlen(ds4_name_str[n]) + 2;
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 
 static int sony_check_add(struct sony_sc *sc)
 {
@@ -3314,15 +3458,19 @@ static int sony_check_add(struct sony_sc *sc)
 		__u8 buf[18];
 =======
 		name = (void *)(&led[1]);
-		if (use_colors)
-			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), color_str[n]);
+		if (use_ds4_names)
+			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev),
+			ds4_name_str[n]);
 		else
 			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), n + 1);
 		led->name = name;
 		led->brightness = initial_values[n];
-		led->max_brightness = max_brightness;
+		led->max_brightness = max_brightness[n];
 		led->brightness_get = sony_led_get_brightness;
 		led->brightness_set = sony_led_set_brightness;
+
+		if (use_hw_blink[n])
+			led->blink_set = sony_led_blink_set;
 
 		sc->leds[n] = led;
 
@@ -3364,7 +3512,29 @@ static int sony_check_add(struct sony_sc *sc)
 
 static int sony_set_device_id(struct sony_sc *sc)
 {
+<<<<<<< HEAD
 	int ret;
+=======
+	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
+	int n;
+	union sixaxis_output_report_01 report = {
+		.buf = {
+			0x01,
+			0x00, 0xff, 0x00, 0xff, 0x00,
+			0x00, 0x00, 0x00, 0x00, 0x00,
+			0xff, 0x27, 0x10, 0x00, 0x32,
+			0xff, 0x27, 0x10, 0x00, 0x32,
+			0xff, 0x27, 0x10, 0x00, 0x32,
+			0xff, 0x27, 0x10, 0x00, 0x32,
+			0x00, 0x00, 0x00, 0x00, 0x00
+		}
+	};
+
+#ifdef CONFIG_SONY_FF
+	report.data.rumble.right_motor_on = sc->right ? 1 : 0;
+	report.data.rumble.left_motor_force = sc->left;
+#endif
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3385,11 +3555,32 @@ static int sony_set_device_id(struct sony_sc *sc)
 		sc->device_id = -1;
 	}
 
+<<<<<<< HEAD
 	return 0;
 =======
 	hid_hw_raw_request(sc->hdev, 0x01, buf, sizeof(buf), HID_OUTPUT_REPORT,
 			HID_REQ_SET_REPORT);
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	/*
+	 * The LEDs in the report are indexed in reverse order to their
+	 * corresponding light on the controller.
+	 * Index 0 = LED 4, index 1 = LED 3, etc...
+	 *
+	 * In the case of both delay values being zero (blinking disabled) the
+	 * default report values should be used or the controller LED will be
+	 * always off.
+	 */
+	for (n = 0; n < 4; n++) {
+		if (sc->led_delay_on[n] || sc->led_delay_off[n]) {
+			report.data.led[3 - n].duty_off = sc->led_delay_off[n];
+			report.data.led[3 - n].duty_on = sc->led_delay_on[n];
+		}
+	}
+
+	hid_hw_raw_request(sc->hdev, report.data.report_id, report.buf,
+			sizeof(report), HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 }
 
 static void sony_release_device_id(struct sony_sc *sc)
@@ -3439,7 +3630,7 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
 
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		buf[0] = 0x05;
-		buf[1] = 0x03;
+		buf[1] = 0xFF;
 		offset = 4;
 	} else {
 		buf[0] = 0x11;
@@ -3455,16 +3646,33 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
 	offset += 2;
 #endif
 
+<<<<<<< HEAD
 	buf[offset++] = sc->led_state[0];
 	buf[offset++] = sc->led_state[1];
 	buf[offset++] = sc->led_state[2];
 
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	/* LED 3 is the global control */
+	if (sc->led_state[3]) {
+		buf[offset++] = sc->led_state[0];
+		buf[offset++] = sc->led_state[1];
+		buf[offset++] = sc->led_state[2];
+	} else {
+		offset += 3;
+	}
+
+	/* If both delay values are zero the DualShock 4 disables blinking. */
+	buf[offset++] = sc->led_delay_on[3];
+	buf[offset++] = sc->led_delay_off[3];
+
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
 		hid_hw_output_report(hdev, buf, 32);
 	else
 		hid_hw_raw_request(hdev, 0x11, buf, 78,
 				HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> fdcf105d3d96... HID: sony: Add Dualshock 4 Bluetooth output report formatting
 =======
@@ -3597,6 +3805,8 @@ static int sony_battery_get_property(struct power_supply *psy,
 		break;
 	}
 	return ret;
+=======
+>>>>>>> b3ed458c1c24... HID: sony: Add blink support to the Sixaxis and DualShock 4 LEDs
 }
 
 static int sony_battery_probe(struct sony_sc *sc)
