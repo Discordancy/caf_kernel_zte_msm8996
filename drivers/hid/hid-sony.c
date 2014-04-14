@@ -49,6 +49,7 @@
 >>>>>>> d902f4724ccd... HID: sony: add battery status reporting for the Sixaxis and Dualshock 4
 =======
 #include <linux/list.h>
+#include <linux/idr.h>
 #include <linux/input/mt.h>
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
@@ -774,6 +775,7 @@ static __u8 ps3remote_rdesc[] = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* The default descriptor doesn't provide mapping for the accelerometers
  * or orientation sensors.  This fixed descriptor maps the accelerometers
  * to usage values 0x40, 0x41 and 0x42 and maps the orientation sensors
@@ -1358,6 +1360,8 @@ static __u8 ps3remote_rdesc[] = {
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 =======
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 static const unsigned int ps3remote_keymap_joypad_buttons[] = {
 	[0x01] = KEY_SELECT,
 	[0x02] = BTN_THUMBL,		/* L3 */
@@ -1465,6 +1469,9 @@ static enum power_supply_property sony_battery_props[] = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 struct sixaxis_led {
 	__u8 time_enabled; /* the total time the led is active (0xff means forever) */
 	__u8 duty_length;  /* how long a cycle is in deciseconds (0 means "really fast") */
@@ -1501,6 +1508,7 @@ static DEFINE_IDA(sony_device_id_allocator);
 
 struct sony_sc {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	spinlock_t lock;
 	struct list_head list_node;
 =======
@@ -1517,10 +1525,15 @@ struct sony_sc {
 	spinlock_t lock;
 	struct list_head list_node;
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	spinlock_t lock;
+	struct list_head list_node;
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 	struct hid_device *hdev;
 	struct led_classdev *leds[MAX_LEDS];
 	unsigned long quirks;
 	struct work_struct state_worker;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1554,12 +1567,17 @@ struct sony_sc {
 =======
 	struct power_supply battery;
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	struct power_supply battery;
+	int device_id;
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 
 #ifdef CONFIG_SONY_FF
 	__u8 left;
 	__u8 right;
 #endif
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1575,10 +1593,14 @@ struct sony_sc {
 =======
 	__u8 mac_address[6];
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	__u8 mac_address[6];
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 	__u8 worker_initialized;
 	__u8 cable_state;
 	__u8 battery_charging;
 	__u8 battery_capacity;
+<<<<<<< HEAD
 <<<<<<< HEAD
 	__u8 led_state[MAX_LEDS];
 <<<<<<< HEAD
@@ -1620,6 +1642,12 @@ static __u8 *sixaxis_fixup(struct hid_device *hdev, __u8 *rdesc,
 };
 
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+	__u8 led_state[MAX_LEDS];
+	__u8 led_count;
+};
+
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 static __u8 *ps3remote_fixup(struct hid_device *hdev, __u8 *rdesc,
 			     unsigned int *rsize)
 {
@@ -1663,6 +1691,7 @@ static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 /* Sony Vaio VGX has wrongly mouse pointer declared as constant */
@@ -1671,6 +1700,10 @@ static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
 
 /* Sony Vaio VGX has wrongly mouse pointer declared as constant */
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
+=======
+
+/* Sony Vaio VGX has wrongly mouse pointer declared as constant */
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 		unsigned int *rsize)
 {
@@ -1698,6 +1731,7 @@ static __u8 *sony_report_fixup(struct hid_device *hdev, __u8 *rdesc,
 	 * modified one.
 	 */
 	if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && *rsize == 467) {
+<<<<<<< HEAD
 		hid_info(hdev, "Using modified Dualshock 4 report descriptor with gyroscope axes\n");
 		rdesc = dualshock4_usb_rdesc;
 		*rsize = sizeof(dualshock4_usb_rdesc);
@@ -2523,6 +2557,8 @@ static int sony_leds_init(struct hid_device *hdev)
 	sony_set_leds(sc, initial_values, sc->led_count);
 =======
 	if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && *rsize == 467) {
+=======
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 		hid_info(hdev, "Using modified Dualshock 4 report descriptor with gyroscope axes\n");
 		rdesc = dualshock4_usb_rdesc;
 		*rsize = sizeof(dualshock4_usb_rdesc);
@@ -2974,6 +3010,52 @@ static int dualshock4_set_operational_bt(struct hid_device *hdev)
 				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
 }
 
+static void sixaxis_set_leds_from_id(int id, __u8 values[MAX_LEDS])
+{
+	static const __u8 sixaxis_leds[10][4] = {
+				{ 0x01, 0x00, 0x00, 0x00 },
+				{ 0x00, 0x01, 0x00, 0x00 },
+				{ 0x00, 0x00, 0x01, 0x00 },
+				{ 0x00, 0x00, 0x00, 0x01 },
+				{ 0x01, 0x00, 0x00, 0x01 },
+				{ 0x00, 0x01, 0x00, 0x01 },
+				{ 0x00, 0x00, 0x01, 0x01 },
+				{ 0x01, 0x00, 0x01, 0x01 },
+				{ 0x00, 0x01, 0x01, 0x01 },
+				{ 0x01, 0x01, 0x01, 0x01 }
+	};
+
+	BUG_ON(MAX_LEDS < ARRAY_SIZE(sixaxis_leds[0]));
+
+	if (id < 0)
+		return;
+
+	id %= 10;
+	memcpy(values, sixaxis_leds[id], sizeof(sixaxis_leds[id]));
+}
+
+static void dualshock4_set_leds_from_id(int id, __u8 values[MAX_LEDS])
+{
+	/* The first 4 color/index entries match what the PS4 assigns */
+	static const __u8 color_code[7][3] = {
+			/* Blue   */	{ 0x00, 0x00, 0x01 },
+			/* Red	  */	{ 0x01, 0x00, 0x00 },
+			/* Green  */	{ 0x00, 0x01, 0x00 },
+			/* Pink   */	{ 0x02, 0x00, 0x01 },
+			/* Orange */	{ 0x02, 0x01, 0x00 },
+			/* Teal   */	{ 0x00, 0x01, 0x01 },
+			/* White  */	{ 0x01, 0x01, 0x01 }
+	};
+
+	BUG_ON(MAX_LEDS < ARRAY_SIZE(color_code[0]));
+
+	if (id < 0)
+		return;
+
+	id %= 7;
+	memcpy(values, color_code[id], sizeof(color_code[id]));
+}
+
 static void buzz_set_leds(struct hid_device *hdev, const __u8 *leds)
 >>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 {
@@ -3114,7 +3196,23 @@ unlock:
 
 static void sony_remove_dev_list(struct sony_sc *sc)
 {
+<<<<<<< HEAD
 	unsigned long flags;
+=======
+	struct hid_device *hdev = sc->hdev;
+	int n, ret = 0;
+	int max_brightness;
+	int use_colors;
+	struct led_classdev *led;
+	size_t name_sz;
+	char *name;
+	size_t name_len;
+	const char *name_fmt;
+	static const char * const color_str[] = { "red", "green", "blue" };
+	__u8 initial_values[MAX_LEDS] = { 0 };
+
+	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 
 <<<<<<< HEAD
 	if (sc->list_node.next) {
@@ -3131,14 +3229,25 @@ static void sony_remove_dev_list(struct sony_sc *sc)
 		/* Validate expected report characteristics. */
 		if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, 0, 0, 7))
 			return -ENODEV;
+<<<<<<< HEAD
 	} else if (drv_data->quirks & DUALSHOCK4_CONTROLLER) {
 		drv_data->led_count = 3;
+=======
+	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+		dualshock4_set_leds_from_id(sc->device_id, initial_values);
+		sc->led_count = 3;
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 		max_brightness = 255;
 		use_colors = 1;
 		name_len = 0;
 		name_fmt = "%s:%s";
 	} else {
+<<<<<<< HEAD
 		drv_data->led_count = 4;
+=======
+		sixaxis_set_leds_from_id(sc->device_id, initial_values);
+		sc->led_count = 4;
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 		max_brightness = 1;
 		use_colors = 0;
 		name_len = strlen("::sony#");
@@ -3186,6 +3295,7 @@ static int sony_check_add(struct sony_sc *sc)
 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		__u8 buf[7];
 
+<<<<<<< HEAD
 		/*
 		 * The MAC address of a DS4 controller connected via USB can be
 		 * retrieved with feature report 0x81. The address begins at
@@ -3202,6 +3312,29 @@ static int sony_check_add(struct sony_sc *sc)
 		memcpy(sc->mac_address, &buf[1], sizeof(sc->mac_address));
 	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
 		__u8 buf[18];
+=======
+		name = (void *)(&led[1]);
+		if (use_colors)
+			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), color_str[n]);
+		else
+			snprintf(name, name_sz, name_fmt, dev_name(&hdev->dev), n + 1);
+		led->name = name;
+		led->brightness = initial_values[n];
+		led->max_brightness = max_brightness;
+		led->brightness_get = sony_led_get_brightness;
+		led->brightness_set = sony_led_set_brightness;
+
+		sc->leds[n] = led;
+
+		ret = led_classdev_register(&hdev->dev, led);
+		if (ret) {
+			hid_err(hdev, "Failed to register LED %d\n", n);
+			sc->leds[n] = NULL;
+			kfree(led);
+			goto error_leds;
+		}
+	}
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 
 		/*
 		 * The MAC address of a Sixaxis controller connected via USB can
@@ -3817,6 +3950,55 @@ static int sony_check_add(struct sony_sc *sc)
 	return sony_check_add_dev_list(sc);
 }
 
+<<<<<<< HEAD
+=======
+static int sony_set_device_id(struct sony_sc *sc)
+{
+	int ret;
+
+	/*
+	 * Only DualShock 4 or Sixaxis controllers get an id.
+	 * All others are set to -1.
+	 */
+	if ((sc->quirks & SIXAXIS_CONTROLLER) ||
+	    (sc->quirks & DUALSHOCK4_CONTROLLER)) {
+		ret = ida_simple_get(&sony_device_id_allocator, 0, 0,
+					GFP_KERNEL);
+		if (ret < 0) {
+			sc->device_id = -1;
+			return ret;
+		}
+		sc->device_id = ret;
+	} else {
+		sc->device_id = -1;
+	}
+
+	return 0;
+}
+
+static void sony_release_device_id(struct sony_sc *sc)
+{
+	if (sc->device_id >= 0) {
+		ida_simple_remove(&sony_device_id_allocator, sc->device_id);
+		sc->device_id = -1;
+	}
+}
+
+static inline void sony_init_work(struct sony_sc *sc,
+					void (*worker)(struct work_struct *))
+{
+	if (!sc->worker_initialized)
+		INIT_WORK(&sc->state_worker, worker);
+
+	sc->worker_initialized = 1;
+}
+
+static inline void sony_cancel_work_sync(struct sony_sc *sc)
+{
+	if (sc->worker_initialized)
+		cancel_work_sync(&sc->state_worker);
+}
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 
 static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 {
@@ -4099,6 +4281,7 @@ err_stop:
 	sony_cancel_work_sync(sc);
 	sony_remove_dev_list(sc);
 	sony_release_device_id(sc);
+<<<<<<< HEAD
 =======
 		sony_leds_remove(hdev);
 <<<<<<< HEAD
@@ -4124,6 +4307,8 @@ err_stop:
 		cancel_work_sync(&sc->state_worker);
 	sony_remove_dev_list(sc);
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+>>>>>>> 8025087acf9d... HID: sony: Initialize the controller LEDs with a device ID value
 	hid_hw_stop(hdev);
 	return ret;
 }
@@ -4175,6 +4360,8 @@ static void sony_remove(struct hid_device *hdev)
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	sony_remove_dev_list(sc);
+
+	sony_release_device_id(sc);
 
 	hid_hw_stop(hdev);
 }
