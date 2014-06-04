@@ -489,9 +489,12 @@
 #define USB_VENDOR_ID_STM_0             0x0483
 #define USB_DEVICE_ID_STM_HID_SENSOR    0x91d1
 #define USB_DEVICE_ID_STM_HID_SENSOR_1  0x9100
+<<<<<<< HEAD
 =======
 #define USB_DEVICE_ID_INTEL_HID_SENSOR	0x09fa
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 #define USB_VENDOR_ID_ION		0x15e4
 #define USB_DEVICE_ID_ICADE		0x0132
@@ -815,7 +818,10 @@
 #define USB_VENDOR_ID_SAITEK		0x06a3
 #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
 #define USB_DEVICE_ID_SAITEK_PS1000	0x0621
+<<<<<<< HEAD
 #define USB_DEVICE_ID_SAITEK_RAT7_OLD	0x0ccb
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 #define USB_DEVICE_ID_SAITEK_RAT7	0x0cd7
 #define USB_DEVICE_ID_SAITEK_MMO7	0x0cd0
 

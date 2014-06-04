@@ -177,8 +177,11 @@ static int saitek_event(struct hid_device *hdev, struct hid_field *field,
 static const struct hid_device_id saitek_devices[] = {
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_PS1000),
 		.driver_data = SAITEK_FIX_PS1000 },
+<<<<<<< HEAD
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7_OLD),
 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7),
 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),

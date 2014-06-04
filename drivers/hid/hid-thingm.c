@@ -80,12 +80,17 @@ static int thingm_send(struct thingm_device *tdev, u8 buf[REPORT_SIZE])
 			buf[5], buf[6], buf[7], buf[8]);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
 			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
 =======
 	ret = hid_hw_raw_request(data->hdev, buf[0], buf, BLINK1_CMD_SIZE,
 				 HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	ret = hid_hw_raw_request(tdev->hdev, buf[0], buf, REPORT_SIZE,
+			HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	return ret < 0 ? ret : 0;
 }
@@ -213,10 +218,17 @@ unregister_red:
 
 static void thingm_remove_rgb(struct thingm_rgb *rgb)
 {
+<<<<<<< HEAD
 	led_classdev_unregister(&rgb->red.ldev);
 	led_classdev_unregister(&rgb->green.ldev);
 	led_classdev_unregister(&rgb->blue.ldev);
 	flush_work(&rgb->work);
+=======
+	flush_work(&rgb->work);
+	led_classdev_unregister(&rgb->red.ldev);
+	led_classdev_unregister(&rgb->green.ldev);
+	led_classdev_unregister(&rgb->blue.ldev);
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 }
 
 static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
@@ -255,7 +267,10 @@ static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
 
 	if (!tdev->fwinfo) {
 		hid_err(hdev, "unsupported firmware %c\n", tdev->version.major);
+<<<<<<< HEAD
 		err = -ENODEV;
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 		goto stop;
 	}
 
@@ -291,6 +306,12 @@ static void thingm_remove(struct hid_device *hdev)
 {
 	struct thingm_device *tdev = hid_get_drvdata(hdev);
 	int i;
+<<<<<<< HEAD
+=======
+
+	for (i = 0; i < tdev->fwinfo->numrgb; ++i)
+		thingm_remove_rgb(tdev->rgb + i);
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	hid_hw_stop(hdev);
 

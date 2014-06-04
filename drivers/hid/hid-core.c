@@ -783,6 +783,7 @@ static int hid_scan_report(struct hid_device *hid)
 	* Vendor specific handlings
 	*/
 	if ((hid->vendor == USB_VENDOR_ID_SYNAPTICS) &&
+<<<<<<< HEAD
 	    (hid->group == HID_GROUP_GENERIC) &&
 	    /* only bind to the mouse interface of composite USB devices */
 	    (hid->bus != BUS_USB || hid->type == HID_TYPE_USBMOUSE))
@@ -798,6 +799,12 @@ static int hid_scan_report(struct hid_device *hid)
 		break;
 	}
 
+=======
+	    (hid->group == HID_GROUP_GENERIC))
+		/* hid-rmi should take care of them, not hid-generic */
+		hid->group = HID_GROUP_RMI;
+
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 	vfree(parser);
 	return 0;
 }
@@ -1934,7 +1941,10 @@ static const struct hid_device_id hid_have_special_driver[] = {
 #endif
 #if IS_ENABLED(CONFIG_HID_SAITEK)
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_PS1000) },
+<<<<<<< HEAD
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7_OLD) },
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_RAT7) },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
 #endif

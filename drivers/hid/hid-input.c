@@ -698,10 +698,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 			break;
 
 		case 0x5b: /* TransducerSerialNumber */
+<<<<<<< HEAD
 			usage->type = EV_MSC;
 			usage->code = MSC_SERIAL;
 			bit = input->mscbit;
 			max = MSC_MAX;
+=======
+			set_bit(MSC_SERIAL, input->mscbit);
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 			break;
 
 		default:  goto unknown;
@@ -745,10 +749,13 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 		case 0x074: map_key_clear(KEY_BRIGHTNESS_MAX);		break;
 		case 0x075: map_key_clear(KEY_BRIGHTNESS_AUTO);		break;
 
+<<<<<<< HEAD
 		case 0x079: map_key_clear(KEY_KBDILLUMUP);	break;
 		case 0x07a: map_key_clear(KEY_KBDILLUMDOWN);	break;
 		case 0x07c: map_key_clear(KEY_KBDILLUMTOGGLE);	break;
 
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 		case 0x082: map_key_clear(KEY_VIDEO_NEXT);	break;
 		case 0x083: map_key_clear(KEY_LAST);		break;
 		case 0x084: map_key_clear(KEY_ENTER);		break;
@@ -822,10 +829,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 		case 0x19c: map_key_clear(KEY_LOGOFF);		break;
 		case 0x19e: map_key_clear(KEY_COFFEE);		break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 		case 0x19f: map_key_clear(KEY_CONTROLPANEL);		break;
 		case 0x1a2: map_key_clear(KEY_APPSELECT);		break;
 =======
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+		case 0x19f: map_key_clear(KEY_CONTROLPANEL);		break;
+		case 0x1a2: map_key_clear(KEY_APPSELECT);		break;
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 		case 0x1a3: map_key_clear(KEY_NEXT);		break;
 		case 0x1a4: map_key_clear(KEY_PREVIOUS);	break;
 		case 0x1a6: map_key_clear(KEY_HELP);		break;
@@ -833,9 +845,13 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 		case 0x1ab: map_key_clear(KEY_SPELLCHECK);	break;
 		case 0x1ae: map_key_clear(KEY_KEYBOARD);	break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 		case 0x1b1: map_key_clear(KEY_SCREENSAVER);		break;
 =======
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+		case 0x1b1: map_key_clear(KEY_SCREENSAVER);		break;
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 		case 0x1b4: map_key_clear(KEY_FILE);		break;
 		case 0x1b6: map_key_clear(KEY_IMAGES);		break;
 		case 0x1b7: map_key_clear(KEY_AUDIO);		break;

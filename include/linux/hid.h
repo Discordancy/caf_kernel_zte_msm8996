@@ -314,11 +314,14 @@ struct hid_item {
 #define HID_GROUP_RMI				0x0100
 
 /*
+<<<<<<< HEAD
  * Vendor specific HID device groups
  */
 #define HID_GROUP_WACOM				0x0101
 
 /*
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
  * This is the global environment of the parser. This information is
  * persistent for main-items. The global environment can be saved and
  * restored with PUSH/POP statements.

@@ -320,7 +320,14 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 	int offset;
 	int i;
 
+<<<<<<< HEAD
 	if (!(irq & hdata->f11.irq_mask) || size <= 0)
+=======
+	if (size < hdata->f11.report_size)
+		return 0;
+
+	if (!(irq & hdata->f11.irq_mask))
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 		return 0;
 
 	offset = (hdata->max_fingers >> 2) + 1;
@@ -329,6 +336,7 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 		int fs_bit_position = (i & 0x3) << 1;
 		int finger_state = (data[fs_byte_position] >> fs_bit_position) &
 					0x03;
+<<<<<<< HEAD
 		int position = offset + 5 * i;
 
 		if (position + 5 > size) {
@@ -342,6 +350,11 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 		}
 
 		rmi_f11_process_touch(hdata, i, finger_state, &data[position]);
+=======
+
+		rmi_f11_process_touch(hdata, i, finger_state,
+				&data[offset + 5 * i]);
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 	}
 	input_mt_sync_frame(hdata->input);
 	input_sync(hdata->input);
@@ -359,11 +372,14 @@ static int rmi_f30_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 	if (!(irq & hdata->f30.irq_mask))
 		return 0;
 
+<<<<<<< HEAD
 	if (size < (int)hdata->f30.report_size) {
 		hid_warn(hdev, "Click Button pressed, but the click data is missing\n");
 		return 0;
 	}
 
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 	for (i = 0; i < hdata->gpio_led_count; i++) {
 		if (test_bit(i, &hdata->button_mask)) {
 			value = (data[i / 8] >> (i & 0x07)) & BIT(0);
@@ -389,7 +405,11 @@ static int rmi_input_event(struct hid_device *hdev, u8 *data, int size)
 	irq_mask |= hdata->f30.irq_mask;
 
 	if (data[1] & ~irq_mask)
+<<<<<<< HEAD
 		hid_dbg(hdev, "unknown intr source:%02lx %s:%d\n",
+=======
+		hid_warn(hdev, "unknown intr source:%02lx %s:%d\n",
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 			data[1] & ~irq_mask, __FILE__, __LINE__);
 
 	if (hdata->f11.interrupt_base < hdata->f30.interrupt_base) {
@@ -412,7 +432,11 @@ static int rmi_read_data_event(struct hid_device *hdev, u8 *data, int size)
 	struct rmi_data *hdata = hid_get_drvdata(hdev);
 
 	if (!test_bit(RMI_READ_REQUEST_PENDING, &hdata->flags)) {
+<<<<<<< HEAD
 		hid_dbg(hdev, "no read request pending\n");
+=======
+		hid_err(hdev, "no read request pending\n");
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 		return 0;
 	}
 
@@ -424,6 +448,7 @@ static int rmi_read_data_event(struct hid_device *hdev, u8 *data, int size)
 	return 1;
 }
 
+<<<<<<< HEAD
 static int rmi_check_sanity(struct hid_device *hdev, u8 *data, int size)
 {
 	int valid_size = size;
@@ -447,6 +472,11 @@ static int rmi_raw_event(struct hid_device *hdev,
 	if (size < 2)
 		return 0;
 
+=======
+static int rmi_raw_event(struct hid_device *hdev,
+		struct hid_report *report, u8 *data, int size)
+{
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 	switch (data[0]) {
 	case RMI_READ_DATA_REPORT_ID:
 		return rmi_read_data_event(hdev, data, size);
@@ -460,7 +490,10 @@ static int rmi_raw_event(struct hid_device *hdev,
 	return 0;
 }
 
+<<<<<<< HEAD
 #ifdef CONFIG_PM
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 static int rmi_post_reset(struct hid_device *hdev)
 {
 	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
@@ -470,7 +503,10 @@ static int rmi_post_resume(struct hid_device *hdev)
 {
 	return rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
 }
+<<<<<<< HEAD
 #endif /* CONFIG_PM */
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 #define RMI4_MAX_PAGE 0xff
 #define RMI4_PAGE_SIZE 0x0100
@@ -581,6 +617,7 @@ static int rmi_populate_f11(struct hid_device *hdev)
 	u8 buf[20];
 	int ret;
 	bool has_query9;
+<<<<<<< HEAD
 	bool has_query10 = false;
 	bool has_query11;
 	bool has_query12;
@@ -593,6 +630,14 @@ static int rmi_populate_f11(struct hid_device *hdev)
 	bool has_data40 = false;
 	unsigned x_size, y_size;
 	u16 query_offset;
+=======
+	bool has_query10;
+	bool has_query11;
+	bool has_query12;
+	bool has_physical_props;
+	unsigned x_size, y_size;
+	u16 query12_offset;
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	if (!data->f11.query_base_addr) {
 		hid_err(hdev, "No 2D sensor found, giving up.\n");
@@ -608,8 +653,11 @@ static int rmi_populate_f11(struct hid_device *hdev)
 	has_query9 = !!(buf[0] & BIT(3));
 	has_query11 = !!(buf[0] & BIT(4));
 	has_query12 = !!(buf[0] & BIT(5));
+<<<<<<< HEAD
 	has_query27 = !!(buf[0] & BIT(6));
 	has_query28 = !!(buf[0] & BIT(7));
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	/* query 1 to get the max number of fingers */
 	ret = rmi_read(hdev, data->f11.query_base_addr + 1, buf);
@@ -629,6 +677,7 @@ static int rmi_populate_f11(struct hid_device *hdev)
 		return -ENODEV;
 	}
 
+<<<<<<< HEAD
 	has_rel = !!(buf[0] & BIT(3));
 	has_gestures = !!(buf[0] & BIT(5));
 
@@ -664,11 +713,39 @@ static int rmi_populate_f11(struct hid_device *hdev)
 
 	if (has_query11)
 		++query_offset;
+=======
+	/* query 8 to find out if query 10 exists */
+	ret = rmi_read(hdev, data->f11.query_base_addr + 8, buf);
+	if (ret) {
+		hid_err(hdev, "can not read gesture information: %d.\n", ret);
+		return ret;
+	}
+	has_query10 = !!(buf[0] & BIT(2));
+
+	/*
+	 * At least 8 queries are guaranteed to be present in F11
+	 * +1 for query12.
+	 */
+	query12_offset = 9;
+
+	if (has_query9)
+		++query12_offset;
+
+	if (has_query10)
+		++query12_offset;
+
+	if (has_query11)
+		++query12_offset;
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	/* query 12 to know if the physical properties are reported */
 	if (has_query12) {
 		ret = rmi_read(hdev, data->f11.query_base_addr
+<<<<<<< HEAD
 				+ query_offset, buf);
+=======
+				+ query12_offset, buf);
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 		if (ret) {
 			hid_err(hdev, "can not get query 12: %d.\n", ret);
 			return ret;
@@ -676,10 +753,16 @@ static int rmi_populate_f11(struct hid_device *hdev)
 		has_physical_props = !!(buf[0] & BIT(5));
 
 		if (has_physical_props) {
+<<<<<<< HEAD
 			query_offset += 1;
 			ret = rmi_read_block(hdev,
 					data->f11.query_base_addr
 						+ query_offset, buf, 4);
+=======
+			ret = rmi_read_block(hdev,
+					data->f11.query_base_addr
+						+ query12_offset + 1, buf, 4);
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 			if (ret) {
 				hid_err(hdev, "can not read query 15-18: %d.\n",
 					ret);
@@ -694,6 +777,7 @@ static int rmi_populate_f11(struct hid_device *hdev)
 
 			hid_info(hdev, "%s: size in mm: %d x %d\n",
 				 __func__, data->x_size_mm, data->y_size_mm);
+<<<<<<< HEAD
 
 			/*
 			 * query 15 - 18 contain the size of the sensor
@@ -733,6 +817,11 @@ static int rmi_populate_f11(struct hid_device *hdev)
 	if (has_data40)
 		data->f11.report_size += data->max_fingers * 2;
 
+=======
+		}
+	}
+
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 	/*
 	 * retrieve the ctrl registers
 	 * the ctrl register has a size of 20 but a fw bug split it into 16 + 4,
@@ -842,7 +931,11 @@ static int rmi_populate(struct hid_device *hdev)
 	return 0;
 }
 
+<<<<<<< HEAD
 static int rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
+=======
+static void rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 {
 	struct rmi_data *data = hid_get_drvdata(hdev);
 	struct input_dev *input = hi->input;
@@ -854,7 +947,11 @@ static int rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
 	hid_dbg(hdev, "Opening low level driver\n");
 	ret = hid_hw_open(hdev);
 	if (ret)
+<<<<<<< HEAD
 		return ret;
+=======
+		return;
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	/* Allow incoming hid reports */
 	hid_device_io_start(hdev);
@@ -892,9 +989,13 @@ static int rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
 	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 0x0f, 0, 0);
 	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 0x0f, 0, 0);
 
+<<<<<<< HEAD
 	ret = input_mt_init_slots(input, data->max_fingers, INPUT_MT_POINTER);
 	if (ret < 0)
 		goto exit;
+=======
+	input_mt_init_slots(input, data->max_fingers, INPUT_MT_POINTER);
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	if (data->button_count) {
 		__set_bit(EV_KEY, input->evbit);
@@ -910,8 +1011,11 @@ static int rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
 exit:
 	hid_device_io_stop(hdev);
 	hid_hw_close(hdev);
+<<<<<<< HEAD
 
 	return ret;
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 }
 
 static int rmi_input_mapping(struct hid_device *hdev,
@@ -927,8 +1031,11 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	struct rmi_data *data = NULL;
 	int ret;
 	size_t alloc_size;
+<<<<<<< HEAD
 	struct hid_report *input_report;
 	struct hid_report *output_report;
+=======
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	data = devm_kzalloc(&hdev->dev, sizeof(struct rmi_data), GFP_KERNEL);
 	if (!data)
@@ -947,6 +1054,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	input_report = hdev->report_enum[HID_INPUT_REPORT]
 			.report_id_hash[RMI_ATTN_REPORT_ID];
 	if (!input_report) {
@@ -967,6 +1075,14 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
 
 	data->output_report_size = (output_report->size >> 3)
 					+ 1 /* report id */;
+=======
+	data->input_report_size = (hdev->report_enum[HID_INPUT_REPORT]
+		.report_id_hash[RMI_ATTN_REPORT_ID]->size >> 3)
+		+ 1 /* report id */;
+	data->output_report_size = (hdev->report_enum[HID_OUTPUT_REPORT]
+		.report_id_hash[RMI_WRITE_REPORT_ID]->size >> 3)
+		+ 1 /* report id */;
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	alloc_size = data->output_report_size + data->input_report_size;
 
@@ -988,6 +1104,7 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		return ret;
 	}
 
+<<<<<<< HEAD
 	if (!test_bit(RMI_STARTED, &data->flags))
 		/*
 		 * The device maybe in the bootloader if rmi_input_configured
@@ -997,6 +1114,12 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		 * can be used to reload working firmware on the touchpad.
 		 */
 		hid_err(hdev, "Device failed to be properly configured\n");
+=======
+	if (!test_bit(RMI_STARTED, &data->flags)) {
+		hid_hw_stop(hdev);
+		return -EIO;
+	}
+>>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	return 0;
 }
