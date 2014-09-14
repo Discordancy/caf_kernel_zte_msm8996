@@ -606,6 +606,7 @@ static u8 dualshock4_bt_rdesc[] = {
 	0x29, 0x45,         /*      Usage Maximum (45h),            */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
 	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
 =======
@@ -616,6 +617,10 @@ static u8 dualshock4_bt_rdesc[] = {
 	0x16, 0xFF, 0xBF,   /*      Logical Minimum (-16385),       */
 	0x26, 0x00, 0x40,   /*      Logical Maximum (16384),        */
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
+	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
+>>>>>>> fb291cbd3f9f... HID: sony: Corrections for the DualShock 4 HID descriptor
 	0x95, 0x03,         /*      Report Count (3),               */
 	0x81, 0x02,         /*      Input (Variable),               */
 	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h),             */
