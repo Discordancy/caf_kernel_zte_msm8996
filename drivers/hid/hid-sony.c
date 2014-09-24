@@ -3051,7 +3051,19 @@ static void dualshock4_state_worker(struct work_struct *work)
 	value[6] = sc->led_state[1];
 	value[7] = sc->led_state[2];
 
+<<<<<<< HEAD
 	hid_hw_request(hdev, report, HID_REQ_SET_REPORT);
+=======
+	/*
+	 * The Dualshock 4 touchpad supports 2 touches and has a
+	 * resolution of 1920x942 (44.86 dots/mm).
+	 */
+	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+		if (sony_register_touchpad(hidinput, 2, 1920, 942) != 0)
+			hid_err(sc->hdev,
+				"Unable to initialize multi-touch slots\n");
+	}
+>>>>>>> 981c5b4a3b37... HID: sony: Update the DualShock 4 touchpad resolution
 }
 
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
