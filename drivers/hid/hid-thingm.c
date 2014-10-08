@@ -219,6 +219,7 @@ unregister_red:
 static void thingm_remove_rgb(struct thingm_rgb *rgb)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	led_classdev_unregister(&rgb->red.ldev);
 	led_classdev_unregister(&rgb->green.ldev);
 	led_classdev_unregister(&rgb->blue.ldev);
@@ -229,6 +230,12 @@ static void thingm_remove_rgb(struct thingm_rgb *rgb)
 	led_classdev_unregister(&rgb->green.ldev);
 	led_classdev_unregister(&rgb->blue.ldev);
 >>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
+=======
+	led_classdev_unregister(&rgb->red.ldev);
+	led_classdev_unregister(&rgb->green.ldev);
+	led_classdev_unregister(&rgb->blue.ldev);
+	flush_work(&rgb->work);
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
@@ -268,9 +275,13 @@ static int thingm_probe(struct hid_device *hdev, const struct hid_device_id *id)
 	if (!tdev->fwinfo) {
 		hid_err(hdev, "unsupported firmware %c\n", tdev->version.major);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		err = -ENODEV;
 =======
 >>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
+=======
+		err = -ENODEV;
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		goto stop;
 	}
 
@@ -309,14 +320,19 @@ static void thingm_remove(struct hid_device *hdev)
 <<<<<<< HEAD
 =======
 
+	hid_hw_stop(hdev);
+
 	for (i = 0; i < tdev->fwinfo->numrgb; ++i)
 		thingm_remove_rgb(tdev->rgb + i);
+<<<<<<< HEAD
 >>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
 	hid_hw_stop(hdev);
 
 	for (i = 0; i < tdev->fwinfo->numrgb; ++i)
 		thingm_remove_rgb(tdev->rgb + i);
+=======
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 static const struct hid_device_id thingm_table[] = {

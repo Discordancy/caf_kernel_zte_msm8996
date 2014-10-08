@@ -478,6 +478,7 @@ static u8 dualshock4_usb_rdesc[] = {
  * type 1 when running over Bluetooth. However, when feature report 2 is
  * requested during the controller initialization it starts sending input
  * reports in report 17.  Since report 17 is undefined in the default HID
+<<<<<<< HEAD
  * descriptor the button and axis definitions must be moved to report 17 or
  * the HID layer won't process the received input.
 =======
@@ -495,6 +496,10 @@ static u8 dualshock4_usb_rdesc[] = {
 >>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
 =======
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+ * descriptor the button and axis definitions must be moved to report 17 or
+ * the HID layer won't process the received input.
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
  */
 static u8 dualshock4_bt_rdesc[] = {
 	0x05, 0x01,         /*  Usage Page (Desktop),               */
@@ -607,6 +612,7 @@ static u8 dualshock4_bt_rdesc[] = {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
 	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
 =======
@@ -621,6 +627,10 @@ static u8 dualshock4_bt_rdesc[] = {
 	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
 	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
 >>>>>>> fb291cbd3f9f... HID: sony: Corrections for the DualShock 4 HID descriptor
+=======
+	0x16, 0x00, 0xE0,   /*      Logical Minimum (-8192),        */
+	0x26, 0xFF, 0x1F,   /*      Logical Maximum (8191),         */
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	0x95, 0x03,         /*      Report Count (3),               */
 	0x81, 0x02,         /*      Input (Variable),               */
 	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h),             */
@@ -2451,9 +2461,27 @@ static int sony_led_blink_set(struct led_classdev *led, unsigned long *delay_on,
 	int n;
 	__u8 new_on, new_off;
 
+<<<<<<< HEAD
 	if (!drv_data) {
 		hid_err(hdev, "No device data\n");
 		return -EINVAL;
+=======
+	/*
+	 * The sixaxis is charging if the battery value is 0xee
+	 * and it is fully charged if the value is 0xef.
+	 * It does not report the actual level while charging so it
+	 * is set to 100% while charging is in progress.
+	 */
+	if (rd[30] >= 0xee) {
+		battery_capacity = 100;
+		battery_charging = !(rd[30] & 0x01);
+		cable_state = 1;
+	} else {
+		__u8 index = rd[30] <= 5 ? rd[30] : 5;
+		battery_capacity = sixaxis_battery_capacity[index];
+		battery_charging = 0;
+		cable_state = 0;
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	}
 
 	/* Max delay is 255 deciseconds or 2550 milliseconds */
@@ -3032,8 +3060,49 @@ static void dualshock4_state_worker(struct work_struct *work)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static void dualshock4_state_worker(struct work_struct *work)
+=======
+static int sony_register_touchpad(struct hid_input *hi, int touch_count,
+					int w, int h)
+{
+	struct input_dev *input_dev = hi->input;
+	int ret;
+
+	ret = input_mt_init_slots(input_dev, touch_count, 0);
+	if (ret < 0)
+		return ret;
+
+	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
+	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
+
+	return 0;
+}
+
+static void sony_input_configured(struct hid_device *hdev,
+					struct hid_input *hidinput)
+{
+	struct sony_sc *sc = hid_get_drvdata(hdev);
+
+	/*
+	 * The Dualshock 4 touchpad supports 2 touches and has a
+	 * resolution of 1920x942 (44.86 dots/mm).
+	 */
+	if (sc->quirks & DUALSHOCK4_CONTROLLER) {
+		if (sony_register_touchpad(hidinput, 2, 1920, 942) != 0)
+			hid_err(sc->hdev,
+				"Unable to initialize multi-touch slots\n");
+	}
+}
+
+/*
+ * Sending HID_REQ_GET_REPORT changes the operation mode of the ps3 controller
+ * to "operational".  Without this, the ps3 controller will not report any
+ * events.
+ */
+static int sixaxis_set_operational_usb(struct hid_device *hdev)
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 {
 	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
 	struct hid_device *hdev = sc->hdev;
@@ -4243,26 +4312,6 @@ static void sony_battery_remove(struct sony_sc *sc)
 	sc->battery.name = NULL;
 }
 
-static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
-					int w, int h)
-{
-	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
-						struct hid_input, list);
-	struct input_dev *input_dev = hidinput->input;
-	int ret;
-
-	ret = input_mt_init_slots(input_dev, touch_count, 0);
-	if (ret < 0) {
-		hid_err(sc->hdev, "Unable to initialize multi-touch slots\n");
-		return ret;
-	}
-
-	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
-	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
-
-	return 0;
-}
-
 /*
  * If a controller is plugged in via USB while already connected via Bluetooth
  * it will show up as two devices. A global list of connected controllers and
@@ -4661,6 +4710,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 				goto err_stop;
 			}
 		}
+<<<<<<< HEAD
 		/*
 		 * The Dualshock 4 touchpad supports 2 touches and has a
 		 * resolution of 1920x940.
@@ -4686,6 +4736,8 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		ret = sony_register_touchpad(sc, 2, 1920, 940);
 		if (ret < 0)
 			goto err_stop;
+=======
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 		sony_init_work(sc, dualshock4_state_worker);
 	} else {

@@ -321,6 +321,7 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 	int i;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (!(irq & hdata->f11.irq_mask) || size <= 0)
 =======
 	if (size < hdata->f11.report_size)
@@ -328,6 +329,9 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 
 	if (!(irq & hdata->f11.irq_mask))
 >>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
+=======
+	if (!(irq & hdata->f11.irq_mask) || size <= 0)
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		return 0;
 
 	offset = (hdata->max_fingers >> 2) + 1;
@@ -337,6 +341,9 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 		int finger_state = (data[fs_byte_position] >> fs_bit_position) &
 					0x03;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		int position = offset + 5 * i;
 
 		if (position + 5 > size) {
@@ -348,6 +355,7 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 			hid_dbg(hdev, "Incomplete finger report\n");
 			break;
 		}
+<<<<<<< HEAD
 
 		rmi_f11_process_touch(hdata, i, finger_state, &data[position]);
 =======
@@ -355,6 +363,10 @@ static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 		rmi_f11_process_touch(hdata, i, finger_state,
 				&data[offset + 5 * i]);
 >>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
+=======
+
+		rmi_f11_process_touch(hdata, i, finger_state, &data[position]);
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	}
 	input_mt_sync_frame(hdata->input);
 	input_sync(hdata->input);
@@ -373,13 +385,19 @@ static int rmi_f30_input_event(struct hid_device *hdev, u8 irq, u8 *data,
 		return 0;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (size < (int)hdata->f30.report_size) {
 		hid_warn(hdev, "Click Button pressed, but the click data is missing\n");
 		return 0;
 	}
 
+<<<<<<< HEAD
 =======
 >>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
+=======
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	for (i = 0; i < hdata->gpio_led_count; i++) {
 		if (test_bit(i, &hdata->button_mask)) {
 			value = (data[i / 8] >> (i & 0x07)) & BIT(0);
@@ -449,6 +467,9 @@ static int rmi_read_data_event(struct hid_device *hdev, u8 *data, int size)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static int rmi_check_sanity(struct hid_device *hdev, u8 *data, int size)
 {
 	int valid_size = size;
@@ -472,11 +493,14 @@ static int rmi_raw_event(struct hid_device *hdev,
 	if (size < 2)
 		return 0;
 
+<<<<<<< HEAD
 =======
 static int rmi_raw_event(struct hid_device *hdev,
 		struct hid_report *report, u8 *data, int size)
 {
 >>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
+=======
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	switch (data[0]) {
 	case RMI_READ_DATA_REPORT_ID:
 		return rmi_read_data_event(hdev, data, size);

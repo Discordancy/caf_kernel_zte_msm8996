@@ -3032,7 +3032,10 @@ const struct hid_device_id wacom_ids[] = {
 	{ USB_DEVICE_WACOM(0x4004) },
 	{ USB_DEVICE_WACOM(0x5000) },
 	{ USB_DEVICE_WACOM(0x5002) },
+<<<<<<< HEAD
 	{ USB_DEVICE_LENOVO(0x6004) },
+=======
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	{ USB_DEVICE_WACOM(HID_ANY_ID) },
 	{ }

@@ -309,10 +309,13 @@
 
 #define USB_VENDOR_ID_ELAN		0x04f3
 #define USB_DEVICE_ID_ELAN_TOUCHSCREEN	0x0089
+<<<<<<< HEAD
 #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_009B	0x009b
 #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_0103	0x0103
 #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_010c	0x010c
 #define USB_DEVICE_ID_ELAN_TOUCHSCREEN_016F	0x016f
+=======
+>>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #define USB_VENDOR_ID_ELECOM		0x056e
 #define USB_DEVICE_ID_ELECOM_BM084	0x0061
