@@ -3973,7 +3973,7 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
 		offset = 4;
 	} else {
 		buf[0] = 0x11;
-		buf[1] = 0xB0;
+		buf[1] = 0x80;
 		buf[3] = 0x0F;
 		offset = 6;
 	}
