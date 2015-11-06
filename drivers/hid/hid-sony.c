@@ -2396,6 +2396,7 @@ static void sony_led_set_brightness(struct led_classdev *led,
 	 * controller to avoid having to toggle the state of an LED just to
 	 * stop the flashing later on.
 	 */
+<<<<<<< HEAD
 	force_update = !!(drv_data->quirks & SIXAXIS_CONTROLLER_USB);
 
 	for (n = 0; n < drv_data->led_count; n++) {
@@ -2424,6 +2425,16 @@ static void sony_led_set_brightness(struct led_classdev *led,
 >>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
 			break;
 		}
+=======
+	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+		hid_info(hdev, "Using modified Dualshock 4 report descriptor with gyroscope axes\n");
+		rdesc = dualshock4_usb_rdesc;
+		*rsize = sizeof(dualshock4_usb_rdesc);
+	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+		hid_info(hdev, "Using modified Dualshock 4 Bluetooth report descriptor\n");
+		rdesc = dualshock4_bt_rdesc;
+		*rsize = sizeof(dualshock4_bt_rdesc);
+>>>>>>> b71b5578a84d... HID: sony: Remove the size check for the Dualshock 4 HID Descriptor
 	}
 }
 
