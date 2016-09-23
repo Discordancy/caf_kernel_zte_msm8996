@@ -8,7 +8,7 @@
  *  Copyright (c) 2012 David Dillow <dave@thedillows.org>
  *  Copyright (c) 2006-2013 Jiri Kosina
  *  Copyright (c) 2013 Colin Leitner <colin.leitner@gmail.com>
- *  Copyright (c) 2014 Frank Praznik <frank.praznik@gmail.com>
+ *  Copyright (c) 2014-2016 Frank Praznik <frank.praznik@gmail.com>
  */
 
 /*
@@ -3946,6 +3946,7 @@ static void sony_release_device_id(struct sony_sc *sc)
 	struct hid_device *hdev = sc->hdev;
 	int offset;
 
+<<<<<<< HEAD
 	__u8 buf[78] = { 0 };
 <<<<<<< HEAD
 
@@ -3978,6 +3979,19 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
 =======
 =======
 
+=======
+	/*
+	 * NOTE: The buf[1] field of the Bluetooth report controls
+	 * the Dualshock 4 reporting rate.
+	 *
+	 * Known values include:
+	 *
+	 * 0x80 - 1000hz (full speed)
+	 * 0xA0 - 31hz
+	 * 0xB0 - 20hz
+	 * 0xD0 - 66hz
+	 */
+>>>>>>> c4425c8f26aa... HID: sony: Update copyright and add Dualshock 4 rate control note
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		buf[0] = 0x05;
 		buf[1] = 0xFF;
