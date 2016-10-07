@@ -69,6 +69,15 @@
 #define PS3REMOTE                 BIT(4)
 #define DUALSHOCK4_CONTROLLER_USB BIT(5)
 #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
+<<<<<<< HEAD
+=======
+#define MOTION_CONTROLLER_USB     BIT(7)
+#define MOTION_CONTROLLER_BT      BIT(8)
+#define NAVIGATION_CONTROLLER_USB BIT(9)
+#define NAVIGATION_CONTROLLER_BT  BIT(10)
+#define SINO_LITE_CONTROLLER      BIT(11)
+#define FUTUREMAX_DANCE_MAT       BIT(12)
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -80,6 +89,7 @@
 #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
 				DUALSHOCK4_CONTROLLER_BT)
 #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER | BUZZ_CONTROLLER |\
+<<<<<<< HEAD
 				DUALSHOCK4_CONTROLLER)
 #define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
 #define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER)
@@ -101,6 +111,16 @@
 >>>>>>> c8de9dbb35d3... HID: sony: Fix work queue issues
 =======
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+				DUALSHOCK4_CONTROLLER | MOTION_CONTROLLER |\
+				NAVIGATION_CONTROLLER)
+#define SONY_BATTERY_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER |\
+				MOTION_CONTROLLER_BT | NAVIGATION_CONTROLLER)
+#define SONY_FF_SUPPORT (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER |\
+				MOTION_CONTROLLER)
+#define SONY_BT_DEVICE (SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_BT |\
+			MOTION_CONTROLLER_BT | NAVIGATION_CONTROLLER_BT)
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 #define MAX_LEDS 4
 
@@ -2452,6 +2472,7 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
 		return LED_OFF;
 	}
 
+<<<<<<< HEAD
 	for (n = 0; n < drv_data->led_count; n++) {
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2461,6 +2482,32 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
 	}
 
 	return LED_OFF;
+=======
+	u8 mac_address[6];
+	u8 worker_initialized;
+	u8 defer_initialization;
+	u8 cable_state;
+	u8 battery_charging;
+	u8 battery_capacity;
+	u8 led_state[MAX_LEDS];
+	u8 resume_led_state[MAX_LEDS];
+	u8 led_delay_on[MAX_LEDS];
+	u8 led_delay_off[MAX_LEDS];
+	u8 led_count;
+};
+
+static inline void sony_schedule_work(struct sony_sc *sc)
+{
+	if (!sc->defer_initialization)
+		schedule_work(&sc->state_worker);
+}
+
+static u8 *sixaxis_fixup(struct hid_device *hdev, u8 *rdesc,
+			     unsigned int *rsize)
+{
+	*rsize = sizeof(sixaxis_rdesc);
+	return sixaxis_rdesc;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 static int sony_led_blink_set(struct led_classdev *led, unsigned long *delay_on,
@@ -2542,7 +2589,12 @@ static void sony_leds_remove(struct sony_sc *sc)
 	struct led_classdev *led;
 	int n;
 
+<<<<<<< HEAD
 	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
+=======
+	if (sc->quirks & (SINO_LITE_CONTROLLER | FUTUREMAX_DANCE_MAT))
+		return rdesc;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 <<<<<<< HEAD
 	for (n = 0; n < sc->led_count; n++) {
@@ -2984,6 +3036,7 @@ static void dualshock4_state_worker(struct work_struct *work)
 >>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 	}
 
+<<<<<<< HEAD
 #ifdef CONFIG_SONY_FF
 	buf[offset++] = sc->right;
 	buf[offset++] = sc->left;
@@ -3018,6 +3071,14 @@ static void dualshock4_state_worker(struct work_struct *work)
 	sc->hdev->hid_output_raw_report(sc->hdev, buf, sizeof(buf),
 					HID_OUTPUT_REPORT);
 >>>>>>> 60781cf487e3... HID: sony: Add LED controls for the Dualshock 4
+=======
+	if (sc->defer_initialization) {
+		sc->defer_initialization = 0;
+		sony_schedule_work(sc);
+	}
+
+	return 0;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 static void dualshock4_state_worker(struct work_struct *work)
@@ -3302,6 +3363,7 @@ static int sony_battery_get_property(struct power_supply *psy,
 				     enum power_supply_property psp,
 				     union power_supply_propval *val)
 {
+<<<<<<< HEAD
 	struct sony_sc *sc = container_of(psy, struct sony_sc, battery);
 	unsigned long flags;
 	int ret = 0;
@@ -3356,6 +3418,12 @@ static int sony_battery_get_property(struct power_supply *psy,
 >>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 	}
 	return ret;
+=======
+	if (!(sc->quirks & BUZZ_CONTROLLER))
+		sony_schedule_work(sc);
+	else
+		buzz_set_leds(sc);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 }
 
 static int sony_battery_probe(struct sony_sc *sc)
@@ -3581,7 +3649,7 @@ static int sony_led_blink_set(struct led_classdev *led, unsigned long *delay_on,
 		new_off != drv_data->led_delay_off[n]) {
 		drv_data->led_delay_on[n] = new_on;
 		drv_data->led_delay_off[n] = new_off;
-		schedule_work(&drv_data->state_worker);
+		sony_schedule_work(drv_data);
 	}
 
 	return 0;
@@ -3947,6 +4015,7 @@ static void sony_release_device_id(struct sony_sc *sc)
 	int offset;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	__u8 buf[78] = { 0 };
 <<<<<<< HEAD
 
@@ -3980,6 +4049,8 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
 =======
 
 =======
+=======
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	/*
 	 * NOTE: The buf[1] field of the Bluetooth report controls
 	 * the Dualshock 4 reporting rate.
@@ -3991,7 +4062,10 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
 	 * 0xB0 - 20hz
 	 * 0xD0 - 66hz
 	 */
+<<<<<<< HEAD
 >>>>>>> c4425c8f26aa... HID: sony: Update copyright and add Dualshock 4 rate control note
+=======
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		buf[0] = 0x05;
 		buf[1] = 0xFF;
@@ -4213,7 +4287,11 @@ static int sony_battery_probe(struct sony_sc *sc)
 		goto err_free;
 	}
 
+<<<<<<< HEAD
 	power_supply_powers(&sc->battery, &hdev->dev);
+=======
+	sony_schedule_work(sc);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	return 0;
 <<<<<<< HEAD
 =======
@@ -4291,8 +4369,15 @@ static int sony_battery_get_property(struct power_supply *psy,
 	return ret;
 }
 
-static int sony_battery_probe(struct sony_sc *sc)
+static int sony_battery_probe(struct sony_sc *sc, int append_dev_id)
 {
+<<<<<<< HEAD
+=======
+	const char *battery_str_fmt = append_dev_id ?
+		"sony_controller_battery_%pMR_%i" :
+		"sony_controller_battery_%pMR";
+	struct power_supply_config psy_cfg = { .drv_data = sc, };
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	struct hid_device *hdev = sc->hdev;
 	int ret;
 
@@ -4302,6 +4387,7 @@ static int sony_battery_probe(struct sony_sc *sc)
 	 */
 	sc->battery_capacity = 100;
 
+<<<<<<< HEAD
 	sc->battery.properties = sony_battery_props;
 	sc->battery.num_properties = ARRAY_SIZE(sony_battery_props);
 	sc->battery.get_property = sony_battery_get_property;
@@ -4310,6 +4396,16 @@ static int sony_battery_probe(struct sony_sc *sc)
 	sc->battery.name = kasprintf(GFP_KERNEL, "sony_controller_battery_%pMR",
 				     sc->mac_address);
 	if (!sc->battery.name)
+=======
+	sc->battery_desc.properties = sony_battery_props;
+	sc->battery_desc.num_properties = ARRAY_SIZE(sony_battery_props);
+	sc->battery_desc.get_property = sony_battery_get_property;
+	sc->battery_desc.type = POWER_SUPPLY_TYPE_BATTERY;
+	sc->battery_desc.use_for_apm = 0;
+	sc->battery_desc.name = kasprintf(GFP_KERNEL, battery_str_fmt,
+					  sc->mac_address, sc->device_id);
+	if (!sc->battery_desc.name)
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		return -ENOMEM;
 
 	ret = power_supply_register(&hdev->dev, &sc->battery);
@@ -4407,7 +4503,21 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
  * it will show up as two devices. A global list of connected controllers and
  * their MAC addresses is maintained to ensure that a device is only connected
  * once.
+ *
+ * Some USB-only devices masquerade as Sixaxis controllers and all have the
+ * same dummy Bluetooth address, so a comparison of the connection type is
+ * required.  Devices are only rejected in the case where two devices have
+ * matching Bluetooth addresses on different bus types.
  */
+static inline int sony_compare_connection_type(struct sony_sc *sc0,
+						struct sony_sc *sc1)
+{
+	const int sc0_not_bt = !(sc0->quirks & SONY_BT_DEVICE);
+	const int sc1_not_bt = !(sc1->quirks & SONY_BT_DEVICE);
+
+	return sc0_not_bt == sc1_not_bt;
+}
+
 static int sony_check_add_dev_list(struct sony_sc *sc)
 {
 	struct sony_sc *entry;
@@ -4420,9 +4530,14 @@ static int sony_check_add_dev_list(struct sony_sc *sc)
 		ret = memcmp(sc->mac_address, entry->mac_address,
 				sizeof(sc->mac_address));
 		if (!ret) {
-			ret = -EEXIST;
-			hid_info(sc->hdev, "controller with MAC address %pMR already connected\n",
+			if (sony_compare_connection_type(sc, entry)) {
+				ret = 1;
+			} else {
+				ret = -EEXIST;
+				hid_info(sc->hdev,
+				"controller with MAC address %pMR already connected\n",
 				sc->mac_address);
+			}
 			goto unlock;
 		}
 	}
@@ -4589,9 +4704,13 @@ static inline void sony_cancel_work_sync(struct sony_sc *sc)
 static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 {
 	int ret;
+	int append_dev_id;
 	unsigned long quirks = id->driver_data;
 	struct sony_sc *sc;
 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+
+	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
+		quirks |= FUTUREMAX_DANCE_MAT;
 
 	sc = devm_kzalloc(&hdev->dev, sizeof(*sc), GFP_KERNEL);
 	if (sc == NULL) {
@@ -4636,9 +4755,16 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		 * the Sixaxis does not want the report_id as part of the data
 		 * packet, so we have to discard buf[0] when sending the actual
 		 * control message, even for numbered reports, humpf!
+		 *
+		 * Additionally, the Sixaxis on USB isn't properly initialized
+		 * until the PS logo button is pressed and as such won't retain
+		 * any state set by an output report, so the initial
+		 * configuration report is deferred until the first input
+		 * report arrives.
 		 */
 		hdev->quirks |= HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP;
 		hdev->quirks |= HID_QUIRK_SKIP_OUTPUT_REPORT_ID;
+		sc->defer_initialization = 1;
 		ret = sixaxis_set_operational_usb(hdev);
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -4777,11 +4903,15 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> d2d782fccee4... HID: sony: Prevent duplicate controller connections.
 =======
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	ret = sony_check_add(sc);
+=======
+	ret = append_dev_id = sony_check_add(sc);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (ret < 0)
 		goto err_stop;
 
@@ -4831,7 +4961,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 =======
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (sc->quirks & SONY_BATTERY_SUPPORT) {
-		ret = sony_battery_probe(sc);
+		ret = sony_battery_probe(sc, append_dev_id);
 		if (ret < 0)
 			goto err_stop;
 
@@ -4965,7 +5095,19 @@ static void sony_remove(struct hid_device *hdev)
 	sony_cancel_work_sync(sc);
 >>>>>>> d6b92c2c373e... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid into next
 
+<<<<<<< HEAD
 	sony_remove_dev_list(sc);
+=======
+		/*
+		 * The Sixaxis and navigation controllers on USB need to be
+		 * reinitialized on resume or they won't behave properly.
+		 */
+		if ((sc->quirks & SIXAXIS_CONTROLLER_USB) ||
+			(sc->quirks & NAVIGATION_CONTROLLER_USB)) {
+			sixaxis_set_operational_usb(sc->hdev);
+			sc->defer_initialization = 1;
+		}
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	sony_release_device_id(sc);
 

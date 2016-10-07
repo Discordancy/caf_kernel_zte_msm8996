@@ -32,6 +32,7 @@
 #include "hid-lg.h"
 #include "hid-ids.h"
 
+<<<<<<< HEAD
 #define DFGT_REV_MAJ 0x13
 #define DFGT_REV_MIN 0x22
 #define DFGT2_REV_MIN 0x26
@@ -59,6 +60,54 @@ struct lg4ff_device_entry {
 	__u16 range;
 	__u16 min_range;
 	__u16 max_range;
+=======
+#define LG4FF_MMODE_IS_MULTIMODE 0
+#define LG4FF_MMODE_SWITCHED 1
+#define LG4FF_MMODE_NOT_MULTIMODE 2
+
+#define LG4FF_MODE_NATIVE_IDX 0
+#define LG4FF_MODE_DFEX_IDX 1
+#define LG4FF_MODE_DFP_IDX 2
+#define LG4FF_MODE_G25_IDX 3
+#define LG4FF_MODE_DFGT_IDX 4
+#define LG4FF_MODE_G27_IDX 5
+#define LG4FF_MODE_G29_IDX 6
+#define LG4FF_MODE_MAX_IDX 7
+
+#define LG4FF_MODE_NATIVE BIT(LG4FF_MODE_NATIVE_IDX)
+#define LG4FF_MODE_DFEX BIT(LG4FF_MODE_DFEX_IDX)
+#define LG4FF_MODE_DFP BIT(LG4FF_MODE_DFP_IDX)
+#define LG4FF_MODE_G25 BIT(LG4FF_MODE_G25_IDX)
+#define LG4FF_MODE_DFGT BIT(LG4FF_MODE_DFGT_IDX)
+#define LG4FF_MODE_G27 BIT(LG4FF_MODE_G27_IDX)
+#define LG4FF_MODE_G29 BIT(LG4FF_MODE_G29_IDX)
+
+#define LG4FF_DFEX_TAG "DF-EX"
+#define LG4FF_DFEX_NAME "Driving Force / Formula EX"
+#define LG4FF_DFP_TAG "DFP"
+#define LG4FF_DFP_NAME "Driving Force Pro"
+#define LG4FF_G25_TAG "G25"
+#define LG4FF_G25_NAME "G25 Racing Wheel"
+#define LG4FF_G27_TAG "G27"
+#define LG4FF_G27_NAME "G27 Racing Wheel"
+#define LG4FF_G29_TAG "G29"
+#define LG4FF_G29_NAME "G29 Racing Wheel"
+#define LG4FF_DFGT_TAG "DFGT"
+#define LG4FF_DFGT_NAME "Driving Force GT"
+
+#define LG4FF_FFEX_REV_MAJ 0x21
+#define LG4FF_FFEX_REV_MIN 0x00
+
+static void lg4ff_set_range_dfp(struct hid_device *hid, u16 range);
+static void lg4ff_set_range_g25(struct hid_device *hid, u16 range);
+
+struct lg4ff_wheel_data {
+	const u32 product_id;
+	u16 combine;
+	u16 range;
+	const u16 min_range;
+	const u16 max_range;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 #ifdef CONFIG_LEDS_CLASS
 	__u8  led_state;
 	struct led_classdev *led[5];
@@ -82,6 +131,7 @@ struct lg4ff_wheel {
 };
 
 static const struct lg4ff_wheel lg4ff_devices[] = {
+	{USB_DEVICE_ID_LOGITECH_WINGMAN_FFG, lg4ff_wheel_effects, 40, 180, NULL},
 	{USB_DEVICE_ID_LOGITECH_WHEEL,       lg4ff_wheel_effects, 40, 270, NULL},
 	{USB_DEVICE_ID_LOGITECH_MOMO_WHEEL,  lg4ff_wheel_effects, 40, 270, NULL},
 	{USB_DEVICE_ID_LOGITECH_DFP_WHEEL,   lg4ff_wheel_effects, 40, 900, hid_lg4ff_set_range_dfp},
@@ -184,7 +234,90 @@ int lg4ff_adjust_input_event(struct hid_device *hid, struct hid_field *field,
 	}
 }
 
+<<<<<<< HEAD
 static int hid_lg4ff_play(struct input_dev *dev, void *data, struct ff_effect *effect)
+=======
+int lg4ff_raw_event(struct hid_device *hdev, struct hid_report *report,
+		u8 *rd, int size, struct lg_drv_data *drv_data)
+{
+	int offset;
+	struct lg4ff_device_entry *entry = drv_data->device_props;
+
+	if (!entry)
+		return 0;
+
+	/* adjust HID report present combined pedals data */
+	if (entry->wdata.combine) {
+		switch (entry->wdata.product_id) {
+		case USB_DEVICE_ID_LOGITECH_WHEEL:
+			rd[5] = rd[3];
+			rd[6] = 0x7F;
+			return 1;
+		case USB_DEVICE_ID_LOGITECH_WINGMAN_FFG:
+		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL:
+		case USB_DEVICE_ID_LOGITECH_MOMO_WHEEL2:
+			rd[4] = rd[3];
+			rd[5] = 0x7F;
+			return 1;
+		case USB_DEVICE_ID_LOGITECH_DFP_WHEEL:
+			rd[5] = rd[4];
+			rd[6] = 0x7F;
+			return 1;
+		case USB_DEVICE_ID_LOGITECH_G25_WHEEL:
+		case USB_DEVICE_ID_LOGITECH_G27_WHEEL:
+			offset = 5;
+			break;
+		case USB_DEVICE_ID_LOGITECH_DFGT_WHEEL:
+		case USB_DEVICE_ID_LOGITECH_G29_WHEEL:
+			offset = 6;
+			break;
+		case USB_DEVICE_ID_LOGITECH_WII_WHEEL:
+			offset = 3;
+			break;
+		default:
+			return 0;
+		}
+
+		/* Compute a combined axis when wheel does not supply it */
+		rd[offset] = (0xFF + rd[offset] - rd[offset+1]) >> 1;
+		rd[offset+1] = 0x7F;
+		return 1;
+	}
+
+	return 0;
+}
+
+static void lg4ff_init_wheel_data(struct lg4ff_wheel_data * const wdata, const struct lg4ff_wheel *wheel,
+				  const struct lg4ff_multimode_wheel *mmode_wheel,
+				  const u16 real_product_id)
+{
+	u32 alternate_modes = 0;
+	const char *real_tag = NULL;
+	const char *real_name = NULL;
+
+	if (mmode_wheel) {
+		alternate_modes = mmode_wheel->alternate_modes;
+		real_tag = mmode_wheel->real_tag;
+		real_name = mmode_wheel->real_name;
+	}
+
+	{
+		struct lg4ff_wheel_data t_wdata =  { .product_id = wheel->product_id,
+						     .real_product_id = real_product_id,
+						     .combine = 0,
+						     .min_range = wheel->min_range,
+						     .max_range = wheel->max_range,
+						     .set_range = wheel->set_range,
+						     .alternate_modes = alternate_modes,
+						     .real_tag = real_tag,
+						     .real_name = real_name };
+
+		memcpy(wdata, &t_wdata, sizeof(t_wdata));
+	}
+}
+
+static int lg4ff_play(struct input_dev *dev, void *data, struct ff_effect *effect)
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 {
 	struct hid_device *hid = input_get_drvdata(dev);
 	struct list_head *report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
@@ -415,8 +548,66 @@ static void hid_lg4ff_switch_native(struct hid_device *hid, const struct lg4ff_n
 	}
 }
 
+<<<<<<< HEAD
 /* Read current range and display it in terminal */
 static ssize_t lg4ff_range_show(struct device *dev, struct device_attribute *attr, char *buf)
+=======
+static ssize_t lg4ff_combine_show(struct device *dev, struct device_attribute *attr,
+				char *buf)
+{
+	struct hid_device *hid = to_hid_device(dev);
+	struct lg4ff_device_entry *entry;
+	struct lg_drv_data *drv_data;
+	size_t count;
+
+	drv_data = hid_get_drvdata(hid);
+	if (!drv_data) {
+		hid_err(hid, "Private driver data not found!\n");
+		return 0;
+	}
+
+	entry = drv_data->device_props;
+	if (!entry) {
+		hid_err(hid, "Device properties not found!\n");
+		return 0;
+	}
+
+	count = scnprintf(buf, PAGE_SIZE, "%u\n", entry->wdata.combine);
+	return count;
+}
+
+static ssize_t lg4ff_combine_store(struct device *dev, struct device_attribute *attr,
+				 const char *buf, size_t count)
+{
+	struct hid_device *hid = to_hid_device(dev);
+	struct lg4ff_device_entry *entry;
+	struct lg_drv_data *drv_data;
+	u16 combine = simple_strtoul(buf, NULL, 10);
+
+	drv_data = hid_get_drvdata(hid);
+	if (!drv_data) {
+		hid_err(hid, "Private driver data not found!\n");
+		return -EINVAL;
+	}
+
+	entry = drv_data->device_props;
+	if (!entry) {
+		hid_err(hid, "Device properties not found!\n");
+		return -EINVAL;
+	}
+
+	if (combine > 1)
+		combine = 1;
+
+	entry->wdata.combine = combine;
+	return count;
+}
+static DEVICE_ATTR(combine_pedals, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH, lg4ff_combine_show, lg4ff_combine_store);
+
+/* Export the currently set range of the wheel */
+static ssize_t lg4ff_range_show(struct device *dev, struct device_attribute *attr,
+				char *buf)
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 {
 	struct hid_device *hid = to_hid_device(dev);
 	struct lg4ff_device_entry *entry;
@@ -647,6 +838,9 @@ int lg4ff_init(struct hid_device *hid)
 	}
 
 	/* Create sysfs interface */
+	error = device_create_file(&hid->dev, &dev_attr_combine_pedals);
+	if (error)
+		hid_warn(hid, "Unable to create sysfs interface for \"combine\", errno %d\n", error);
 	error = device_create_file(&hid->dev, &dev_attr_range);
 	if (error)
 		return error;
@@ -732,6 +926,11 @@ int lg4ff_deinit(struct hid_device *hid)
 		return -1;
 	}
 
+<<<<<<< HEAD
+=======
+	device_remove_file(&hid->dev, &dev_attr_combine_pedals);
+	device_remove_file(&hid->dev, &dev_attr_range);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 #ifdef CONFIG_LEDS_CLASS
 	{
 		int j;

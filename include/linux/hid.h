@@ -802,7 +802,7 @@ s32 hid_snto32(__u32 value, unsigned n);
  */
 static inline void hid_device_io_start(struct hid_device *hid) {
 	if (hid->io_started) {
-		dev_warn(&hid->dev, "io already started");
+		dev_warn(&hid->dev, "io already started\n");
 		return;
 	}
 	hid->io_started = true;
@@ -822,7 +822,7 @@ static inline void hid_device_io_start(struct hid_device *hid) {
  */
 static inline void hid_device_io_stop(struct hid_device *hid) {
 	if (!hid->io_started) {
-		dev_warn(&hid->dev, "io already stopped");
+		dev_warn(&hid->dev, "io already stopped\n");
 		return;
 	}
 	hid->io_started = false;

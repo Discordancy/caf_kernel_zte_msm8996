@@ -65,11 +65,42 @@
 #define WACOM_REPORT_USB		192
 
 /* device quirks */
+<<<<<<< HEAD
 #define WACOM_QUIRK_MULTI_INPUT		0x0001
 #define WACOM_QUIRK_BBTOUCH_LOWRES	0x0002
 #define WACOM_QUIRK_NO_INPUT		0x0004
 #define WACOM_QUIRK_MONITOR		0x0008
 #define WACOM_QUIRK_BATTERY		0x0010
+=======
+#define WACOM_QUIRK_BBTOUCH_LOWRES	0x0001
+#define WACOM_QUIRK_BATTERY		0x0008
+
+/* device types */
+#define WACOM_DEVICETYPE_NONE           0x0000
+#define WACOM_DEVICETYPE_PEN            0x0001
+#define WACOM_DEVICETYPE_TOUCH          0x0002
+#define WACOM_DEVICETYPE_PAD            0x0004
+#define WACOM_DEVICETYPE_WL_MONITOR     0x0008
+#define WACOM_DEVICETYPE_DIRECT         0x0010
+
+#define WACOM_VENDORDEFINED_PEN		0xff0d0001
+#define WACOM_G9_PAGE			0xff090000
+#define WACOM_G9_DIGITIZER		(WACOM_G9_PAGE | 0x02)
+#define WACOM_G9_TOUCHSCREEN		(WACOM_G9_PAGE | 0x11)
+#define WACOM_G11_PAGE			0xff110000
+#define WACOM_G11_DIGITIZER		(WACOM_G11_PAGE | 0x02)
+#define WACOM_G11_TOUCHSCREEN		(WACOM_G11_PAGE | 0x11)
+
+#define WACOM_PEN_FIELD(f)	(((f)->logical == HID_DG_STYLUS) || \
+				 ((f)->physical == HID_DG_STYLUS) || \
+				 ((f)->physical == HID_DG_PEN) || \
+				 ((f)->application == HID_DG_PEN) || \
+				 ((f)->application == HID_DG_DIGITIZER) || \
+				 ((f)->application == WACOM_VENDORDEFINED_PEN))
+#define WACOM_FINGER_FIELD(f)	(((f)->logical == HID_DG_FINGER) || \
+				 ((f)->physical == HID_DG_FINGER) || \
+				 ((f)->application == HID_DG_TOUCHSCREEN))
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 enum {
 	PENPARTNER = 0,
@@ -167,27 +198,55 @@ struct hid_data {
 	int width;
 	int height;
 	int id;
+<<<<<<< HEAD
+=======
+	int cc_report;
+	int cc_index;
+	int cc_value_index;
+	int last_slot_field;
+	int num_expected;
+	int num_received;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+};
+
+struct wacom_remote_data {
+	struct {
+		u32 serial;
+		bool connected;
+	} remote[WACOM_MAX_REMOTES];
 };
 
 struct wacom_wac {
 	char name[WACOM_NAME_MAX];
+<<<<<<< HEAD
+=======
+	char pen_name[WACOM_NAME_MAX];
+	char touch_name[WACOM_NAME_MAX];
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	char pad_name[WACOM_NAME_MAX];
-	char bat_name[WACOM_NAME_MAX];
-	char ac_name[WACOM_NAME_MAX];
 	unsigned char data[WACOM_PKGLEN_MAX];
 	int tool[2];
 	int id[2];
 	__u32 serial[2];
+<<<<<<< HEAD
+=======
+	bool reporting_data;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	struct wacom_features features;
 	struct wacom_shared *shared;
 	struct input_dev *input;
 	struct input_dev *pad_input;
+<<<<<<< HEAD
 	bool input_registered;
+=======
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	int pid;
-	int battery_capacity;
 	int num_contacts_left;
+<<<<<<< HEAD
 	int bat_charging;
 	int ps_connected;
+=======
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	u8 bt_features;
 	u8 bt_high_speed;
 	struct hid_data hid_data;

@@ -31,6 +31,16 @@
  */
 #define WACOM_CONTACT_AREA_SCALE 2607
 
+<<<<<<< HEAD
+=======
+static bool touch_arbitration = 1;
+module_param(touch_arbitration, bool, 0644);
+MODULE_PARM_DESC(touch_arbitration, " on (Y) off (N)");
+
+static void wacom_report_numbered_buttons(struct input_dev *input_dev,
+				int button_count, int mask);
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 /*
  * Percent of battery capacity for Graphire.
  * 8th value means AC online and show 100% capacity.
@@ -42,6 +52,39 @@ static unsigned short batcap_gr[8] = { 1, 15, 25, 35, 50, 70, 100, 100 };
  */
 static unsigned short batcap_i4[8] = { 1, 15, 30, 45, 60, 70, 85, 100 };
 
+<<<<<<< HEAD
+=======
+static void __wacom_notify_battery(struct wacom_battery *battery,
+				   int bat_capacity, bool bat_charging,
+				   bool bat_connected, bool ps_connected)
+{
+	bool changed = battery->battery_capacity != bat_capacity  ||
+		       battery->bat_charging     != bat_charging  ||
+		       battery->bat_connected    != bat_connected ||
+		       battery->ps_connected     != ps_connected;
+
+	if (changed) {
+		battery->battery_capacity = bat_capacity;
+		battery->bat_charging = bat_charging;
+		battery->bat_connected = bat_connected;
+		battery->ps_connected = ps_connected;
+
+		if (battery->battery)
+			power_supply_changed(battery->battery);
+	}
+}
+
+static void wacom_notify_battery(struct wacom_wac *wacom_wac,
+	int bat_capacity, bool bat_charging, bool bat_connected,
+	bool ps_connected)
+{
+	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+
+	__wacom_notify_battery(&wacom->battery, bat_capacity, bat_charging,
+			       bat_connected, ps_connected);
+}
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static int wacom_penpartner_irq(struct wacom_wac *wacom)
 {
 	unsigned char *data = wacom->data;
@@ -587,6 +630,7 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
 
 static void wacom_intuos_general(struct wacom_wac *wacom)
 {
+<<<<<<< HEAD
 	struct wacom_features *features = &wacom->features;
 	unsigned char *data = wacom->data;
 	struct input_dev *input = wacom->input;
@@ -734,6 +778,107 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
 				/* Out of proximity, clear second wheel value. */
 				input_report_abs(input, ABS_THROTTLE, 0);
 			}
+=======
+	unsigned char *data = wacom_wac->data;
+	struct input_dev *input;
+	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+	struct wacom_remote *remote = wacom->remote;
+	int bat_charging, bat_percent, touch_ring_mode;
+	__u32 serial;
+	int i, index = -1;
+	unsigned long flags;
+
+	if (data[0] != WACOM_REPORT_REMOTE) {
+		hid_dbg(wacom->hdev, "%s: received unknown report #%d",
+			__func__, data[0]);
+		return 0;
+	}
+
+	serial = data[3] + (data[4] << 8) + (data[5] << 16);
+	wacom_wac->id[0] = PAD_DEVICE_ID;
+
+	spin_lock_irqsave(&remote->remote_lock, flags);
+
+	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+		if (remote->remotes[i].serial == serial) {
+			index = i;
+			break;
+		}
+	}
+
+	if (index < 0 || !remote->remotes[index].registered)
+		goto out;
+
+	input = remote->remotes[index].input;
+
+	input_report_key(input, BTN_0, (data[9] & 0x01));
+	input_report_key(input, BTN_1, (data[9] & 0x02));
+	input_report_key(input, BTN_2, (data[9] & 0x04));
+	input_report_key(input, BTN_3, (data[9] & 0x08));
+	input_report_key(input, BTN_4, (data[9] & 0x10));
+	input_report_key(input, BTN_5, (data[9] & 0x20));
+	input_report_key(input, BTN_6, (data[9] & 0x40));
+	input_report_key(input, BTN_7, (data[9] & 0x80));
+
+	input_report_key(input, BTN_8, (data[10] & 0x01));
+	input_report_key(input, BTN_9, (data[10] & 0x02));
+	input_report_key(input, BTN_A, (data[10] & 0x04));
+	input_report_key(input, BTN_B, (data[10] & 0x08));
+	input_report_key(input, BTN_C, (data[10] & 0x10));
+	input_report_key(input, BTN_X, (data[10] & 0x20));
+	input_report_key(input, BTN_Y, (data[10] & 0x40));
+	input_report_key(input, BTN_Z, (data[10] & 0x80));
+
+	input_report_key(input, BTN_BASE, (data[11] & 0x01));
+	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
+
+	if (data[12] & 0x80)
+		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
+	else
+		input_report_abs(input, ABS_WHEEL, 0);
+
+	bat_percent = data[7] & 0x7f;
+	bat_charging = !!(data[7] & 0x80);
+
+	if (data[9] | data[10] | (data[11] & 0x03) | data[12])
+		input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
+	else
+		input_report_abs(input, ABS_MISC, 0);
+
+	input_event(input, EV_MSC, MSC_SERIAL, serial);
+
+	input_sync(input);
+
+	/*Which mode select (LED light) is currently on?*/
+	touch_ring_mode = (data[11] & 0xC0) >> 6;
+
+	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+		if (remote->remotes[i].serial == serial)
+			wacom->led.groups[i].select = touch_ring_mode;
+	}
+
+	__wacom_notify_battery(&remote->remotes[index].battery, bat_percent,
+				bat_charging, 1, bat_charging);
+
+out:
+	spin_unlock_irqrestore(&remote->remote_lock, flags);
+	return 0;
+}
+
+static void wacom_remote_status_irq(struct wacom_wac *wacom_wac, size_t len)
+{
+	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+	unsigned char *data = wacom_wac->data;
+	struct wacom_remote *remote = wacom->remote;
+	struct wacom_remote_data remote_data;
+	unsigned long flags;
+	int i, ret;
+
+	if (data[0] != WACOM_REPORT_DEVICE_LIST)
+		return;
+
+	memset(&remote_data, 0, sizeof(struct wacom_remote_data));
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 			if (data[1] | data[2] | (data[3] & 0x1f) | data[4] | data[6] | data[8]) {
 				input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
@@ -765,6 +910,7 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
 		} else if (features->type >= INTUOS5S && features->type <= INTUOSPL) {
 			int i;
 
+<<<<<<< HEAD
 			/* Touch ring mode switch has no capacitive sensor */
 			input_report_key(input, BTN_0, (data[3] & 0x01));
 
@@ -844,11 +990,50 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
 	result = wacom_intuos_inout(wacom);
 	if (result)
                 return result - 1;
+=======
+		remote_data.remote[i].serial = serial;
+		remote_data.remote[i].connected = connected;
+	}
+
+	spin_lock_irqsave(&remote->remote_lock, flags);
+
+	ret = kfifo_in(&remote->remote_fifo, &remote_data, sizeof(remote_data));
+	if (ret != sizeof(remote_data)) {
+		spin_unlock_irqrestore(&remote->remote_lock, flags);
+		hid_err(wacom->hdev, "Can't queue Remote status event.\n");
+		return;
+	}
+
+	spin_unlock_irqrestore(&remote->remote_lock, flags);
+
+	wacom_schedule_work(wacom_wac, WACOM_WORKER_REMOTE);
+}
+
+static inline bool report_touch_events(struct wacom_wac *wacom)
+{
+	return (touch_arbitration ? !wacom->shared->stylus_in_proximity : 1);
+}
+
+static inline bool delay_pen_events(struct wacom_wac *wacom)
+{
+	return (wacom->shared->touch_down && touch_arbitration);
+}
+
+static int wacom_intuos_general(struct wacom_wac *wacom)
+{
+	struct wacom_features *features = &wacom->features;
+	unsigned char *data = wacom->data;
+	struct input_dev *input = wacom->pen_input;
+	int idx = (features->type == INTUOS) ? (data[1] & 0x01) : 0;
+	unsigned char type = (data[1] >> 1) & 0x0F;
+	unsigned int x, y, distance, t;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	/* don't proceed if we don't know the ID */
 	if (!wacom->id[idx])
 		return 0;
 
+<<<<<<< HEAD
 	/* Only large Intuos support Lense Cursor */
 	if (wacom->tool[idx] == BTN_TOOL_LENS &&
 	    (features->type == INTUOS3 ||
@@ -859,6 +1044,10 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
 	     features->type == INTUOS5S ||
 	     features->type == INTUOSPM ||
 	     features->type == INTUOSPS)) {
+=======
+	if (delay_pen_events(wacom))
+		return 1;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 		return 0;
 	}
@@ -1016,6 +1205,33 @@ static int wacom_intuos_bt_irq(struct wacom_wac *wacom, size_t len)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int wacom_wac_finger_count_touches(struct wacom_wac *wacom)
+{
+	struct input_dev *input = wacom->touch_input;
+	unsigned touch_max = wacom->features.touch_max;
+	int count = 0;
+	int i;
+
+	if (!touch_max)
+		return 0;
+
+	if (touch_max == 1)
+		return test_bit(BTN_TOUCH, input->key) &&
+			report_touch_events(wacom);
+
+	for (i = 0; i < input->mt->num_slots; i++) {
+		struct input_mt_slot *ps = &input->mt->slots[i];
+		int id = input_mt_get_value(ps, ABS_MT_TRACKING_ID);
+		if (id >= 0)
+			count++;
+	}
+
+	return count;
+}
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static int wacom_24hdt_irq(struct wacom_wac *wacom)
 {
 	struct input_dev *input = wacom->input;
@@ -1035,8 +1251,13 @@ static int wacom_24hdt_irq(struct wacom_wac *wacom)
 	contacts_to_send = min(4, wacom->num_contacts_left);
 
 	for (i = 0; i < contacts_to_send; i++) {
+<<<<<<< HEAD
 		int offset = (WACOM_BYTES_PER_24HDT_PACKET * i) + 1;
 		bool touch = data[offset] & 0x1 && !wacom->shared->stylus_in_proximity;
+=======
+		int offset = (byte_per_packet * i) + 1;
+		bool touch = (data[offset] & 0x1) && report_touch_events(wacom);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		int slot = input_mt_get_slot_by_key(input, data[offset + 1]);
 
 		if (slot < 0)
@@ -1094,7 +1315,11 @@ static int wacom_mt_touch(struct wacom_wac *wacom)
 
 	for (i = 0; i < contacts_to_send; i++) {
 		int offset = (WACOM_BYTES_PER_MT_PACKET + x_offset) * i + 3;
+<<<<<<< HEAD
 		bool touch = data[offset] & 0x1;
+=======
+		bool touch = (data[offset] & 0x1) && report_touch_events(wacom);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		int id = get_unaligned_le16(&data[offset + 1]);
 		int slot = input_mt_get_slot_by_key(input, id);
 
@@ -1128,7 +1353,7 @@ static int wacom_tpc_mt_touch(struct wacom_wac *wacom)
 
 	for (i = 0; i < 2; i++) {
 		int p = data[1] & (1 << i);
-		bool touch = p && !wacom->shared->stylus_in_proximity;
+		bool touch = p && report_touch_events(wacom);
 
 		input_mt_slot(input, i);
 		input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
@@ -1152,8 +1377,13 @@ static int wacom_tpc_mt_touch(struct wacom_wac *wacom)
 static int wacom_tpc_single_touch(struct wacom_wac *wacom, size_t len)
 {
 	unsigned char *data = wacom->data;
+<<<<<<< HEAD
 	struct input_dev *input = wacom->input;
 	bool prox;
+=======
+	struct input_dev *input = wacom->touch_input;
+	bool prox = report_touch_events(wacom);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	int x = 0, y = 0;
 
 	if (wacom->features.touch_max > 1 || len > WACOM_PKGLEN_TPC2FG)
@@ -1202,8 +1432,10 @@ static int wacom_tpc_pen(struct wacom_wac *wacom)
 	/* keep pen state for touch events */
 	wacom->shared->stylus_in_proximity = prox;
 
-	/* send pen events only when touch is up or forced out */
-	if (!wacom->shared->touch_down) {
+	/* send pen events only when touch is up or forced out
+	 * or touch arbitration is off
+	 */
+	if (!delay_pen_events(wacom)) {
 		input_report_key(input, BTN_STYLUS, data[1] & 0x02);
 		input_report_key(input, BTN_STYLUS2, data[1] & 0x10);
 		input_report_abs(input, ABS_X, le16_to_cpup((__le16 *)&data[2]));
@@ -1341,8 +1573,10 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
 		return 0;
 	}
 
-	/* send pen events only when touch is up or forced out */
-	if (!usage->type || wacom_wac->shared->touch_down)
+	/* send pen events only when touch is up or forced out
+	 * or touch arbitration is off
+	 */
+	if (!usage->type || delay_pen_events(wacom_wac))
 		return 0;
 
 	input_event(input, usage->type, usage->code, value);
@@ -1366,8 +1600,7 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
 	/* keep pen state for touch events */
 	wacom_wac->shared->stylus_in_proximity = prox;
 
-	/* send pen events only when touch is up or forced out */
-	if (!wacom_wac->shared->touch_down) {
+	if (!delay_pen_events(wacom_wac)) {
 		input_report_key(input, BTN_TOUCH,
 				wacom_wac->hid_data.tipswitch);
 		input_report_key(input, wacom_wac->tool[0], prox);
@@ -1383,7 +1616,11 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
 {
 	struct wacom *wacom = hid_get_drvdata(hdev);
 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+<<<<<<< HEAD
 	struct input_dev *input = wacom_wac->input;
+=======
+	struct input_dev *input = wacom_wac->touch_input;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	unsigned touch_max = wacom_wac->features.touch_max;
 
 	switch (usage->hid) {
@@ -1401,6 +1638,7 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
 			wacom_map_usage(wacom, usage, field, EV_ABS,
 					ABS_MT_POSITION_Y, 4);
 		break;
+<<<<<<< HEAD
 	case HID_DG_CONTACTID:
 		input_mt_init_slots(input, wacom_wac->features.touch_max,
 			INPUT_MT_DIRECT);
@@ -1411,10 +1649,66 @@ static void wacom_wac_finger_usage_mapping(struct hid_device *hdev,
 		break;
 	case HID_DG_TIPSWITCH:
 		wacom_map_usage(wacom, usage, field, EV_KEY, BTN_TOUCH, 0);
+=======
+	case HID_DG_WIDTH:
+	case HID_DG_HEIGHT:
+		wacom_map_usage(input, usage, field, EV_ABS, ABS_MT_TOUCH_MAJOR, 0);
+		wacom_map_usage(input, usage, field, EV_ABS, ABS_MT_TOUCH_MINOR, 0);
+		input_set_abs_params(input, ABS_MT_ORIENTATION, 0, 1, 0, 0);
+		break;
+	case HID_DG_TIPSWITCH:
+		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOUCH, 0);
+		break;
+	case HID_DG_CONTACTCOUNT:
+		wacom_wac->hid_data.cc_report = field->report->id;
+		wacom_wac->hid_data.cc_index = field->index;
+		wacom_wac->hid_data.cc_value_index = usage->usage_index;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		break;
 	}
 }
 
+<<<<<<< HEAD
+=======
+static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
+		struct input_dev *input)
+{
+	struct hid_data *hid_data = &wacom_wac->hid_data;
+	bool mt = wacom_wac->features.touch_max > 1;
+	bool prox = hid_data->tipswitch &&
+		    report_touch_events(wacom_wac);
+
+	wacom_wac->hid_data.num_received++;
+	if (wacom_wac->hid_data.num_received > wacom_wac->hid_data.num_expected)
+		return;
+
+	if (mt) {
+		int slot;
+
+		slot = input_mt_get_slot_by_key(input, hid_data->id);
+		input_mt_slot(input, slot);
+		input_mt_report_slot_state(input, MT_TOOL_FINGER, prox);
+	}
+	else {
+		input_report_key(input, BTN_TOUCH, prox);
+	}
+
+	if (prox) {
+		input_report_abs(input, mt ? ABS_MT_POSITION_X : ABS_X,
+				 hid_data->x);
+		input_report_abs(input, mt ? ABS_MT_POSITION_Y : ABS_Y,
+				 hid_data->y);
+
+		if (test_bit(ABS_MT_TOUCH_MAJOR, input->absbit)) {
+			input_report_abs(input, ABS_MT_TOUCH_MAJOR, max(hid_data->width, hid_data->height));
+			input_report_abs(input, ABS_MT_TOUCH_MINOR, min(hid_data->width, hid_data->height));
+			if (hid_data->width != hid_data->height)
+				input_report_abs(input, ABS_MT_ORIENTATION, hid_data->width <= hid_data->height ? 0 : 1);
+		}
+	}
+}
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static int wacom_wac_finger_event(struct hid_device *hdev,
 		struct hid_field *field, struct hid_usage *usage, __s32 value)
 {
@@ -1437,12 +1731,21 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
 	}
 
 
+<<<<<<< HEAD
+=======
+	if (usage->usage_index + 1 == field->report_count) {
+		if (usage->hid == wacom_wac->hid_data.last_slot_field)
+			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
+	}
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	return 0;
 }
 
 static void wacom_wac_finger_mt_report(struct wacom_wac *wacom_wac,
 		struct input_dev *input, bool touch)
 {
+<<<<<<< HEAD
 	int slot;
 	struct hid_data *hid_data = &wacom_wac->hid_data;
 
@@ -1465,6 +1768,49 @@ static void wacom_wac_finger_single_touch_report(struct wacom_wac *wacom_wac,
 	if (touch) {
 		input_report_abs(input, ABS_X, hid_data->x);
 		input_report_abs(input, ABS_Y, hid_data->y);
+=======
+	struct wacom *wacom = hid_get_drvdata(hdev);
+	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+	struct hid_data* hid_data = &wacom_wac->hid_data;
+	int i;
+
+	for (i = 0; i < report->maxfield; i++) {
+		struct hid_field *field = report->field[i];
+		int j;
+
+		for (j = 0; j < field->maxusage; j++) {
+			struct hid_usage *usage = &field->usage[j];
+
+			switch (usage->hid) {
+			case HID_GD_X:
+			case HID_GD_Y:
+			case HID_DG_WIDTH:
+			case HID_DG_HEIGHT:
+			case HID_DG_CONTACTID:
+			case HID_DG_INRANGE:
+			case HID_DG_INVERT:
+			case HID_DG_TIPSWITCH:
+				hid_data->last_slot_field = usage->hid;
+				break;
+			case HID_DG_CONTACTCOUNT:
+				hid_data->cc_report = report->id;
+				hid_data->cc_index = i;
+				hid_data->cc_value_index = j;
+				break;
+			}
+		}
+	}
+
+	if (hid_data->cc_report != 0 &&
+	    hid_data->cc_index >= 0) {
+		struct hid_field *field = report->field[hid_data->cc_index];
+		int value = field->value[hid_data->cc_value_index];
+		if (value)
+			hid_data->num_expected = value;
+	}
+	else {
+		hid_data->num_expected = wacom_wac->features.touch_max;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	}
 	input_report_key(input, BTN_TOUCH, touch);
 }
@@ -1499,10 +1845,17 @@ void wacom_wac_usage_mapping(struct hid_device *hdev,
 {
 	struct wacom *wacom = hid_get_drvdata(hdev);
 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+<<<<<<< HEAD
 	struct input_dev *input = wacom_wac->input;
 
 	/* currently, only direct devices have proper hid report descriptors */
 	__set_bit(INPUT_PROP_DIRECT, input->propbit);
+=======
+	struct wacom_features *features = &wacom_wac->features;
+
+	/* currently, only direct devices have proper hid report descriptors */
+	features->device_type |= WACOM_DEVICETYPE_DIRECT;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	if (WACOM_PEN_FIELD(field))
 		return wacom_wac_pen_usage_mapping(hdev, field, usage);
@@ -1557,15 +1910,8 @@ static int wacom_bpt_touch(struct wacom_wac *wacom)
 
 	for (i = 0; i < 2; i++) {
 		int offset = (data[1] & 0x80) ? (8 * i) : (9 * i);
-		bool touch = data[offset + 3] & 0x80;
-
-		/*
-		 * Touch events need to be disabled while stylus is
-		 * in proximity because user's hand is resting on touchpad
-		 * and sending unwanted events.  User expects tablet buttons
-		 * to continue working though.
-		 */
-		touch = touch && !wacom->shared->stylus_in_proximity;
+		bool touch = report_touch_events(wacom)
+			   && (data[offset + 3] & 0x80);
 
 		input_mt_slot(input, i);
 		input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
@@ -1601,7 +1947,7 @@ static void wacom_bpt3_touch_msg(struct wacom_wac *wacom, unsigned char *data)
 	if (slot < 0)
 		return;
 
-	touch = touch && !wacom->shared->stylus_in_proximity;
+	touch = touch && report_touch_events(wacom);
 
 	input_mt_slot(input, slot);
 	input_mt_report_slot_state(input, MT_TOOL_FINGER, touch);
@@ -1671,7 +2017,16 @@ static int wacom_bpt3_touch(struct wacom_wac *wacom)
 			wacom_bpt3_button_msg(wacom, data + offset);
 
 	}
+<<<<<<< HEAD
 	input_mt_report_pointer_emulation(input, true);
+=======
+
+	/* only update touch if we actually have a touchpad and touch data changed */
+	if (wacom->touch_input && touch_changed) {
+		input_mt_sync_frame(wacom->touch_input);
+		wacom->shared->touch_down = wacom_wac_finger_count_touches(wacom);
+	}
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	return 1;
 }
@@ -1707,6 +2062,23 @@ static int wacom_bpt_pen(struct wacom_wac *wacom)
 	 *
 	 * Hardware does report zero in most out-of-prox cases but not all.
 	 */
+<<<<<<< HEAD
+=======
+	if (!wacom->shared->stylus_in_proximity) {
+		if (data[1] & 0x08) {
+			wacom->tool[0] = BTN_TOOL_RUBBER;
+			wacom->id[0] = ERASER_DEVICE_ID;
+		} else {
+			wacom->tool[0] = BTN_TOOL_PEN;
+			wacom->id[0] = STYLUS_DEVICE_ID;
+		}
+	}
+
+	wacom->shared->stylus_in_proximity = prox;
+	if (delay_pen_events(wacom))
+		return 0;
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (prox) {
 		if (!wacom->shared->stylus_in_proximity) {
 			if (data[1] & 0x08) {
@@ -1767,6 +2139,93 @@ static int wacom_bpt_irq(struct wacom_wac *wacom, size_t len)
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void wacom_bamboo_pad_pen_event(struct wacom_wac *wacom,
+		unsigned char *data)
+{
+	unsigned char prefix;
+
+	/*
+	 * We need to reroute the event from the debug interface to the
+	 * pen interface.
+	 * We need to add the report ID to the actual pen report, so we
+	 * temporary overwrite the first byte to prevent having to kzalloc/kfree
+	 * and memcpy the report.
+	 */
+	prefix = data[0];
+	data[0] = WACOM_REPORT_BPAD_PEN;
+
+	/*
+	 * actually reroute the event.
+	 * No need to check if wacom->shared->pen is valid, hid_input_report()
+	 * will check for us.
+	 */
+	hid_input_report(wacom->shared->pen, HID_INPUT_REPORT, data,
+			 WACOM_PKGLEN_PENABLED, 1);
+
+	data[0] = prefix;
+}
+
+static int wacom_bamboo_pad_touch_event(struct wacom_wac *wacom,
+		unsigned char *data)
+{
+	struct input_dev *input = wacom->touch_input;
+	unsigned char *finger_data, prefix;
+	unsigned id;
+	int x, y;
+	bool valid;
+
+	prefix = data[0];
+
+	for (id = 0; id < wacom->features.touch_max; id++) {
+		valid = !!(prefix & BIT(id)) &&
+			report_touch_events(wacom);
+
+		input_mt_slot(input, id);
+		input_mt_report_slot_state(input, MT_TOOL_FINGER, valid);
+
+		if (!valid)
+			continue;
+
+		finger_data = data + 1 + id * 3;
+		x = finger_data[0] | ((finger_data[1] & 0x0f) << 8);
+		y = (finger_data[2] << 4) | (finger_data[1] >> 4);
+
+		input_report_abs(input, ABS_MT_POSITION_X, x);
+		input_report_abs(input, ABS_MT_POSITION_Y, y);
+	}
+
+	input_mt_sync_frame(input);
+
+	input_report_key(input, BTN_LEFT, prefix & 0x40);
+	input_report_key(input, BTN_RIGHT, prefix & 0x80);
+
+	/* keep touch state for pen event */
+	wacom->shared->touch_down = !!prefix && report_touch_events(wacom);
+
+	return 1;
+}
+
+static int wacom_bamboo_pad_irq(struct wacom_wac *wacom, size_t len)
+{
+	unsigned char *data = wacom->data;
+
+	if (!((len == WACOM_PKGLEN_BPAD_TOUCH) ||
+	      (len == WACOM_PKGLEN_BPAD_TOUCH_USB)) ||
+	    (data[0] != WACOM_REPORT_BPAD_TOUCH))
+		return 0;
+
+	if (data[1] & 0x01)
+		wacom_bamboo_pad_pen_event(wacom, &data[1]);
+
+	if (data[1] & 0x02)
+		return wacom_bamboo_pad_touch_event(wacom, &data[9]);
+
+	return 0;
+}
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
 {
 	unsigned char *data = wacom->data;
@@ -1791,9 +2250,10 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
 		ps_connected = !!(data[5] & 0x80);
 		if (wacom->pid != pid) {
 			wacom->pid = pid;
-			wacom_schedule_work(wacom);
+			wacom_schedule_work(wacom, WACOM_WORKER_WIRELESS);
 		}
 
+<<<<<<< HEAD
 		if (wacom->shared->type &&
 		    (battery != wacom->battery_capacity ||
 		     ps_connected != wacom->ps_connected)) {
@@ -1810,11 +2270,63 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
 		wacom->battery_capacity = 0;
 		wacom->bat_charging = 0;
 		wacom->ps_connected = 0;
+=======
+		wacom_notify_battery(wacom, battery, charging, 1, 0);
+
+	} else if (wacom->pid != 0) {
+		/* disconnected while previously connected */
+		wacom->pid = 0;
+		wacom_schedule_work(wacom, WACOM_WORKER_WIRELESS);
+		wacom_notify_battery(wacom, 0, 0, 0, 0);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	}
 
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
+{
+	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+	struct wacom_features *features = &wacom_wac->features;
+	unsigned char *data = wacom_wac->data;
+
+	if (data[0] != WACOM_REPORT_USB)
+		return 0;
+
+	if ((features->type == INTUOSHT ||
+	    features->type == INTUOSHT2) &&
+	    wacom_wac->shared->touch_input &&
+	    features->touch_max) {
+		input_report_switch(wacom_wac->shared->touch_input,
+				    SW_MUTE_DEVICE, data[8] & 0x40);
+		input_sync(wacom_wac->shared->touch_input);
+	}
+
+	if (data[9] & 0x02) { /* wireless module is attached */
+		int battery = (data[8] & 0x3f) * 100 / 31;
+		bool charging = !!(data[8] & 0x80);
+
+		wacom_notify_battery(wacom_wac, battery, charging,
+				     battery || charging, 1);
+
+		if (!wacom->battery.battery &&
+		    !(features->quirks & WACOM_QUIRK_BATTERY)) {
+			features->quirks |= WACOM_QUIRK_BATTERY;
+			wacom_schedule_work(wacom_wac, WACOM_WORKER_BATTERY);
+		}
+	}
+	else if ((features->quirks & WACOM_QUIRK_BATTERY) &&
+		 wacom->battery.battery) {
+		features->quirks &= ~WACOM_QUIRK_BATTERY;
+		wacom_schedule_work(wacom_wac, WACOM_WORKER_BATTERY);
+		wacom_notify_battery(wacom_wac, 0, 0, 0, 0);
+	}
+	return 0;
+}
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
 {
 	bool sync;
@@ -1899,8 +2411,25 @@ void wacom_wac_irq(struct wacom_wac *wacom_wac, size_t len)
 		sync = wacom_bpt_irq(wacom_wac, len);
 		break;
 
+<<<<<<< HEAD
 	case WIRELESS:
 		sync = wacom_wireless_irq(wacom_wac, len);
+=======
+	case BAMBOO_PAD:
+		sync = wacom_bamboo_pad_irq(wacom_wac, len);
+		break;
+
+	case WIRELESS:
+		sync = wacom_wireless_irq(wacom_wac, len);
+		break;
+
+	case REMOTE:
+		sync = false;
+		if (wacom_wac->data[0] == WACOM_REPORT_DEVICE_LIST)
+			wacom_remote_status_irq(wacom_wac, len);
+		else
+			sync = wacom_remote_irq(wacom_wac, len);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		break;
 
 	default:
@@ -1965,11 +2494,89 @@ void wacom_setup_device_quirks(struct wacom_features *features)
 		features->y_max = 1023;
 	}
 
+<<<<<<< HEAD
 	/* these device have multiple inputs */
 	if (features->type >= WIRELESS ||
 	    (features->type >= INTUOS5S && features->type <= INTUOSHT) ||
 	    (features->oVid && features->oPid))
 		features->quirks |= WACOM_QUIRK_MULTI_INPUT;
+=======
+	/*
+	 * Intuos5/Pro and Bamboo 3rd gen have no useful data about its
+	 * touch interface in its HID descriptor. If this is the touch
+	 * interface (PacketSize of WACOM_PKGLEN_BBTOUCH3), override the
+	 * tablet values.
+	 */
+	if ((features->type >= INTUOS5S && features->type <= INTUOSPL) ||
+		(features->type >= INTUOSHT && features->type <= BAMBOO_PT)) {
+		if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
+			if (features->touch_max)
+				features->device_type |= WACOM_DEVICETYPE_TOUCH;
+			if (features->type >= INTUOSHT && features->type <= BAMBOO_PT)
+				features->device_type |= WACOM_DEVICETYPE_PAD;
+
+			features->x_max = 4096;
+			features->y_max = 4096;
+		}
+		else if (features->pktlen == WACOM_PKGLEN_BBTOUCH) {
+			features->device_type |= WACOM_DEVICETYPE_PAD;
+		}
+	}
+
+	/*
+	 * Hack for the Bamboo One:
+	 * the device presents a PAD/Touch interface as most Bamboos and even
+	 * sends ghosts PAD data on it. However, later, we must disable this
+	 * ghost interface, and we can not detect it unless we set it here
+	 * to WACOM_DEVICETYPE_PAD or WACOM_DEVICETYPE_TOUCH.
+	 */
+	if (features->type == BAMBOO_PEN &&
+	    features->pktlen == WACOM_PKGLEN_BBTOUCH3)
+		features->device_type |= WACOM_DEVICETYPE_PAD;
+
+	/*
+	 * Raw Wacom-mode pen and touch events both come from interface
+	 * 0, whose HID descriptor has an application usage of 0xFF0D
+	 * (i.e., WACOM_VENDORDEFINED_PEN). We route pen packets back
+	 * out through the HID_GENERIC device created for interface 1,
+	 * so rewrite this one to be of type WACOM_DEVICETYPE_TOUCH.
+	 */
+	if (features->type == BAMBOO_PAD)
+		features->device_type = WACOM_DEVICETYPE_TOUCH;
+
+	if (features->type == REMOTE)
+		features->device_type = WACOM_DEVICETYPE_PAD;
+
+	switch (features->type) {
+	case PL:
+	case DTU:
+	case DTUS:
+	case DTUSX:
+	case WACOM_21UX2:
+	case WACOM_22HD:
+	case DTK:
+	case WACOM_24HD:
+	case WACOM_27QHD:
+	case CINTIQ_HYBRID:
+	case CINTIQ_COMPANION_2:
+	case CINTIQ:
+	case WACOM_BEE:
+	case WACOM_13HD:
+	case WACOM_24HDT:
+	case WACOM_27QHDT:
+	case TABLETPC:
+	case TABLETPCE:
+	case TABLETPC2FG:
+	case MTSCREEN:
+	case MTTPC:
+	case MTTPC_B:
+		features->device_type |= WACOM_DEVICETYPE_DIRECT;
+		break;
+	}
+
+	if (wacom->hdev->bus == BUS_BLUETOOTH)
+		features->quirks |= WACOM_QUIRK_BATTERY;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 	/* quirk for bamboo touch with 2 low res touches */
 	if (features->type == BAMBOO_PT &&
@@ -1992,6 +2599,9 @@ void wacom_setup_device_quirks(struct wacom_features *features)
 			features->quirks |= WACOM_QUIRK_BATTERY;
 		}
 	}
+
+	if (features->type == REMOTE)
+		features->device_type |= WACOM_DEVICETYPE_WL_MONITOR;
 }
 
 static void wacom_abs_set_axis(struct input_dev *input_dev,
@@ -2042,6 +2652,17 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 
 	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
 
+<<<<<<< HEAD
+=======
+	if (!(features->device_type & WACOM_DEVICETYPE_PEN))
+		return -ENODEV;
+
+	if (features->device_type & WACOM_DEVICETYPE_DIRECT)
+		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+	else
+		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	if (features->type == HID_GENERIC)
 		/* setup has already been done */
 		return 0;
@@ -2062,6 +2683,7 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 	case GRAPHIRE:
 		input_set_capability(input_dev, EV_REL, REL_WHEEL);
 
+<<<<<<< HEAD
 		__set_bit(BTN_LEFT, input_dev->keybit);
 		__set_bit(BTN_RIGHT, input_dev->keybit);
 		__set_bit(BTN_MIDDLE, input_dev->keybit);
@@ -2075,6 +2697,9 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
 		break;
 
+=======
+	switch (features->type) {
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	case GRAPHIRE_BT:
 		__clear_bit(ABS_MISC, input_dev->absbit);
 		input_set_abs_params(input_dev, ABS_DISTANCE, 0,
@@ -2092,8 +2717,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 		__set_bit(BTN_TOOL_MOUSE, input_dev->keybit);
 		__set_bit(BTN_STYLUS, input_dev->keybit);
 		__set_bit(BTN_STYLUS2, input_dev->keybit);
-
-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
 		break;
 
 	case WACOM_24HD:
@@ -2120,7 +2743,11 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 
 	case WACOM_13HD:
 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
+<<<<<<< HEAD
 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+=======
+		input_abs_set_res(input_dev, ABS_Z, 287);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		wacom_setup_cintiq(wacom_wac);
 		break;
 
@@ -2131,8 +2758,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 		/* fall through */
 
 	case INTUOS:
-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
-
 		wacom_setup_intuos(wacom_wac);
 		break;
 
@@ -2142,12 +2767,18 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 	case INTUOSPL:
 	case INTUOS5S:
 	case INTUOSPS:
+<<<<<<< HEAD
 		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
 
 		if (features->device_type == BTN_TOOL_PEN) {
 			input_set_abs_params(input_dev, ABS_DISTANCE, 0,
 					      features->distance_max,
 					      0, 0);
+=======
+		input_set_abs_params(input_dev, ABS_DISTANCE, 0,
+				      features->distance_max,
+				      features->distance_fuzz, 0);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 			input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
 
@@ -2208,8 +2839,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
 		__set_bit(BTN_STYLUS, input_dev->keybit);
 		__set_bit(BTN_STYLUS2, input_dev->keybit);
-
-		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
 		break;
 
 	case PTU:
@@ -2220,8 +2849,6 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 		__set_bit(BTN_TOOL_PEN, input_dev->keybit);
 		__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
 		__set_bit(BTN_STYLUS, input_dev->keybit);
-
-		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
 		break;
 
 	case INTUOSHT:
@@ -2233,6 +2860,7 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 		/* fall through */
 
 	case BAMBOO_PT:
+<<<<<<< HEAD
 		__clear_bit(ABS_MISC, input_dev->absbit);
 
 		if (features->device_type == BTN_TOOL_FINGER) {
@@ -2255,6 +2883,15 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 			}
 		} else if (features->device_type == BTN_TOOL_PEN) {
 			__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+=======
+	case BAMBOO_PEN:
+	case INTUOSHT2:
+		if (features->type == INTUOSHT2) {
+			wacom_setup_basic_pro_pen(wacom_wac);
+		} else {
+			__clear_bit(ABS_MISC, input_dev->absbit);
+			__set_bit(BTN_TOOL_PEN, input_dev->keybit);
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 			__set_bit(BTN_TOOL_RUBBER, input_dev->keybit);
 			__set_bit(BTN_TOOL_PEN, input_dev->keybit);
 			__set_bit(BTN_STYLUS, input_dev->keybit);
@@ -2264,10 +2901,111 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 					      0, 0);
 		}
 		break;
+<<<<<<< HEAD
 
 	case CINTIQ_HYBRID:
 		input_set_abs_params(input_dev, ABS_Z, -900, 899, 0, 0);
 		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+=======
+	case BAMBOO_PAD:
+		__clear_bit(ABS_MISC, input_dev->absbit);
+		break;
+	}
+	return 0;
+}
+
+int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
+					 struct wacom_wac *wacom_wac)
+{
+	struct wacom_features *features = &wacom_wac->features;
+
+	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+
+	if (!(features->device_type & WACOM_DEVICETYPE_TOUCH))
+		return -ENODEV;
+
+	if (features->device_type & WACOM_DEVICETYPE_DIRECT)
+		__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+	else
+		__set_bit(INPUT_PROP_POINTER, input_dev->propbit);
+
+	if (features->type == HID_GENERIC)
+		/* setup has already been done */
+		return 0;
+
+	__set_bit(BTN_TOUCH, input_dev->keybit);
+
+	if (features->touch_max == 1) {
+		input_set_abs_params(input_dev, ABS_X, 0,
+			features->x_max, features->x_fuzz, 0);
+		input_set_abs_params(input_dev, ABS_Y, 0,
+			features->y_max, features->y_fuzz, 0);
+		input_abs_set_res(input_dev, ABS_X,
+				  features->x_resolution);
+		input_abs_set_res(input_dev, ABS_Y,
+				  features->y_resolution);
+	}
+	else if (features->touch_max > 1) {
+		input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0,
+			features->x_max, features->x_fuzz, 0);
+		input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
+			features->y_max, features->y_fuzz, 0);
+		input_abs_set_res(input_dev, ABS_MT_POSITION_X,
+				  features->x_resolution);
+		input_abs_set_res(input_dev, ABS_MT_POSITION_Y,
+				  features->y_resolution);
+	}
+
+	switch (features->type) {
+	case INTUOS5:
+	case INTUOS5L:
+	case INTUOSPM:
+	case INTUOSPL:
+	case INTUOS5S:
+	case INTUOSPS:
+		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, features->x_max, 0, 0);
+		input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR, 0, features->y_max, 0, 0);
+		input_mt_init_slots(input_dev, features->touch_max, INPUT_MT_POINTER);
+		break;
+
+	case WACOM_24HDT:
+		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, features->x_max, 0, 0);
+		input_set_abs_params(input_dev, ABS_MT_WIDTH_MAJOR, 0, features->x_max, 0, 0);
+		input_set_abs_params(input_dev, ABS_MT_WIDTH_MINOR, 0, features->y_max, 0, 0);
+		input_set_abs_params(input_dev, ABS_MT_ORIENTATION, 0, 1, 0, 0);
+		/* fall through */
+
+	case WACOM_27QHDT:
+	case MTSCREEN:
+	case MTTPC:
+	case MTTPC_B:
+	case TABLETPC2FG:
+		input_mt_init_slots(input_dev, features->touch_max, INPUT_MT_DIRECT);
+		/*fall through */
+
+	case TABLETPC:
+	case TABLETPCE:
+		break;
+
+	case INTUOSHT:
+	case INTUOSHT2:
+		input_dev->evbit[0] |= BIT_MASK(EV_SW);
+		__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
+		/* fall through */
+
+	case BAMBOO_PT:
+	case BAMBOO_TOUCH:
+		if (features->pktlen == WACOM_PKGLEN_BBTOUCH3) {
+			input_set_abs_params(input_dev,
+				     ABS_MT_TOUCH_MAJOR,
+				     0, features->x_max, 0, 0);
+			input_set_abs_params(input_dev,
+				     ABS_MT_TOUCH_MINOR,
+				     0, features->y_max, 0, 0);
+		}
+		input_mt_init_slots(input_dev, features->touch_max, INPUT_MT_POINTER);
+		break;
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 
 		wacom_setup_cintiq(wacom_wac);
 		break;
@@ -2275,11 +3013,137 @@ int wacom_setup_input_capabilities(struct input_dev *input_dev,
 	return 0;
 }
 
+<<<<<<< HEAD
+=======
+static void wacom_setup_numbered_buttons(struct input_dev *input_dev,
+				int button_count)
+{
+	int i;
+
+	for (i = 0; i < button_count && i < 10; i++)
+		__set_bit(BTN_0 + i, input_dev->keybit);
+	for (i = 10; i < button_count && i < 16; i++)
+		__set_bit(BTN_A + (i-10), input_dev->keybit);
+	for (i = 16; i < button_count && i < 18; i++)
+		__set_bit(BTN_BASE + (i-16), input_dev->keybit);
+}
+
+static void wacom_24hd_update_leds(struct wacom *wacom, int mask, int group)
+{
+	struct wacom_led *led;
+	int i;
+	bool updated = false;
+
+	/*
+	 * 24HD has LED group 1 to the left and LED group 0 to the right.
+	 * So group 0 matches the second half of the buttons and thus the mask
+	 * needs to be shifted.
+	 */
+	if (group == 0)
+		mask >>= 8;
+
+	for (i = 0; i < 3; i++) {
+		led = wacom_led_find(wacom, group, i);
+		if (!led) {
+			hid_err(wacom->hdev, "can't find LED %d in group %d\n",
+				i, group);
+			continue;
+		}
+		if (!updated && mask & BIT(i)) {
+			led->held = true;
+			led_trigger_event(&led->trigger, LED_FULL);
+		} else {
+			led->held = false;
+		}
+	}
+}
+
+static bool wacom_is_led_toggled(struct wacom *wacom, int button_count,
+				 int mask, int group)
+{
+	int button_per_group;
+
+	/*
+	 * 21UX2 has LED group 1 to the left and LED group 0
+	 * to the right. We need to reverse the group to match this
+	 * historical behavior.
+	 */
+	if (wacom->wacom_wac.features.type == WACOM_21UX2)
+		group = 1 - group;
+
+	button_per_group = button_count/wacom->led.count;
+
+	return mask & (1 << (group * button_per_group));
+}
+
+static void wacom_update_led(struct wacom *wacom, int button_count, int mask,
+			     int group)
+{
+	struct wacom_led *led, *next_led;
+	int cur;
+	bool pressed;
+
+	if (wacom->wacom_wac.features.type == WACOM_24HD)
+		return wacom_24hd_update_leds(wacom, mask, group);
+
+	pressed = wacom_is_led_toggled(wacom, button_count, mask, group);
+	cur = wacom->led.groups[group].select;
+
+	led = wacom_led_find(wacom, group, cur);
+	if (!led) {
+		hid_err(wacom->hdev, "can't find current LED %d in group %d\n",
+			cur, group);
+		return;
+	}
+
+	if (!pressed) {
+		led->held = false;
+		return;
+	}
+
+	if (led->held && pressed)
+		return;
+
+	next_led = wacom_led_next(wacom, led);
+	if (!next_led) {
+		hid_err(wacom->hdev, "can't find next LED in group %d\n",
+			group);
+		return;
+	}
+	if (next_led == led)
+		return;
+
+	next_led->held = true;
+	led_trigger_event(&next_led->trigger,
+			  wacom_leds_brightness_get(next_led));
+}
+
+static void wacom_report_numbered_buttons(struct input_dev *input_dev,
+				int button_count, int mask)
+{
+	struct wacom *wacom = input_get_drvdata(input_dev);
+	int i;
+
+	for (i = 0; i < wacom->led.count; i++)
+		wacom_update_led(wacom,  button_count, mask, i);
+
+	for (i = 0; i < button_count && i < 10; i++)
+		input_report_key(input_dev, BTN_0 + i, mask & (1 << i));
+	for (i = 10; i < button_count && i < 16; i++)
+		input_report_key(input_dev, BTN_A + (i-10), mask & (1 << i));
+	for (i = 16; i < button_count && i < 18; i++)
+		input_report_key(input_dev, BTN_BASE + (i-16), mask & (1 << i));
+}
+
+>>>>>>> bc75450cc3db... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
 				   struct wacom_wac *wacom_wac)
 {
 	struct wacom_features *features = &wacom_wac->features;
 	int i;
+
+	if (features->type == REMOTE && input_dev == wacom_wac->pad_input)
+		return -ENODEV;
 
 	input_dev->evbit[0] |= BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
 
@@ -2886,7 +3750,7 @@ static const struct wacom_features wacom_features_0x30C =
 	  .check_for_hid_type = true, .hid_type = HID_TYPE_USBNONE };
 
 static const struct wacom_features wacom_features_HID_ANY_ID =
-	{ "Wacom HID", .type = HID_GENERIC };
+	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
 
 #define USB_DEVICE_WACOM(prod)						\
 	HID_DEVICE(BUS_USB, HID_GROUP_WACOM, USB_VENDOR_ID_WACOM, prod),\
