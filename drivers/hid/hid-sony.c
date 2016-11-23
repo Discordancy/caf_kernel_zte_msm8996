@@ -263,7 +263,7 @@ static u8 dualshock4_usb_rdesc[] = {
 	0x65, 0x00,         /*      Unit,                           */
 	0x05, 0x09,         /*      Usage Page (Button),            */
 	0x19, 0x01,         /*      Usage Minimum (01h),            */
-	0x29, 0x0E,         /*      Usage Maximum (0Eh),            */
+	0x29, 0x0D,         /*      Usage Maximum (0Dh),            */
 	0x15, 0x00,         /*      Logical Minimum (0),            */
 	0x25, 0x01,         /*      Logical Maximum (1),            */
 	0x75, 0x01,         /*      Report Size (1),                */
@@ -598,7 +598,7 @@ static u8 dualshock4_bt_rdesc[] = {
 	0x81, 0x42,         /*      Input (Variable, Null State),   */
 	0x05, 0x09,         /*      Usage Page (Button),            */
 	0x19, 0x01,         /*      Usage Minimum (01h),            */
-	0x29, 0x0E,         /*      Usage Maximum (0Eh),            */
+	0x29, 0x0D,         /*      Usage Maximum (0Dh),            */
 	0x15, 0x00,         /*      Logical Minimum (0),            */
 	0x25, 0x01,         /*      Logical Maximum (1),            */
 	0x75, 0x01,         /*      Report Size (1),                */
@@ -2235,6 +2235,7 @@ static int sony_input_configured(struct hid_device *hdev,
  * to "operational".  Without this, the ps3 controller will not report any
  * events.
  */
+<<<<<<< HEAD
 static int sixaxis_set_operational_usb(struct hid_device *hdev)
 {
 	int ret;
@@ -2471,6 +2472,31 @@ static enum led_brightness sony_led_get_brightness(struct led_classdev *led)
 		hid_err(hdev, "No device data\n");
 		return LED_OFF;
 	}
+=======
+#define DS4_INPUT_REPORT_BUTTON_OFFSET    5
+#define DS4_INPUT_REPORT_BATTERY_OFFSET  30
+#define DS4_INPUT_REPORT_TOUCHPAD_OFFSET 33
+
+#define DS4_TOUCHPAD_SUFFIX " Touchpad"
+
+static DEFINE_SPINLOCK(sony_dev_list_lock);
+static LIST_HEAD(sony_device_list);
+static DEFINE_IDA(sony_device_id_allocator);
+
+struct sony_sc {
+	spinlock_t lock;
+	struct list_head list_node;
+	struct hid_device *hdev;
+	struct input_dev *touchpad;
+	struct led_classdev *leds[MAX_LEDS];
+	unsigned long quirks;
+	struct work_struct state_worker;
+	void (*send_output_report)(struct sony_sc *);
+	struct power_supply *battery;
+	struct power_supply_desc battery_desc;
+	int device_id;
+	u8 *output_report_dmabuf;
+>>>>>>> 42027eecaedf... UPSTREAM: HID: sony: Make the DS4 touchpad a separate device
 
 <<<<<<< HEAD
 	for (n = 0; n < drv_data->led_count; n++) {
@@ -2747,11 +2773,16 @@ static int sony_leds_init(struct hid_device *hdev)
 	}
 >>>>>>> d829674d29d7... HID: sony: Add modified Dualshock 4 Bluetooth HID descriptor
 
+<<<<<<< HEAD
 	name_sz = strlen(dev_name(&hdev->dev)) + name_len + 1;
 =======
 	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
 						struct hid_input, list);
 	struct input_dev *input_dev = hidinput->input;
+=======
+static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+{
+>>>>>>> 42027eecaedf... UPSTREAM: HID: sony: Make the DS4 touchpad a separate device
 	unsigned long flags;
 	int n, offset;
 	__u8 cable_state, battery_capacity, battery_charging;
@@ -2761,7 +2792,16 @@ static int sony_leds_init(struct hid_device *hdev)
 	 */
 	offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 30 : 32;
 
+<<<<<<< HEAD
 	/* The lower 4 bits of byte 30 contain the battery level
+=======
+	/* Second bit of third button byte is for the touchpad button. */
+	offset = data_offset + DS4_INPUT_REPORT_BUTTON_OFFSET;
+	input_report_key(sc->touchpad, BTN_LEFT, rd[offset+2] & 0x2);
+
+	/*
+	 * The lower 4 bits of byte 30 (or 32 for BT) contain the battery level
+>>>>>>> 42027eecaedf... UPSTREAM: HID: sony: Make the DS4 touchpad a separate device
 	 * and the 5th bit contains the USB cable state.
 	 */
 	cable_state = (rd[offset] >> 4) & 0x01;
@@ -2909,6 +2949,7 @@ static int sony_leds_init(struct hid_device *hdev)
 		led->brightness_get = sony_led_get_brightness;
 		led->brightness_set = sony_led_set_brightness;
 
+<<<<<<< HEAD
 		if (use_hw_blink[n])
 			led->blink_set = sony_led_blink_set;
 
@@ -2917,6 +2958,16 @@ static int sony_leds_init(struct hid_device *hdev)
 =======
 		led->brightness_get = sony_led_get_brightness;
 		led->brightness_set = sony_led_set_brightness;
+=======
+			active = !(rd[offset] >> 7);
+			input_mt_slot(sc->touchpad, n);
+			input_mt_report_slot_state(sc->touchpad, MT_TOOL_FINGER, active);
+
+			if (active) {
+				input_report_abs(sc->touchpad, ABS_MT_POSITION_X, x);
+				input_report_abs(sc->touchpad, ABS_MT_POSITION_Y, y);
+			}
+>>>>>>> 42027eecaedf... UPSTREAM: HID: sony: Make the DS4 touchpad a separate device
 
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		ret = led_classdev_register(&hdev->dev, led);
@@ -2927,10 +2978,15 @@ static int sony_leds_init(struct hid_device *hdev)
 			goto error_leds;
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 		drv_data->leds[n] = led;
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+		input_mt_sync_frame(sc->touchpad);
+		input_sync(sc->touchpad);
+>>>>>>> 42027eecaedf... UPSTREAM: HID: sony: Make the DS4 touchpad a separate device
 	}
 
 	return ret;
@@ -3133,25 +3189,74 @@ static void dualshock4_state_worker(struct work_struct *work)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static void dualshock4_state_worker(struct work_struct *work)
 =======
 static int sony_register_touchpad(struct hid_input *hi, int touch_count,
+=======
+static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+>>>>>>> 42027eecaedf... UPSTREAM: HID: sony: Make the DS4 touchpad a separate device
 					int w, int h)
 {
-	struct input_dev *input_dev = hi->input;
+	size_t name_sz;
+	char *name;
 	int ret;
 
-	ret = input_mt_init_slots(input_dev, touch_count, 0);
-	if (ret < 0)
-		return ret;
+	sc->touchpad = input_allocate_device();
+	if (!sc->touchpad)
+		return -ENOMEM;
 
-	input_set_abs_params(input_dev, ABS_MT_POSITION_X, 0, w, 0, 0);
-	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0, h, 0, 0);
+	input_set_drvdata(sc->touchpad, sc);
+	sc->touchpad->dev.parent = &sc->hdev->dev;
+	sc->touchpad->phys = sc->hdev->phys;
+	sc->touchpad->uniq = sc->hdev->uniq;
+	sc->touchpad->id.bustype = sc->hdev->bus;
+	sc->touchpad->id.vendor = sc->hdev->vendor;
+	sc->touchpad->id.product = sc->hdev->product;
+	sc->touchpad->id.version = sc->hdev->version;
+
+	/* Append a suffix to the controller name as there are various
+	 * DS4 compatible non-Sony devices with different names.
+	 */
+	name_sz = strlen(sc->hdev->name) + sizeof(DS4_TOUCHPAD_SUFFIX);
+	name = kzalloc(name_sz, GFP_KERNEL);
+	if (!name) {
+		ret = -ENOMEM;
+		goto err;
+	}
+	snprintf(name, name_sz, "%s" DS4_TOUCHPAD_SUFFIX, sc->hdev->name);
+	sc->touchpad->name = name;
+
+	ret = input_mt_init_slots(sc->touchpad, touch_count, 0);
+	if (ret < 0)
+		goto err;
+
+	/* We map the button underneath the touchpad to BTN_LEFT. */
+	__set_bit(EV_KEY, sc->touchpad->evbit);
+	__set_bit(BTN_LEFT, sc->touchpad->keybit);
+	__set_bit(INPUT_PROP_BUTTONPAD, sc->touchpad->propbit);
+
+	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_X, 0, w, 0, 0);
+	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_Y, 0, h, 0, 0);
+
+	ret = input_register_device(sc->touchpad);
+	if (ret < 0)
+		goto err;
 
 	return 0;
+
+err:
+	kfree(sc->touchpad->name);
+	sc->touchpad->name = NULL;
+
+	input_free_device(sc->touchpad);
+	sc->touchpad = NULL;
+
+	return ret;
 }
 
+<<<<<<< HEAD
 static void sony_input_configured(struct hid_device *hdev,
 					struct hid_input *hidinput)
 {
@@ -3166,6 +3271,18 @@ static void sony_input_configured(struct hid_device *hdev,
 			hid_err(sc->hdev,
 				"Unable to initialize multi-touch slots\n");
 	}
+=======
+static void sony_unregister_touchpad(struct sony_sc *sc)
+{
+	if (!sc->touchpad)
+		return;
+
+	kfree(sc->touchpad->name);
+	sc->touchpad->name = NULL;
+
+	input_unregister_device(sc->touchpad);
+	sc->touchpad = NULL;
+>>>>>>> 42027eecaedf... UPSTREAM: HID: sony: Make the DS4 touchpad a separate device
 }
 
 /*
@@ -4866,6 +4983,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 		 * The Dualshock 4 touchpad supports 2 touches and has a
 		 * resolution of 1920x940.
 		 */
+<<<<<<< HEAD
 		ret = sony_register_touchpad(sc, 2, 1920, 940);
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 		if (ret < 0)
@@ -4879,6 +4997,14 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
 				hid_err(hdev, "failed to set the Dualshock 4 operational mode\n");
 				goto err_stop;
 			}
+=======
+		ret = sony_register_touchpad(sc, 2, 1920, 942);
+		if (ret) {
+			hid_err(sc->hdev,
+			"Unable to initialize multi-touch slots: %d\n",
+			ret);
+			return ret;
+>>>>>>> 42027eecaedf... UPSTREAM: HID: sony: Make the DS4 touchpad a separate device
 		}
 >>>>>>> 68330d83c0b3... HID: sony: Add conditionals to enable all features in Bluetooth mode
 		/* The Dualshock 4 touchpad supports 2 touches and has a
@@ -5045,15 +5171,18 @@ static void sony_remove(struct hid_device *hdev)
 {
 	struct sony_sc *sc = hid_get_drvdata(hdev);
 
+	hid_hw_close(hdev);
+
 	if (sc->quirks & SONY_LED_SUPPORT)
 <<<<<<< HEAD
 <<<<<<< HEAD
 		sony_leds_remove(sc);
 
-	if (sc->quirks & SONY_BATTERY_SUPPORT) {
-		hid_hw_close(hdev);
+	if (sc->quirks & SONY_BATTERY_SUPPORT)
 		sony_battery_remove(sc);
-	}
+
+	if (sc->touchpad)
+		sony_unregister_touchpad(sc);
 
 	sony_cancel_work_sync(sc);
 
