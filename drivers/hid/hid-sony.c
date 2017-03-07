@@ -70,6 +70,7 @@
 #define DUALSHOCK4_CONTROLLER_USB BIT(5)
 #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define MOTION_CONTROLLER_USB     BIT(7)
 #define MOTION_CONTROLLER_BT      BIT(8)
@@ -85,9 +86,20 @@
 <<<<<<< HEAD
 =======
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+#define DUALSHOCK4_DONGLE         BIT(7)
+#define MOTION_CONTROLLER_USB     BIT(8)
+#define MOTION_CONTROLLER_BT      BIT(9)
+#define NAVIGATION_CONTROLLER_USB BIT(10)
+#define NAVIGATION_CONTROLLER_BT  BIT(11)
+#define SINO_LITE_CONTROLLER      BIT(12)
+#define FUTUREMAX_DANCE_MAT       BIT(13)
+
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
 #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
-				DUALSHOCK4_CONTROLLER_BT)
+				DUALSHOCK4_CONTROLLER_BT | \
+				DUALSHOCK4_DONGLE)
 #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER | BUZZ_CONTROLLER |\
 <<<<<<< HEAD
 				DUALSHOCK4_CONTROLLER)
@@ -1998,6 +2010,7 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	unsigned long flags;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	int n, offset;
 =======
 	int n, offset = 35;
@@ -2006,6 +2019,18 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 	int n, offset;
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	__u8 cable_state, battery_capacity, battery_charging;
+=======
+	int n, m, offset, num_touch_data, max_touch_data;
+	u8 cable_state, battery_capacity, battery_charging;
+	u16 timestamp;
+
+	/* When using Bluetooth the header is 2 bytes longer, so skip these. */
+	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 2 : 0;
+
+	/* Second bit of third button byte is for the touchpad button. */
+	offset = data_offset + DS4_INPUT_REPORT_BUTTON_OFFSET;
+	input_report_key(sc->touchpad, BTN_LEFT, rd[offset+2] & 0x2);
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 
 	/*
 	 * Battery and touchpad data starts at byte 30 in the USB report and
@@ -2075,7 +2100,27 @@ static void dualshock4_parse_report(struct sony_sc *sc, __u8 *rd, int size)
 <<<<<<< HEAD
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+	/*
+	 * The Dualshock 4 multi-touch trackpad data starts at offset 33 on USB
+	 * and 35 on Bluetooth.
+	 * The first byte indicates the number of touch data in the report.
+	 * Trackpad data starts 2 bytes later (e.g. 35 for USB).
+	 */
+	offset = data_offset + DS4_INPUT_REPORT_TOUCHPAD_OFFSET;
+	max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 4 : 3;
+	if (rd[offset] > 0 && rd[offset] <= max_touch_data)
+		num_touch_data = rd[offset];
+	else
+		num_touch_data = 1;
+	offset += 1;
+
+	for (m = 0; m < num_touch_data; m++) {
+		/* Skip past timestamp */
+		offset += 1;
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 	offset += 5;
@@ -2134,6 +2179,7 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
 		sixaxis_parse_report(sc, rd, size);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
 			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
 			&& rd[0] == 0x11 && size == 78)) {
@@ -2146,6 +2192,56 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
 			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
 			&& rd[0] == 0x11 && size == 78)) {
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+	} else if ((sc->quirks & MOTION_CONTROLLER_BT) && rd[0] == 0x01 && size == 49) {
+		sixaxis_parse_report(sc, rd, size);
+	} else if ((sc->quirks & NAVIGATION_CONTROLLER) && rd[0] == 0x01 &&
+			size == 49) {
+		sixaxis_parse_report(sc, rd, size);
+	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
+			size == 64) {
+		dualshock4_parse_report(sc, rd, size);
+	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_BT) && rd[0] == 0x11 &&
+			size == 78)) {
+		/* CRC check */
+		u8 bthdr = 0xA1;
+		u32 crc;
+		u32 report_crc;
+
+		crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
+		crc = ~crc32_le(crc, rd, DS4_INPUT_REPORT_0x11_SIZE-4);
+		report_crc = get_unaligned_le32(&rd[DS4_INPUT_REPORT_0x11_SIZE-4]);
+		if (crc != report_crc) {
+			hid_dbg(sc->hdev, "DualShock 4 input report's CRC check failed, received crc 0x%0x != 0x%0x\n",
+				report_crc, crc);
+			return -EILSEQ;
+		}
+
+		dualshock4_parse_report(sc, rd, size);
+	} else if ((sc->quirks & DUALSHOCK4_DONGLE) && rd[0] == 0x01 &&
+			size == 64) {
+		/*
+		 * In the case of a DS4 USB dongle, bit[2] of byte 31 indicates
+		 * if a DS4 is actually connected (indicated by '0').
+		 * For non-dongle, this bit is always 0 (connected).
+		 */
+		bool connected = (rd[31] & 0x04) ? false : true;
+
+		if (!sc->ds4_dongle_connected && connected) {
+			hid_info(sc->hdev, "DualShock 4 USB dongle: controller connected\n");
+			sony_set_leds(sc);
+			sc->ds4_dongle_connected = true;
+		} else if (sc->ds4_dongle_connected && !connected) {
+			hid_info(sc->hdev, "DualShock 4 USB dongle: controller disconnected\n");
+			sc->ds4_dongle_connected = false;
+			/* Return 0, so hidraw can get the report. */
+			return 0;
+		} else if (!sc->ds4_dongle_connected) {
+			/* Return 0, so hidraw can get the report. */
+			return 0;
+		}
+
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 		dualshock4_parse_report(sc, rd, size);
 	}
 
@@ -2272,7 +2368,142 @@ static int sixaxis_set_operational_bt(struct hid_device *hdev)
  */
 static int dualshock4_set_operational_bt(struct hid_device *hdev)
 {
+<<<<<<< HEAD
 	__u8 buf[37] = { 0 };
+=======
+	u8 *buf;
+	int ret;
+	short gyro_pitch_bias, gyro_pitch_plus, gyro_pitch_minus;
+	short gyro_yaw_bias, gyro_yaw_plus, gyro_yaw_minus;
+	short gyro_roll_bias, gyro_roll_plus, gyro_roll_minus;
+	short gyro_speed_plus, gyro_speed_minus;
+	short acc_x_plus, acc_x_minus;
+	short acc_y_plus, acc_y_minus;
+	short acc_z_plus, acc_z_minus;
+	int speed_2x;
+	int range_2g;
+
+	/* For Bluetooth we use a different request, which supports CRC.
+	 * Note: in Bluetooth mode feature report 0x02 also changes the state
+	 * of the controller, so that it sends input reports of type 0x11.
+	 */
+	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+		buf = kmalloc(DS4_FEATURE_REPORT_0x02_SIZE, GFP_KERNEL);
+		if (!buf)
+			return -ENOMEM;
+
+		ret = hid_hw_raw_request(sc->hdev, 0x02, buf,
+					 DS4_FEATURE_REPORT_0x02_SIZE,
+					 HID_FEATURE_REPORT,
+					 HID_REQ_GET_REPORT);
+		if (ret < 0)
+			goto err_stop;
+	} else {
+		u8 bthdr = 0xA3;
+		u32 crc;
+		u32 report_crc;
+		int retries;
+
+		buf = kmalloc(DS4_FEATURE_REPORT_0x05_SIZE, GFP_KERNEL);
+		if (!buf)
+			return -ENOMEM;
+
+		for (retries = 0; retries < 3; retries++) {
+			ret = hid_hw_raw_request(sc->hdev, 0x05, buf,
+						 DS4_FEATURE_REPORT_0x05_SIZE,
+						 HID_FEATURE_REPORT,
+						 HID_REQ_GET_REPORT);
+			if (ret < 0)
+				goto err_stop;
+
+			/* CRC check */
+			crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
+			crc = ~crc32_le(crc, buf, DS4_FEATURE_REPORT_0x05_SIZE-4);
+			report_crc = get_unaligned_le32(&buf[DS4_FEATURE_REPORT_0x05_SIZE-4]);
+			if (crc != report_crc) {
+				hid_warn(sc->hdev, "DualShock 4 calibration report's CRC check failed, received crc 0x%0x != 0x%0x\n",
+					report_crc, crc);
+				if (retries < 2) {
+					hid_warn(sc->hdev, "Retrying DualShock 4 get calibration report request\n");
+					continue;
+				} else {
+					ret = -EILSEQ;
+					goto err_stop;
+				}
+			} else {
+				break;
+			}
+		}
+	}
+
+	gyro_pitch_bias  = get_unaligned_le16(&buf[1]);
+	gyro_yaw_bias    = get_unaligned_le16(&buf[3]);
+	gyro_roll_bias   = get_unaligned_le16(&buf[5]);
+	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+		gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
+		gyro_pitch_minus = get_unaligned_le16(&buf[9]);
+		gyro_yaw_plus    = get_unaligned_le16(&buf[11]);
+		gyro_yaw_minus   = get_unaligned_le16(&buf[13]);
+		gyro_roll_plus   = get_unaligned_le16(&buf[15]);
+		gyro_roll_minus  = get_unaligned_le16(&buf[17]);
+	} else {
+		/* BT + Dongle */
+		gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
+		gyro_yaw_plus    = get_unaligned_le16(&buf[9]);
+		gyro_roll_plus   = get_unaligned_le16(&buf[11]);
+		gyro_pitch_minus = get_unaligned_le16(&buf[13]);
+		gyro_yaw_minus   = get_unaligned_le16(&buf[15]);
+		gyro_roll_minus  = get_unaligned_le16(&buf[17]);
+	}
+	gyro_speed_plus  = get_unaligned_le16(&buf[19]);
+	gyro_speed_minus = get_unaligned_le16(&buf[21]);
+	acc_x_plus       = get_unaligned_le16(&buf[23]);
+	acc_x_minus      = get_unaligned_le16(&buf[25]);
+	acc_y_plus       = get_unaligned_le16(&buf[27]);
+	acc_y_minus      = get_unaligned_le16(&buf[29]);
+	acc_z_plus       = get_unaligned_le16(&buf[31]);
+	acc_z_minus      = get_unaligned_le16(&buf[33]);
+
+	/* Set gyroscope calibration and normalization parameters.
+	 * Data values will be normalized to 1/DS4_GYRO_RES_PER_DEG_S degree/s.
+	 */
+	speed_2x = (gyro_speed_plus + gyro_speed_minus);
+	sc->ds4_calib_data[0].abs_code = ABS_RX;
+	sc->ds4_calib_data[0].bias = gyro_pitch_bias;
+	sc->ds4_calib_data[0].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
+	sc->ds4_calib_data[0].sens_denom = gyro_pitch_plus - gyro_pitch_minus;
+
+	sc->ds4_calib_data[1].abs_code = ABS_RY;
+	sc->ds4_calib_data[1].bias = gyro_yaw_bias;
+	sc->ds4_calib_data[1].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
+	sc->ds4_calib_data[1].sens_denom = gyro_yaw_plus - gyro_yaw_minus;
+
+	sc->ds4_calib_data[2].abs_code = ABS_RZ;
+	sc->ds4_calib_data[2].bias = gyro_roll_bias;
+	sc->ds4_calib_data[2].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
+	sc->ds4_calib_data[2].sens_denom = gyro_roll_plus - gyro_roll_minus;
+
+	/* Set accelerometer calibration and normalization parameters.
+	 * Data values will be normalized to 1/DS4_ACC_RES_PER_G G.
+	 */
+	range_2g = acc_x_plus - acc_x_minus;
+	sc->ds4_calib_data[3].abs_code = ABS_X;
+	sc->ds4_calib_data[3].bias = acc_x_plus - range_2g / 2;
+	sc->ds4_calib_data[3].sens_numer = 2*DS4_ACC_RES_PER_G;
+	sc->ds4_calib_data[3].sens_denom = range_2g;
+
+	range_2g = acc_y_plus - acc_y_minus;
+	sc->ds4_calib_data[4].abs_code = ABS_Y;
+	sc->ds4_calib_data[4].bias = acc_y_plus - range_2g / 2;
+	sc->ds4_calib_data[4].sens_numer = 2*DS4_ACC_RES_PER_G;
+	sc->ds4_calib_data[4].sens_denom = range_2g;
+
+	range_2g = acc_z_plus - acc_z_minus;
+	sc->ds4_calib_data[5].abs_code = ABS_Z;
+	sc->ds4_calib_data[5].bias = acc_z_plus - range_2g / 2;
+	sc->ds4_calib_data[5].sens_numer = 2*DS4_ACC_RES_PER_G;
+	sc->ds4_calib_data[5].sens_denom = range_2g;
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 
 	return hid_hw_raw_request(hdev, 0x02, buf, sizeof(buf),
 				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
@@ -3072,9 +3303,25 @@ static void dualshock4_state_worker(struct work_struct *work)
 	struct hid_device *hdev = sc->hdev;
 	int offset;
 
+<<<<<<< HEAD
 	__u8 buf[78] = { 0 };
 
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
+=======
+	/*
+	 * NOTE: The buf[1] field of the Bluetooth report controls
+	 * the Dualshock 4 reporting rate.
+	 *
+	 * Known values include:
+	 *
+	 * 0x80 - 1000hz (full speed)
+	 * 0xA0 - 31hz
+	 * 0xB0 - 20hz
+	 * 0xD0 - 66hz
+	 */
+	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+		memset(buf, 0, DS4_OUTPUT_REPORT_0x05_SIZE);
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 		buf[0] = 0x05;
 		buf[1] = 0xFF;
 		offset = 4;
@@ -3114,6 +3361,7 @@ static void dualshock4_state_worker(struct work_struct *work)
 	buf[offset++] = sc->led_delay_on[3];
 	buf[offset++] = sc->led_delay_off[3];
 
+<<<<<<< HEAD
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
 		hid_hw_output_report(hdev, buf, 32);
 	else
@@ -3131,6 +3379,19 @@ static void dualshock4_state_worker(struct work_struct *work)
 	if (sc->defer_initialization) {
 		sc->defer_initialization = 0;
 		sony_schedule_work(sc);
+=======
+	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE))
+		hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x05_SIZE);
+	else {
+		/* CRC generation */
+		u8 bthdr = 0xA2;
+		u32 crc;
+
+		crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
+		crc = ~crc32_le(crc, buf, DS4_OUTPUT_REPORT_0x11_SIZE-4);
+		put_unaligned_le32(crc, &buf[74]);
+		hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x11_SIZE);
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 	}
 
 	return 0;
@@ -3293,10 +3554,29 @@ static void sony_unregister_touchpad(struct sony_sc *sc)
 static int sixaxis_set_operational_usb(struct hid_device *hdev)
 >>>>>>> 39520eea198a... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 {
+<<<<<<< HEAD
 	struct sony_sc *sc = container_of(work, struct sony_sc, state_worker);
 	struct hid_device *hdev = sc->hdev;
 	struct hid_report *report = sc->output_report;
 	__s32 *value = report->field[0]->value;
+=======
+	if ((sc->quirks & SIXAXIS_CONTROLLER) ||
+			(sc->quirks & NAVIGATION_CONTROLLER))
+		sc->output_report_dmabuf =
+			kmalloc(sizeof(union sixaxis_output_report_01),
+				GFP_KERNEL);
+	else if (sc->quirks & DUALSHOCK4_CONTROLLER_BT)
+		sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x11_SIZE,
+						GFP_KERNEL);
+	else if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE))
+		sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x05_SIZE,
+						GFP_KERNEL);
+	else if (sc->quirks & MOTION_CONTROLLER)
+		sc->output_report_dmabuf = kmalloc(MOTION_REPORT_0x02_SIZE,
+						GFP_KERNEL);
+	else
+		return 0;
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 
 	value[0] = 0x03;
 
@@ -4716,8 +4996,15 @@ static int sony_check_add(struct sony_sc *sc)
 			hid_warn(sc->hdev, "UNIQ does not contain a MAC address; duplicate check skipped\n");
 			return 0;
 		}
+<<<<<<< HEAD
 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		__u8 buf[7];
+=======
+	} else if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+		buf = kmalloc(DS4_FEATURE_REPORT_0x81_SIZE, GFP_KERNEL);
+		if (!buf)
+			return -ENOMEM;
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 
 		/*
 		 * The MAC address of a DS4 controller connected via USB can be
@@ -5284,6 +5571,7 @@ static const struct hid_device_id sony_devices[] = {
 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
 		.driver_data = DUALSHOCK4_CONTROLLER_BT },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE),
+<<<<<<< HEAD
 		.driver_data = DUALSHOCK4_CONTROLLER_USB },
 =======
 	/* Sony Dualshock 4 controllers for PS4 */
@@ -5298,6 +5586,12 @@ static const struct hid_device_id sony_devices[] = {
 >>>>>>> 8ab1676b614e... HID: sony: Use separate identifiers for USB and Bluetooth connected Dualshock 4 controllers.
 =======
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
+=======
+		.driver_data = DUALSHOCK4_DONGLE },
+	/* Nyko Core Controller for PS3 */
+	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
+		.driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 	{ }
 };
 MODULE_DEVICE_TABLE(hid, sony_devices);
