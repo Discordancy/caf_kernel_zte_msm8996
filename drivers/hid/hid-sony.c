@@ -71,6 +71,7 @@
 #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #define MOTION_CONTROLLER_USB     BIT(7)
 #define MOTION_CONTROLLER_BT      BIT(8)
@@ -87,6 +88,8 @@
 =======
 >>>>>>> 0f1b1e6d73cb... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 =======
+=======
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 #define DUALSHOCK4_DONGLE         BIT(7)
 #define MOTION_CONTROLLER_USB     BIT(8)
 #define MOTION_CONTROLLER_BT      BIT(9)
@@ -95,6 +98,9 @@
 #define SINO_LITE_CONTROLLER      BIT(12)
 #define FUTUREMAX_DANCE_MAT       BIT(13)
 
+<<<<<<< HEAD
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
+=======
 >>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
 #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
@@ -3362,6 +3368,7 @@ static void dualshock4_state_worker(struct work_struct *work)
 	buf[offset++] = sc->led_delay_off[3];
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
 		hid_hw_output_report(hdev, buf, 32);
 	else
@@ -3380,6 +3387,8 @@ static void dualshock4_state_worker(struct work_struct *work)
 		sc->defer_initialization = 0;
 		sony_schedule_work(sc);
 =======
+=======
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE))
 		hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x05_SIZE);
 	else {
@@ -4997,9 +5006,12 @@ static int sony_check_add(struct sony_sc *sc)
 			return 0;
 		}
 <<<<<<< HEAD
+<<<<<<< HEAD
 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
 		__u8 buf[7];
 =======
+=======
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 	} else if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
 		buf = kmalloc(DS4_FEATURE_REPORT_0x81_SIZE, GFP_KERNEL);
 		if (!buf)
@@ -5572,6 +5584,7 @@ static const struct hid_device_id sony_devices[] = {
 		.driver_data = DUALSHOCK4_CONTROLLER_BT },
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE),
 <<<<<<< HEAD
+<<<<<<< HEAD
 		.driver_data = DUALSHOCK4_CONTROLLER_USB },
 =======
 	/* Sony Dualshock 4 controllers for PS4 */
@@ -5587,6 +5600,8 @@ static const struct hid_device_id sony_devices[] = {
 =======
 >>>>>>> 4988abf17492... Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid
 =======
+=======
+>>>>>>> 8f1d47009e8e... UPSTREAM: HID: sony: Treat the ds4 dongle as a separate device
 		.driver_data = DUALSHOCK4_DONGLE },
 	/* Nyko Core Controller for PS3 */
 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
